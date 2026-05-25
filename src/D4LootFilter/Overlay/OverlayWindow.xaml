@@ -1,0 +1,90 @@
+<Window x:Class="D4LootFilter.Overlay.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:D4LootFilter.Overlay"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        WindowState="Maximized">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+        <ItemsControl ItemsSource="{Binding Highlights}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Width="{Binding Width}" Height="{Binding Height}" CornerRadius="2">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#264CAF50"/>
+                                <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsGa}" Value="True">
+                                        <Setter Property="Background" Value="#26FFD700"/>
+                                        <Setter Property="BorderBrush" Value="#FFD700"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,180,20,0" Width="200"
+                Background="#D9000000" BorderBrush="#444" BorderThickness="1"
+                CornerRadius="6" Padding="12"
+                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="{Binding BuildName}" Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,0,4"/>
+                <TextBlock Foreground="#AAA" FontSize="11" Margin="0,0,0,4">
+                    <Run Text="Slot: "/><Run Text="{Binding SlotName, Mode=OneWay}"/>
+                </TextBlock>
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Background="#333" CornerRadius="3" Height="6" Margin="0,0,8,0"/>
+                    <TextBlock Grid.Column="1" Foreground="#4CAF50" FontSize="12" FontWeight="Bold">
+                        <Run Text="{Binding MatchedCount, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding TotalCount, Mode=OneWay}"/>
+                    </TextBlock>
+                </Grid>
+                <TextBlock Foreground="#FFD700" FontSize="11" Margin="0,0,0,4">
+                    <Run Text="&#x2B50; "/><Run Text="{Binding GaMatchedCount, Mode=OneWay}"/><Run Text=" GA matched"/>
+                </TextBlock>
+                <Border BorderBrush="#333" BorderThickness="0,1,0,0" Padding="0,4,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Missing:" Foreground="#888" FontSize="11" Margin="0,0,0,2"/>
+                        <ItemsControl ItemsSource="{Binding MissingAffixes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Foreground="#E57373" FontSize="11">
+                                        <Run Text="&#x2022; "/><Run Text="{Binding Mode=OneWay}"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
