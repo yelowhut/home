@@ -15,6 +15,9 @@ public class DxgiCapture : IDisposable
     private readonly int _width;
     private readonly int _height;
 
+    public int ScreenWidth => _width;
+    public int ScreenHeight => _height;
+
     public DxgiCapture(int adapterIndex = 0, int outputIndex = 0)
     {
         using var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();

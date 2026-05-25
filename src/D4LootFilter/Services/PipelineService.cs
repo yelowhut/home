@@ -46,6 +46,11 @@ public class PipelineService : IDisposable
         _captureRegion = new OpenCvSharp.Rect(x, y, width, height);
     }
 
+    public void UseFullScreen()
+    {
+        _captureRegion = new OpenCvSharp.Rect(0, 0, _capture.ScreenWidth, _capture.ScreenHeight);
+    }
+
     public void Start()
     {
         _cts = new CancellationTokenSource();
@@ -78,7 +83,8 @@ public class PipelineService : IDisposable
                     continue;
                 }
 
-                using var regionFrame = ImagePreprocessor.CropRegion(fullFrame, _captureRegion);
+                var isFullScreen = _captureRegion.Width == _capture.ScreenWidth && _captureRegion.Height == _capture.ScreenHeight;
+                using var regionFrame = isFullScreen ? fullFrame : ImagePreprocessor.CropRegion(fullFrame, _captureRegion);
                 if (!_changeDetector.HasChanged(regionFrame))
                 {
                     Thread.Sleep(_pollingDelayMs);

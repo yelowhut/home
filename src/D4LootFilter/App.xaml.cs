@@ -36,7 +36,7 @@ public partial class App : Application
         _overlay.Show();
 
         _pipeline = new PipelineService(vm, profileService, tessdataPath);
-        _pipeline.SetCaptureRegion(1150, 100, 700, 800);
+        _pipeline.UseFullScreen();
         _pipeline.Start();
     }
 
