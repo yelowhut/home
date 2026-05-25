@@ -19,16 +19,20 @@ public class PipelineService : IDisposable
     private readonly AffixNormalizer _normalizer;
     private readonly OverlayViewModel _overlayVm;
     private readonly ProfileService _profileService;
+    private readonly FileLogger _log;
 
     private CancellationTokenSource? _cts;
     private Task? _captureTask;
     private OpenCvSharp.Rect _captureRegion;
-    private int _pollingDelayMs = 33; // ~30fps
+    private int _pollingDelayMs = 33;
+    private string? _debugDir;
+    private int _debugSaveCount;
 
     public PipelineService(
         OverlayViewModel overlayVm,
         ProfileService profileService,
-        string tessdataPath)
+        string tessdataPath,
+        FileLogger logger)
     {
         _capture = new DxgiCapture();
         _ocr = new TesseractOcrEngine(tessdataPath);
@@ -39,6 +43,9 @@ public class PipelineService : IDisposable
         _normalizer = new AffixNormalizer();
         _overlayVm = overlayVm;
         _profileService = profileService;
+        _log = logger;
+        _debugDir = System.IO.Path.Combine(AppContext.BaseDirectory, "debug");
+        System.IO.Directory.CreateDirectory(_debugDir);
     }
 
     public void SetCaptureRegion(int x, int y, int width, int height)
@@ -71,6 +78,11 @@ public class PipelineService : IDisposable
     private void CaptureLoop(CancellationToken ct)
     {
         int noTooltipFrames = 0;
+        int frameCount = 0;
+        int changeCount = 0;
+
+        _log.Log($"Pipeline started. Screen: {_capture.ScreenWidth}x{_capture.ScreenHeight}");
+        _log.Log($"Capture region: ({_captureRegion.X},{_captureRegion.Y}) {_captureRegion.Width}x{_captureRegion.Height}");
 
         while (!ct.IsCancellationRequested)
         {
@@ -83,13 +95,13 @@ public class PipelineService : IDisposable
                     continue;
                 }
 
-                var isFullScreen = _captureRegion.Width == _capture.ScreenWidth && _captureRegion.Height == _capture.ScreenHeight;
+                frameCount++;
+                var isFullScreen = _captureRegion.Width >= _capture.ScreenWidth && _captureRegion.Height >= _capture.ScreenHeight;
                 using var regionFrame = isFullScreen ? fullFrame : ImagePreprocessor.CropRegion(fullFrame, _captureRegion);
-                if (!_changeDetector.HasChanged(regionFrame))
-                {
-                    Thread.Sleep(_pollingDelayMs);
-                    continue;
-                }
+
+                changeCount++;
+                if (changeCount % 300 == 1)
+                    _log.Log($"Scanning frame {frameCount} (check #{changeCount})");
 
                 var tooltipBounds = _tooltipDetector.DetectTooltipBounds(regionFrame);
                 if (tooltipBounds == null)
@@ -104,10 +116,22 @@ public class PipelineService : IDisposable
                     continue;
                 }
 
+                var tb = tooltipBounds.Value;
+
                 noTooltipFrames = 0;
 
-                using var tooltip = ImagePreprocessor.CropRegion(regionFrame, tooltipBounds.Value);
+                using var tooltip = ImagePreprocessor.CropRegion(regionFrame, tb);
                 using var preprocessed = ImagePreprocessor.Preprocess(tooltip);
+
+                if (_debugSaveCount < 10 && _debugDir != null)
+                {
+                    var prefix = System.IO.Path.Combine(_debugDir, $"frame{_debugSaveCount:D2}");
+                    Cv2.ImWrite($"{prefix}_tooltip.png", tooltip);
+                    Cv2.ImWrite($"{prefix}_preprocessed.png", preprocessed);
+                    _debugSaveCount++;
+                    _log.Log($"Saved debug images: {prefix}_*.png");
+                }
+
                 var ocrLines = _ocr.ExtractLines(preprocessed);
 
                 if (ocrLines.Count == 0)
@@ -115,6 +139,22 @@ public class PipelineService : IDisposable
                     Thread.Sleep(_pollingDelayMs);
                     continue;
                 }
+
+                var allText = string.Join(" ", ocrLines.Select(l => l.Text));
+                var isItemTooltip = allText.Contains("Item Power", StringComparison.OrdinalIgnoreCase)
+                    || allText.Contains("Requires Level", StringComparison.OrdinalIgnoreCase)
+                    || allText.Contains("Sell Value", StringComparison.OrdinalIgnoreCase);
+
+                if (!isItemTooltip)
+                {
+                    Thread.Sleep(_pollingDelayMs);
+                    continue;
+                }
+
+                _log.Log($"ITEM TOOLTIP detected at ({tb.X},{tb.Y}) {tb.Width}x{tb.Height}");
+                _log.Log($"OCR: {ocrLines.Count} lines");
+                foreach (var line in ocrLines)
+                    _log.Log($"  [{line.Confidence:F0}%] {line.Text}");
 
                 var profile = _profileService.ActiveProfile;
                 var variant = profile?.GetActiveVariant();
@@ -130,6 +170,8 @@ public class PipelineService : IDisposable
                     ? variant.GetAffixesForSlot(slot)
                     : variant.GetAllAffixes();
 
+                _log.Log($"Slot: {slot ?? "unknown"}, build affixes for slot: {buildAffixes.Count}");
+
                 if (buildAffixes.Count == 0)
                 {
                     Thread.Sleep(_pollingDelayMs);
@@ -140,11 +182,17 @@ public class PipelineService : IDisposable
                 var results = _matcher.Match(affixLines, buildAffixes);
                 var summary = AffixMatcher.Summarize(results, buildAffixes);
 
+                _log.Log($"Match: {summary.MatchedCount}/{summary.TotalBuildAffixes}, GA: {summary.GaMatchedCount}");
+                foreach (var r in results.Where(r => r.IsMatched))
+                    _log.Log($"  ✓ {r.AffixName}{(r.IsGa ? " [GA]" : "")}");
+                if (summary.MissingAffixes.Count > 0)
+                    _log.Log($"  Missing: {string.Join(", ", summary.MissingAffixes)}");
+
                 var captureRect = new Rectangle(
-                    _captureRegion.X + tooltipBounds.Value.X,
-                    _captureRegion.Y + tooltipBounds.Value.Y,
-                    tooltipBounds.Value.Width,
-                    tooltipBounds.Value.Height
+                    _captureRegion.X + tb.X,
+                    _captureRegion.Y + tb.Y,
+                    tb.Width,
+                    tb.Height
                 );
                 var boundingBoxes = ocrLines
                     .Where(l => _normalizer.IsLikelyAffix(l.Text))
@@ -156,13 +204,15 @@ public class PipelineService : IDisposable
                     _overlayVm.Update(results, summary, profile!.Name, slot ?? "Unknown", captureRect, boundingBoxes);
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Swallow capture errors, continue loop
+                _log.Log($"ERROR: {ex.GetType().Name}: {ex.Message}");
             }
 
             Thread.Sleep(_pollingDelayMs);
         }
+
+        _log.Log("Pipeline stopped");
     }
 
     public void Dispose()
