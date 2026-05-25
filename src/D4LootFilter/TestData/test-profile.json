@@ -1,0 +1,93 @@
+{
+  "id": "test-sorcerer",
+  "name": "Sorcerer Ball Lightning",
+  "source_url": "https://mobalytics.gg/diablo-4/builds/sorcerer-ball-lightning",
+  "class": "Sorcerer",
+  "imported_at": "2026-05-25T12:00:00Z",
+  "variants": [
+    {
+      "id": 0,
+      "name": "Default",
+      "equipment": {
+        "categories": [
+          {
+            "name": "Legendary",
+            "items": [
+              {
+                "slot": "Helm",
+                "name": "Godslayer Crown",
+                "affixes": [
+                  { "name": "Cooldown Reduction", "is_ga": true },
+                  { "name": "Maximum Life", "is_ga": false },
+                  { "name": "Total Armor", "is_ga": false },
+                  { "name": "Intelligence", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Chest Armor",
+                "name": "Archon Faulds",
+                "affixes": [
+                  { "name": "Maximum Life", "is_ga": true },
+                  { "name": "Armor", "is_ga": false },
+                  { "name": "Resistance to All Elements", "is_ga": false },
+                  { "name": "Intelligence", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Gloves",
+                "name": "Archon Gauntlets",
+                "affixes": [
+                  { "name": "Attack Speed", "is_ga": true },
+                  { "name": "Critical Strike Chance", "is_ga": false },
+                  { "name": "Lucky Hit Chance", "is_ga": false },
+                  { "name": "Intelligence", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Pants",
+                "name": "Archon Faulds",
+                "affixes": [
+                  { "name": "Maximum Life", "is_ga": false },
+                  { "name": "Armor", "is_ga": false },
+                  { "name": "Damage Reduction", "is_ga": true },
+                  { "name": "Intelligence", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Boots",
+                "name": "Archon Greaves",
+                "affixes": [
+                  { "name": "Movement Speed", "is_ga": false },
+                  { "name": "Mana Cost Reduction", "is_ga": true },
+                  { "name": "Intelligence", "is_ga": false },
+                  { "name": "Ranks to Ball Lightning", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Amulet",
+                "name": "Amulet",
+                "affixes": [
+                  { "name": "Cooldown Reduction", "is_ga": true },
+                  { "name": "Mana Cost Reduction", "is_ga": false },
+                  { "name": "Movement Speed", "is_ga": false },
+                  { "name": "Ranks to Defensive Skills", "is_ga": false }
+                ]
+              },
+              {
+                "slot": "Ring",
+                "name": "Ring",
+                "affixes": [
+                  { "name": "Critical Strike Chance", "is_ga": true },
+                  { "name": "Lucky Hit Chance", "is_ga": false },
+                  { "name": "Maximum Life", "is_ga": false },
+                  { "name": "Resource Generation", "is_ga": false }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "active_variant_id": 0
+}

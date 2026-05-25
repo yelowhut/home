@@ -22,4 +22,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\test-profile.json" />
+  </ItemGroup>
+
 </Project>
