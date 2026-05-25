@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\D4LootFilter.Capture\D4LootFilter.Capture.csproj" />
+    <ProjectReference Include="..\D4LootFilter.Ocr\D4LootFilter.Ocr.csproj" />
+    <ProjectReference Include="..\D4LootFilter.Matching\D4LootFilter.Matching.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <None Include="tessdata\eng.traineddata">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>tessdata\eng.traineddata</Link>
+    </None>
+  </ItemGroup>
+
+</Project>

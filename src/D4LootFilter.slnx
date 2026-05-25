@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="D4LootFilter.Capture/D4LootFilter.Capture.csproj" />
+  <Project Path="D4LootFilter.Matching.Tests/D4LootFilter.Matching.Tests.csproj" />
+  <Project Path="D4LootFilter.Matching/D4LootFilter.Matching.csproj" />
+  <Project Path="D4LootFilter.Ocr.Tests/D4LootFilter.Ocr.Tests.csproj" />
+  <Project Path="D4LootFilter.Ocr/D4LootFilter.Ocr.csproj" />
+  <Project Path="D4LootFilter/D4LootFilter.csproj" />
+</Solution>
