@@ -9,11 +9,7 @@
         ShowInTaskbar="False"
         WindowState="Maximized">
 
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-    </Window.Resources>
-
-    <Grid x:Name="RootGrid" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+<Grid x:Name="RootGrid" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
         <ItemsControl ItemsSource="{Binding Highlights}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
