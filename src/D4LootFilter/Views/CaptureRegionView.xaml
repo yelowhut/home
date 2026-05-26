@@ -1,0 +1,21 @@
+<UserControl x:Class="D4LootFilter.Views.CaptureRegionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="4,8">
+        <TextBlock Text="Current Capture Region" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+        <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock x:Name="RegionInfo" FontSize="13" Margin="0,0,0,8"/>
+                <TextBlock x:Name="ResolutionInfo" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Recalibrate" Style="{StaticResource AccentButton}" Click="OnRecalibrate" Margin="0,0,8,0"/>
+            <Button Content="Use Full Screen" Style="{StaticResource SecondaryButton}" Click="OnUseFullScreen"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

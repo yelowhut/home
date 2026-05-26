@@ -1,0 +1,20 @@
+<Window x:Class="D4LootFilter.Views.CalibrationOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="#44000000" Topmost="True"
+        WindowState="Maximized" Cursor="Cross"
+        ShowInTaskbar="False">
+
+    <Canvas x:Name="DrawCanvas">
+        <TextBlock Canvas.Left="0" Canvas.Top="0"
+                   Text="Draw a rectangle over the tooltip area. ESC to cancel."
+                   Foreground="#ffd700" FontSize="18" FontWeight="SemiBold"
+                   x:Name="Instructions"/>
+        <Rectangle x:Name="SelectionRect"
+                   Stroke="#ffd700" StrokeThickness="2"
+                   StrokeDashArray="4 2"
+                   Fill="#22ffd700"
+                   Visibility="Collapsed"/>
+    </Canvas>
+</Window>
