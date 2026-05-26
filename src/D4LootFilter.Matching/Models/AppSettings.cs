@@ -4,6 +4,7 @@ public record AppSettings
 {
     public Dictionary<string, CaptureRegion> CaptureRegions { get; init; } = new();
     public string ActiveProfileId { get; init; } = "";
+    public int ActiveVariantId { get; init; }
     public int PollingFps { get; init; } = 30;
     public int OcrConfidenceThreshold { get; init; } = 60;
     public int FuzzyMatchMaxDistance { get; init; } = 2;
