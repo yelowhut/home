@@ -153,6 +153,7 @@ public static class BuildProfileParser
     {
         var affixes = new List<Affix>();
         if (!entity.TryGetProperty("modifiers", out var modifiers) ||
+            modifiers.ValueKind != JsonValueKind.Object ||
             !modifiers.TryGetProperty("gearStats", out var gearStats) ||
             gearStats.ValueKind != JsonValueKind.Array)
             return affixes;

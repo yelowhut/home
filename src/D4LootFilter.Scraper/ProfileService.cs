@@ -25,7 +25,7 @@ public class ProfileService
     public async Task<BuildProfile> ImportFromUrlAsync(string url, CancellationToken ct = default)
     {
         var slug = UrlParser.ParseSlug(url);
-        var client = new MobalyticsClient(new HttpClient());
+        var client = new MobalyticsClient();
         var json = await client.FetchBuildAsync(slug, ct);
         var profile = BuildProfileParser.Parse(json, url);
         SaveProfile(profile);
