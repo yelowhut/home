@@ -6,7 +6,8 @@ namespace D4LootFilter.Matching;
 public class AffixMatcher
 {
     private readonly AffixNormalizer _normalizer = new();
-    private readonly int _maxDistance;
+    private int _maxDistance;
+    public int MaxDistance { get => _maxDistance; set => _maxDistance = value; }
 
     public AffixMatcher(int maxDistance = 2)
     {

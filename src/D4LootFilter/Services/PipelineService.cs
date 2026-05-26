@@ -76,6 +76,28 @@ public class PipelineService : IDisposable
         _captureTask?.Wait(TimeSpan.FromSeconds(2));
     }
 
+    public bool IsRunning => _captureTask != null && !_captureTask.IsCompleted;
+
+    public void Pause()
+    {
+        _log.Log("Pipeline paused");
+        Stop();
+    }
+
+    public void Resume()
+    {
+        _log.Log("Pipeline resumed");
+        Start();
+    }
+
+    public void UpdateSettings(int fps, int ocrThreshold, int matchDistance)
+    {
+        _pollingDelayMs = Math.Max(16, 1000 / Math.Clamp(fps, 15, 60));
+        _ocr.MinConfidence = ocrThreshold;
+        _matcher.MaxDistance = matchDistance;
+        _log.Log($"Settings updated: FPS={fps}, OCR={ocrThreshold}, Match={matchDistance}");
+    }
+
     private void CaptureLoop(CancellationToken ct)
     {
         int noTooltipFrames = 0;

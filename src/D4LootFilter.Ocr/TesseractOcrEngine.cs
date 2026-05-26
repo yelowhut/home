@@ -7,7 +7,8 @@ namespace D4LootFilter.Ocr;
 public class TesseractOcrEngine : IDisposable
 {
     private readonly TesseractEngine _engine;
-    private readonly float _minConfidence;
+    private float _minConfidence;
+    public float MinConfidence { get => _minConfidence; set => _minConfidence = value; }
 
     public TesseractOcrEngine(string tessdataPath, float minConfidence = 60)
     {
