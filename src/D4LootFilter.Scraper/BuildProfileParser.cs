@@ -18,9 +18,9 @@ public static class BuildProfileParser
         ["ring-2"] = "Ring",
         ["two-handed-weapon"] = "Weapon",
         ["dual-wield-weapon-1"] = "Weapon",
-        ["dual-wield-weapon-2"] = "Weapon",
+        ["dual-wield-weapon-2"] = "Off-Weapon",
         ["main-hand"] = "Weapon",
-        ["off-hand-weapon"] = "Weapon",
+        ["off-hand-weapon"] = "Off-Weapon",
         ["off-hand"] = "Off-Hand",
     };
 
@@ -114,8 +114,11 @@ public static class BuildProfileParser
 
                     var itemTitle = entity.GetProperty("title").GetString() ?? "";
                     var entityType = entity.GetProperty("type").GetString() ?? "";
-                    var category = CategoryMapping.GetValueOrDefault(entityType, "Other");
+                    var category = CategoryMapping.GetValueOrDefault(entityType, "");
+                    if (string.IsNullOrEmpty(category)) continue;
+
                     var slotName = SlotMapping.GetValueOrDefault(slotSlug, SlugToTitleCase(slotSlug));
+                    var rarity = ExtractRarity(entity);
 
                     var affixes = ParseGearStats(entity);
                     var temperingAffixes = ParseTemperingStats(entity);
@@ -125,6 +128,7 @@ public static class BuildProfileParser
                         Slot = slotName,
                         Name = itemTitle,
                         Category = category,
+                        Rarity = rarity,
                         Affixes = affixes,
                         TemperingAffixes = temperingAffixes,
                     }));
@@ -208,6 +212,28 @@ public static class BuildProfileParser
         var words = slug.Split('-');
         return string.Join(" ", words.Select(w =>
             string.IsNullOrEmpty(w) ? w : char.ToUpper(w[0], CultureInfo.InvariantCulture) + w[1..]));
+    }
+
+    private static string ExtractRarity(JsonElement entity)
+    {
+        if (!entity.TryGetProperty("entity", out var entityDetail) ||
+            entityDetail.ValueKind != JsonValueKind.Object)
+            return "Legendary";
+
+        if (!entityDetail.TryGetProperty("__typename", out var tn))
+            return "Legendary";
+
+        var typeName = tn.GetString();
+        if (typeName == "D4UniqueItem")
+        {
+            if (entityDetail.TryGetProperty("mythic", out var m) && m.ValueKind == JsonValueKind.True)
+                return "Mythic";
+            if (entityDetail.TryGetProperty("chaos", out var c) && c.ValueKind == JsonValueKind.True)
+                return "Chaos";
+            return "Unique";
+        }
+
+        return "Legendary";
     }
 
     private static string ExtractClassName(string slug)

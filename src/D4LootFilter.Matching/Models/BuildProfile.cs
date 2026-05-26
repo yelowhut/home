@@ -52,6 +52,7 @@ public record EquipmentItem
     public string Slot { get; init; } = "";
     public string Name { get; init; } = "";
     public string Category { get; init; } = "";
+    public string Rarity { get; init; } = "";
     public List<Affix> Affixes { get; init; } = [];
     public List<Affix> TemperingAffixes { get; init; } = [];
 }

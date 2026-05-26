@@ -8,20 +8,32 @@ namespace D4LootFilter.Views;
 
 public partial class BuildViewerWindow : Window
 {
-    private static readonly string[] LeftSlots = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots", "Weapon"];
-    private static readonly string[] RightSlots = ["Amulet", "Ring", "Off-Hand"];
+    private static readonly HashSet<string> LeftSlots = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots", "Weapon"];
+    private static readonly HashSet<string> RightSlots = ["Amulet", "Ring", "Off-Hand", "Off-Weapon"];
+
+    private static readonly string[] LeftSlotOrder = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots", "Weapon"];
+    private static readonly string[] RightSlotOrder = ["Amulet", "Ring", "Off-Hand", "Off-Weapon"];
 
     private static readonly Dictionary<string, string> SlotIcons = new()
     {
-        ["Helm"] = "🪖",
-        ["Chest Armor"] = "🧥",
-        ["Gloves"] = "🧤",
-        ["Pants"] = "👖",
-        ["Boots"] = "👢",
+        ["Helm"] = "\U0001FA96",
+        ["Chest Armor"] = "\U0001F9E5",
+        ["Gloves"] = "\U0001F9E4",
+        ["Pants"] = "\U0001F456",
+        ["Boots"] = "\U0001F462",
         ["Weapon"] = "⚔️",
-        ["Amulet"] = "📿",
-        ["Ring"] = "💍",
-        ["Off-Hand"] = "🛡️",
+        ["Off-Weapon"] = "\U0001F5E1️",
+        ["Amulet"] = "\U0001F4BF",
+        ["Ring"] = "\U0001F48D",
+        ["Off-Hand"] = "\U0001F6E1️",
+    };
+
+    private static readonly Dictionary<string, Color> RarityColors = new()
+    {
+        ["Mythic"] = (Color)ColorConverter.ConvertFromString("#bf4aff"),
+        ["Unique"] = (Color)ColorConverter.ConvertFromString("#d1a781"),
+        ["Chaos"] = (Color)ColorConverter.ConvertFromString("#ff4a4a"),
+        ["Legendary"] = (Color)ColorConverter.ConvertFromString("#d98c3c"),
     };
 
     public BuildViewerWindow()
@@ -32,41 +44,37 @@ public partial class BuildViewerWindow : Window
     public void LoadBuild(BuildProfile profile, BuildVariant variant)
     {
         BuildNameText.Text = $"{profile.Name} — {variant.Name}";
-        BuildInfoText.Text = $"{profile.Class} • {variant.Equipment.Categories.SelectMany(c => c.Items).Count()} items";
+        BuildInfoText.Text = $"{profile.Class}";
 
         var allItems = variant.Equipment.Categories
             .SelectMany(c => c.Items)
+            .Where(i => LeftSlots.Contains(i.Slot) || RightSlots.Contains(i.Slot))
             .ToList();
 
         LeftColumn.Children.Clear();
         RightColumn.Children.Clear();
 
-        foreach (var slotName in LeftSlots)
+        foreach (var slotName in LeftSlotOrder)
         {
-            var items = allItems.Where(i => i.Slot == slotName).ToList();
-            foreach (var item in items)
+            foreach (var item in allItems.Where(i => i.Slot == slotName))
                 LeftColumn.Children.Add(CreateItemCard(item, isRightAligned: false));
         }
 
-        foreach (var slotName in RightSlots)
+        foreach (var slotName in RightSlotOrder)
         {
-            var items = allItems.Where(i => i.Slot == slotName).ToList();
-            foreach (var item in items)
+            foreach (var item in allItems.Where(i => i.Slot == slotName))
                 RightColumn.Children.Add(CreateItemCard(item, isRightAligned: true));
         }
-
-        // Any items with slots not in left/right go to left
-        var coveredSlots = LeftSlots.Concat(RightSlots).ToHashSet();
-        foreach (var item in allItems.Where(i => !coveredSlots.Contains(i.Slot)))
-            LeftColumn.Children.Add(CreateItemCard(item, isRightAligned: false));
     }
 
     private static UIElement CreateItemCard(EquipmentItem item, bool isRightAligned)
     {
+        var rarityColor = RarityColors.GetValueOrDefault(item.Rarity, RarityColors["Legendary"]);
+
         var card = new Border
         {
             Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#16213e")),
-            BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2a2a4a")),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(80, rarityColor.R, rarityColor.G, rarityColor.B)),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(10, 8, 10, 8),
@@ -74,7 +82,7 @@ public partial class BuildViewerWindow : Window
         };
 
         var outerStack = new DockPanel();
-        var icon = SlotIcons.GetValueOrDefault(item.Slot, "📦");
+        var icon = SlotIcons.GetValueOrDefault(item.Slot, "\U0001F4E6");
 
         var iconBlock = new TextBlock
         {
@@ -86,94 +94,76 @@ public partial class BuildViewerWindow : Window
 
         var textStack = new StackPanel();
 
-        // Item name + category tag
-        var headerPanel = new WrapPanel();
-        headerPanel.Children.Add(new TextBlock
+        // Slot label
+        var slotLabel = item.Slot == "Off-Weapon" ? "Off-Hand Weapon" : item.Slot;
+        textStack.Children.Add(new TextBlock
         {
-            Text = $"{item.Slot}",
-            FontSize = 11,
-            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#888888")),
-            Margin = new Thickness(0, 0, 6, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-        });
-        headerPanel.Children.Add(new TextBlock
-        {
-            Text = item.Name,
-            FontSize = 13,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(Colors.White),
-            VerticalAlignment = VerticalAlignment.Center,
+            Text = slotLabel,
+            FontSize = 10,
+            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666666")),
+            Margin = new Thickness(0, 0, 0, 2),
         });
 
-        if (!string.IsNullOrEmpty(item.Category) && item.Category != "Other")
-        {
-            var tagColor = item.Category == "Uniques"
-                ? (Color)ColorConverter.ConvertFromString("#d1a781")
-                : (Color)ColorConverter.ConvertFromString("#d98c3c");
+        // Item name with rarity color
+        var nameText = CreateSelectableText(item.Name, 13, rarityColor, FontWeights.SemiBold);
+        textStack.Children.Add(nameText);
 
+        // Rarity tag
+        if (!string.IsNullOrEmpty(item.Rarity))
+        {
             var tag = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(30, tagColor.R, tagColor.G, tagColor.B)),
-                BorderBrush = new SolidColorBrush(tagColor),
+                Background = new SolidColorBrush(Color.FromArgb(25, rarityColor.R, rarityColor.G, rarityColor.B)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(100, rarityColor.R, rarityColor.G, rarityColor.B)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(3),
                 Padding = new Thickness(6, 1, 6, 1),
-                Margin = new Thickness(6, 0, 0, 0),
-                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 3, 0, 4),
+                HorizontalAlignment = HorizontalAlignment.Left,
             };
             tag.Child = new TextBlock
             {
-                Text = item.Category == "Uniques" ? "UNIQUE" : "LEGENDARY",
+                Text = item.Rarity.ToUpperInvariant(),
                 FontSize = 9,
-                Foreground = new SolidColorBrush(tagColor),
+                Foreground = new SolidColorBrush(rarityColor),
                 FontWeight = FontWeights.Bold,
             };
-            headerPanel.Children.Add(tag);
+            textStack.Children.Add(tag);
         }
-
-        textStack.Children.Add(headerPanel);
 
         // Affixes
         foreach (var affix in item.Affixes)
         {
-            var affixText = new TextBlock { FontSize = 12, Margin = new Thickness(0, 2, 0, 0) };
             if (affix.IsGa)
             {
-                affixText.Inlines.Add(new Run("⭐ ") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffd700")) });
-                affixText.Inlines.Add(new Run(affix.Name) { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffd700")) });
+                textStack.Children.Add(CreateSelectableText($"⭐ {affix.Name}", 12,
+                    (Color)ColorConverter.ConvertFromString("#ffd700")));
             }
             else
             {
-                affixText.Inlines.Add(new Run("• ") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#888888")) });
-                affixText.Inlines.Add(new Run(affix.Name) { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e0e0e0")) });
+                textStack.Children.Add(CreateSelectableText($"• {affix.Name}", 12,
+                    (Color)ColorConverter.ConvertFromString("#e0e0e0")));
             }
-            textStack.Children.Add(affixText);
         }
 
         // Tempering affixes
         foreach (var temper in item.TemperingAffixes)
         {
-            var temperText = new TextBlock { FontSize = 12, Margin = new Thickness(0, 2, 0, 0) };
             var temperColor = temper.IsGa
                 ? (Color)ColorConverter.ConvertFromString("#ffd700")
                 : (Color)ColorConverter.ConvertFromString("#7ba4d4");
-            temperText.Inlines.Add(new Run("⚒ ") { Foreground = new SolidColorBrush(temperColor) });
-            temperText.Inlines.Add(new Run(temper.Name) { Foreground = new SolidColorBrush(temperColor) });
-            if (temper.IsGa)
-                temperText.Inlines.Add(new Run(" ⭐") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffd700")) });
-            textStack.Children.Add(temperText);
+            var suffix = temper.IsGa ? " ⭐" : "";
+            textStack.Children.Add(CreateSelectableText($"⚒ {temper.Name}{suffix}", 12, temperColor));
         }
 
         if (isRightAligned)
         {
-            // Text on left, icon on right
             DockPanel.SetDock(iconBlock, Dock.Right);
             outerStack.Children.Add(iconBlock);
             outerStack.Children.Add(textStack);
         }
         else
         {
-            // Icon on left, text on right
             DockPanel.SetDock(iconBlock, Dock.Left);
             outerStack.Children.Add(iconBlock);
             outerStack.Children.Add(textStack);
@@ -181,5 +171,25 @@ public partial class BuildViewerWindow : Window
 
         card.Child = outerStack;
         return card;
+    }
+
+    private static TextBox CreateSelectableText(string text, double fontSize, Color color,
+        FontWeight? fontWeight = null)
+    {
+        return new TextBox
+        {
+            Text = text,
+            FontSize = fontSize,
+            Foreground = new SolidColorBrush(color),
+            FontWeight = fontWeight ?? FontWeights.Normal,
+            Background = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            IsReadOnly = true,
+            IsTabStop = false,
+            Padding = new Thickness(0),
+            Margin = new Thickness(0, 1, 0, 1),
+            TextWrapping = TextWrapping.Wrap,
+            Cursor = System.Windows.Input.Cursors.Arrow,
+        };
     }
 }
