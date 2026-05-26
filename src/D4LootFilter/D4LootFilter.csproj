@@ -4,6 +4,7 @@
     <ProjectReference Include="..\D4LootFilter.Capture\D4LootFilter.Capture.csproj" />
     <ProjectReference Include="..\D4LootFilter.Ocr\D4LootFilter.Ocr.csproj" />
     <ProjectReference Include="..\D4LootFilter.Matching\D4LootFilter.Matching.csproj" />
+    <ProjectReference Include="..\D4LootFilter.Scraper\D4LootFilter.Scraper.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

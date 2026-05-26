@@ -1,0 +1,158 @@
+{
+  "data": {
+    "game": {
+      "documents": {
+        "userGeneratedDocumentBySlug": {
+          "error": null,
+          "data": {
+            "id": "1010fee2-b3d1-4489-9193-021b622cd925",
+            "slugifiedName": "barbarian-whirl-wind-barb",
+            "type": "builds",
+            "data": {
+              "name": "Whirlwind",
+              "buildVariants": {
+                "values": [
+                  {
+                    "id": "5",
+                    "genericBuilder": {
+                      "slots": [
+                        {
+                          "gameSlotSlug": "chest-armor",
+                          "gameEntity": {
+                            "slug": "blood-boiling-aspect",
+                            "title": "Blood Boiling Aspect",
+                            "type": "aspects",
+                            "modifiers": {
+                              "gearStats": [
+                                { "id": "strength", "isGreater": false, "isMasterwork": false },
+                                { "id": "maximum-resource", "isGreater": true, "isMasterwork": true },
+                                { "id": "ranks-to-rallying-cry", "isGreater": false, "isMasterwork": false },
+                                { "id": "fury-per-second", "isGreater": false, "isMasterwork": false }
+                              ],
+                              "temperingStats": [
+                                { "id": "worldly-endurance-armor", "isGreater": false, "isMasterwork": false }
+                              ]
+                            },
+                            "entity": {
+                              "__typename": "D4Aspect",
+                              "title": "Blood Boiling Aspect"
+                            }
+                          }
+                        },
+                        {
+                          "gameSlotSlug": "gloves",
+                          "gameEntity": {
+                            "slug": "gohrs-devastating-grips",
+                            "title": "Gohr's Devastating Grips",
+                            "type": "uniqueItems",
+                            "modifiers": {
+                              "gearStats": [
+                                { "id": "strength", "isGreater": false, "isMasterwork": false },
+                                { "id": "critical-strike-damage-multiplier", "isGreater": false, "isMasterwork": false },
+                                { "id": "vulnerable-damage-multiplier", "isGreater": true, "isMasterwork": true },
+                                { "id": "physical-damage-multiplier", "isGreater": false, "isMasterwork": false }
+                              ],
+                              "temperingStats": [
+                                { "id": "sharpened-finesse-damage-per-overpower-stack", "isGreater": true, "isMasterwork": false }
+                              ]
+                            },
+                            "entity": {
+                              "__typename": "D4UniqueItem",
+                              "title": "Gohr's Devastating Grips",
+                              "chaos": false,
+                              "mythic": false
+                            }
+                          }
+                        },
+                        {
+                          "gameSlotSlug": "dual-wield-weapon-1",
+                          "gameEntity": {
+                            "slug": "crushing-aspect",
+                            "title": "Crushing Aspect",
+                            "type": "aspects",
+                            "modifiers": {
+                              "gearStats": [
+                                { "id": "strength", "isGreater": false, "isMasterwork": false },
+                                { "id": "critical-strike-damage-multiplier", "isGreater": true, "isMasterwork": true },
+                                { "id": "physical-damage-multiplier", "isGreater": false, "isMasterwork": false }
+                              ],
+                              "temperingStats": []
+                            },
+                            "entity": {
+                              "__typename": "D4Aspect",
+                              "title": "Crushing Aspect"
+                            }
+                          }
+                        },
+                        {
+                          "gameSlotSlug": "ring-1",
+                          "gameEntity": {
+                            "slug": "ring-of-starless-skies",
+                            "title": "Ring of Starless Skies",
+                            "type": "uniqueItems",
+                            "modifiers": {
+                              "gearStats": [
+                                { "id": "maximum-life", "isGreater": false, "isMasterwork": false },
+                                { "id": "resource-cost-reduction", "isGreater": true, "isMasterwork": false }
+                              ],
+                              "temperingStats": []
+                            },
+                            "entity": {
+                              "__typename": "D4UniqueItem",
+                              "title": "Ring of Starless Skies",
+                              "chaos": false,
+                              "mythic": false
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "6",
+                    "genericBuilder": {
+                      "slots": [
+                        {
+                          "gameSlotSlug": "helm",
+                          "gameEntity": {
+                            "slug": "harlequin-crest",
+                            "title": "Harlequin Crest",
+                            "type": "uniqueItems",
+                            "modifiers": {
+                              "gearStats": [
+                                { "id": "cooldown-reduction", "isGreater": true, "isMasterwork": false },
+                                { "id": "maximum-life", "isGreater": false, "isMasterwork": false }
+                              ],
+                              "temperingStats": []
+                            },
+                            "entity": {
+                              "__typename": "D4UniqueItem",
+                              "title": "Harlequin Crest",
+                              "chaos": false,
+                              "mythic": false
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "content": [
+              {
+                "__typename": "NgfDocumentCmWidgetContentVariantsV1",
+                "data": {
+                  "childrenVariants": [
+                    { "id": "5", "title": "Selig Overpower" },
+                    { "id": "6", "title": "Pit Push" }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
