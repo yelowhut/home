@@ -8,6 +8,8 @@
                 <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+            <local:InverseBoolConverter x:Key="InverseBool"/>
+            <local:StringToVisibilityConverter x:Key="StringToVisibility"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
