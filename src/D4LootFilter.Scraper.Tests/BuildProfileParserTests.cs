@@ -143,6 +143,35 @@ public class BuildProfileParserTests
     }
 
     [Fact]
+    public void Parse_ExtractsTemperingStats()
+    {
+        var profile = BuildProfileParser.Parse(_testJson, "https://mobalytics.gg/diablo-4/builds/barbarian-whirl-wind-barb");
+        var variant = profile.Variants[0];
+        var chestItem = variant.Equipment.Categories
+            .SelectMany(c => c.Items)
+            .First(i => i.Slot == "Chest Armor");
+
+        Assert.Single(chestItem.TemperingAffixes);
+        Assert.Equal("Worldly Endurance Armor", chestItem.TemperingAffixes[0].Name);
+    }
+
+    [Fact]
+    public void Parse_SetsItemCategory()
+    {
+        var profile = BuildProfileParser.Parse(_testJson, "https://mobalytics.gg/diablo-4/builds/barbarian-whirl-wind-barb");
+        var variant = profile.Variants[0];
+        var chestItem = variant.Equipment.Categories
+            .SelectMany(c => c.Items)
+            .First(i => i.Slot == "Chest Armor");
+        Assert.Equal("Legendary", chestItem.Category);
+
+        var glovesItem = variant.Equipment.Categories
+            .SelectMany(c => c.Items)
+            .First(i => i.Slot == "Gloves");
+        Assert.Equal("Uniques", glovesItem.Category);
+    }
+
+    [Fact]
     public void Parse_InvalidJson_ThrowsException()
     {
         Assert.ThrowsAny<Exception>(() =>

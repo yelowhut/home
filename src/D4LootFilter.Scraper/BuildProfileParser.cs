@@ -118,12 +118,15 @@ public static class BuildProfileParser
                     var slotName = SlotMapping.GetValueOrDefault(slotSlug, SlugToTitleCase(slotSlug));
 
                     var affixes = ParseGearStats(entity);
+                    var temperingAffixes = ParseTemperingStats(entity);
 
                     items.Add((category, new EquipmentItem
                     {
                         Slot = slotName,
                         Name = itemTitle,
+                        Category = category,
                         Affixes = affixes,
+                        TemperingAffixes = temperingAffixes,
                     }));
                 }
             }
@@ -159,6 +162,31 @@ public static class BuildProfileParser
             return affixes;
 
         foreach (var stat in gearStats.EnumerateArray())
+        {
+            if (stat.ValueKind != JsonValueKind.Object) continue;
+            var id = stat.GetProperty("id").GetString() ?? "";
+            var isGreater = stat.TryGetProperty("isGreater", out var g) && g.ValueKind == JsonValueKind.True;
+
+            affixes.Add(new Affix
+            {
+                Name = SlugToTitleCase(id),
+                IsGa = isGreater,
+            });
+        }
+
+        return affixes;
+    }
+
+    private static List<Affix> ParseTemperingStats(JsonElement entity)
+    {
+        var affixes = new List<Affix>();
+        if (!entity.TryGetProperty("modifiers", out var modifiers) ||
+            modifiers.ValueKind != JsonValueKind.Object ||
+            !modifiers.TryGetProperty("temperingStats", out var temperingStats) ||
+            temperingStats.ValueKind != JsonValueKind.Array)
+            return affixes;
+
+        foreach (var stat in temperingStats.EnumerateArray())
         {
             if (stat.ValueKind != JsonValueKind.Object) continue;
             var id = stat.GetProperty("id").GetString() ?? "";
