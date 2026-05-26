@@ -47,6 +47,22 @@ public class ProfilesViewModel : INotifyPropertyChanged
     public bool HasSelection => _selectedProfile != null;
     public List<BuildVariant> Variants => _selectedProfile?.Variants ?? [];
 
+    public bool HasActiveProfile => _profileService.ActiveProfile != null;
+
+    public string ActiveBuildName => _profileService.ActiveProfile?.Name ?? "";
+
+    public string ActiveVariantName
+    {
+        get
+        {
+            var profile = _profileService.ActiveProfile;
+            if (profile == null) return "";
+            var settings = _settingsService.Load();
+            var variant = profile.Variants.FirstOrDefault(v => v.Id == settings.ActiveVariantId);
+            return variant?.Name ?? profile.Variants.FirstOrDefault()?.Name ?? "";
+        }
+    }
+
     public int SelectedVariantIndex { get => _selectedVariantIndex; set => SetField(ref _selectedVariantIndex, value); }
     public ObservableCollection<BuildProfile> Profiles { get => _profiles; set => SetField(ref _profiles, value); }
 
@@ -86,6 +102,9 @@ public class ProfilesViewModel : INotifyPropertyChanged
         _settingsService.Save(settings);
         _profileService.SetActive(SelectedProfile.Id);
         _onProfileChanged();
+        OnPropertyChanged(nameof(HasActiveProfile));
+        OnPropertyChanged(nameof(ActiveBuildName));
+        OnPropertyChanged(nameof(ActiveVariantName));
         RefreshProfiles();
     }
 
@@ -103,6 +122,9 @@ public class ProfilesViewModel : INotifyPropertyChanged
     private void RefreshProfiles()
     {
         Profiles = new ObservableCollection<BuildProfile>(_profileService.ListProfiles());
+        OnPropertyChanged(nameof(HasActiveProfile));
+        OnPropertyChanged(nameof(ActiveBuildName));
+        OnPropertyChanged(nameof(ActiveVariantName));
     }
 
     private async Task ClearErrorAfterDelay()

@@ -28,4 +28,13 @@ public partial class ProfilesView : UserControl
         if (DataContext is ProfilesViewModel vm)
             vm.Delete();
     }
+
+    private void OnViewBuildClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is ProfilesViewModel vm && vm.HasActiveProfile)
+        {
+            // BuildViewerWindow will be wired here later
+            MessageBox.Show("Build Viewer coming soon", "D4 Loot Filter");
+        }
+    }
 }

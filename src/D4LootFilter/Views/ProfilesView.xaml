@@ -3,6 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <StackPanel Margin="4,8">
+        <!-- Active Build Info -->
+        <Border Background="#1a2a1a" BorderBrush="#2a4a2a" BorderThickness="1" CornerRadius="4"
+                Padding="12,8" Margin="0,0,0,12"
+                Visibility="{Binding HasActiveProfile, Converter={StaticResource BoolToVisibility}}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="View Build" Margin="8,0,0,0"
+                        Style="{StaticResource SecondaryButton}" Click="OnViewBuildClick"
+                        Padding="12,6" FontSize="12"/>
+                <TextBlock VerticalAlignment="Center">
+                    <Run Text="Active: " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                    <Run Text="{Binding ActiveBuildName, Mode=OneWay}" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" FontSize="13"/>
+                    <Run Text=" — " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                    <Run Text="{Binding ActiveVariantName, Mode=OneWay}" Foreground="{StaticResource TextBrush}" FontSize="12"/>
+                </TextBlock>
+            </DockPanel>
+        </Border>
+
         <TextBlock Text="Import Build" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
         <DockPanel Margin="0,0,0,4">
             <Button DockPanel.Dock="Right" Content="Import" Margin="8,0,0,0"
