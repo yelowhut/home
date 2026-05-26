@@ -1,9 +1,12 @@
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
+using D4LootFilter.Matching.Models;
 using D4LootFilter.Overlay;
+using D4LootFilter.Scraper;
 using D4LootFilter.Services;
 
 namespace D4LootFilter;
@@ -53,8 +56,24 @@ public partial class App : Application
         _logger = new FileLogger(logDir);
 
         var vm = new OverlayViewModel();
-        var profileService = new ProfileService();
-        profileService.LoadTestProfile();
+        var profilesDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "D4LootFilter", "profiles");
+        var profileService = new ProfileService(profilesDir);
+
+        // Load test profile from embedded resource for now
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        using var stream = assembly.GetManifestResourceStream("D4LootFilter.TestData.test-profile.json");
+        if (stream != null)
+        {
+            var testProfile = JsonSerializer.Deserialize<BuildProfile>(stream,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower });
+            if (testProfile != null)
+            {
+                profileService.SaveProfile(testProfile);
+                profileService.SetActive(testProfile.Id);
+            }
+        }
         _logger.Log($"Profile loaded: {profileService.ActiveProfile?.Name}");
 
         var tessdataPath = Path.Combine(AppContext.BaseDirectory, "tessdata");

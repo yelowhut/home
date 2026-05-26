@@ -4,6 +4,7 @@ using D4LootFilter.Matching;
 using D4LootFilter.Matching.Models;
 using D4LootFilter.Ocr;
 using D4LootFilter.Overlay;
+using D4LootFilter.Scraper;
 using OpenCvSharp;
 
 namespace D4LootFilter.Services;
