@@ -49,6 +49,17 @@ public class ProfilesViewModel : INotifyPropertyChanged
 
     public bool HasActiveProfile => _profileService.ActiveProfile != null;
 
+    public BuildProfile? GetActiveProfile() => _profileService.ActiveProfile;
+
+    public BuildVariant? GetActiveVariant()
+    {
+        var profile = _profileService.ActiveProfile;
+        if (profile == null) return null;
+        var settings = _settingsService.Load();
+        return profile.Variants.FirstOrDefault(v => v.Id == settings.ActiveVariantId)
+            ?? profile.Variants.FirstOrDefault();
+    }
+
     public string ActiveBuildName => _profileService.ActiveProfile?.Name ?? "";
 
     public string ActiveVariantName

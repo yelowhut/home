@@ -31,10 +31,14 @@ public partial class ProfilesView : UserControl
 
     private void OnViewBuildClick(object sender, RoutedEventArgs e)
     {
-        if (DataContext is ProfilesViewModel vm && vm.HasActiveProfile)
-        {
-            // BuildViewerWindow will be wired here later
-            MessageBox.Show("Build Viewer coming soon", "D4 Loot Filter");
-        }
+        if (DataContext is not ProfilesViewModel vm) return;
+        var profile = vm.GetActiveProfile();
+        var variant = vm.GetActiveVariant();
+        if (profile == null || variant == null) return;
+
+        var viewer = new BuildViewerWindow();
+        viewer.LoadBuild(profile, variant);
+        viewer.Owner = Window.GetWindow(this);
+        viewer.Show();
     }
 }
