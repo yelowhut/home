@@ -1,7 +1,0 @@
-<Window x:Class="D4LootFilter.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="D4 Loot Filter" Height="1" Width="1"
-        WindowStyle="None" ShowInTaskbar="False"
-        Visibility="Hidden">
-</Window>

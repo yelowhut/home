@@ -1,6 +1,5 @@
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
@@ -8,6 +7,9 @@ using D4LootFilter.Matching.Models;
 using D4LootFilter.Overlay;
 using D4LootFilter.Scraper;
 using D4LootFilter.Services;
+using D4LootFilter.TrayIcon;
+using D4LootFilter.ViewModels;
+using D4LootFilter.Views;
 
 namespace D4LootFilter;
 
@@ -27,6 +29,11 @@ public partial class App : Application
     private PipelineService? _pipeline;
     private OverlayWindow? _overlay;
     private FileLogger? _logger;
+    private TrayIconManager? _trayIcon;
+    private SettingsWindow? _settingsWindow;
+    private SettingsService? _settingsService;
+    private ProfileService? _profileService;
+    private bool _isPaused;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -41,56 +48,130 @@ public partial class App : Application
 
         base.OnStartup(e);
 
-        Console.CancelKeyPress += (_, args) =>
-        {
-            args.Cancel = true;
-            Dispatcher.Invoke(() => Shutdown());
-        };
+        var appDataDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "D4LootFilter");
 
-        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-        {
-            _pipeline?.Dispose();
-        };
-
-        var logDir = Path.Combine(AppContext.BaseDirectory, "logs");
+        var logDir = Path.Combine(appDataDir, "logs");
         _logger = new FileLogger(logDir);
 
-        var vm = new OverlayViewModel();
-        var profilesDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "D4LootFilter", "profiles");
-        var profileService = new ProfileService(profilesDir);
+        _settingsService = new SettingsService(Path.Combine(appDataDir, "settings.json"));
+        var settings = _settingsService.Load();
 
-        // Load test profile from embedded resource for now
-        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream("D4LootFilter.TestData.test-profile.json");
-        if (stream != null)
-        {
-            var testProfile = JsonSerializer.Deserialize<BuildProfile>(stream,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower });
-            if (testProfile != null)
-            {
-                profileService.SaveProfile(testProfile);
-                profileService.SetActive(testProfile.Id);
-            }
-        }
-        _logger.Log($"Profile loaded: {profileService.ActiveProfile?.Name}");
+        _profileService = new ProfileService(Path.Combine(appDataDir, "profiles"));
 
+        if (!string.IsNullOrEmpty(settings.ActiveProfileId))
+            _profileService.SetActive(settings.ActiveProfileId);
+
+        _logger.Log($"Profile: {_profileService.ActiveProfile?.Name ?? "none"}");
+
+        var overlayVm = new OverlayViewModel();
         var tessdataPath = Path.Combine(AppContext.BaseDirectory, "tessdata");
 
-        _overlay = new OverlayWindow { DataContext = vm };
+        _overlay = new OverlayWindow { DataContext = overlayVm };
         _overlay.Show();
 
-        // Register F12 as global exit hotkey
         var hwnd = new WindowInteropHelper(_overlay).Handle;
-        RegisterHotKey(hwnd, HOTKEY_EXIT, 0, 0x7B); // VK_F12
-        var source = HwndSource.FromHwnd(hwnd);
-        source?.AddHook(WndProc);
+        RegisterHotKey(hwnd, HOTKEY_EXIT, 0, 0x7B);
+        HwndSource.FromHwnd(hwnd)?.AddHook(WndProc);
         _logger.Log("F12 = exit app");
 
-        _pipeline = new PipelineService(vm, profileService, tessdataPath, _logger);
-        _pipeline.UseFullScreen();
-        _pipeline.Start();
+        _pipeline = new PipelineService(overlayVm, _profileService, tessdataPath, _logger);
+        ApplyCaptureRegion(settings);
+        _pipeline.UpdateSettings(settings.PollingFps, settings.OcrConfidenceThreshold, settings.FuzzyMatchMaxDistance);
+
+        _settingsWindow = new SettingsWindow();
+        SetupSettingsWindow();
+
+        _trayIcon = new TrayIconManager(
+            _profileService,
+            _settingsService,
+            OnPauseResume,
+            () => Dispatcher.Invoke(Shutdown),
+            () => _settingsWindow!);
+
+        if (settings.AutoStartCapture && _profileService.ActiveProfile != null)
+        {
+            _pipeline.Start();
+            _logger.Log("Pipeline auto-started");
+        }
+
+        _trayIcon.UpdateStatus(_isPaused || !_pipeline.IsRunning);
+
+        if (!settings.StartMinimized || _profileService.ListProfiles().Count == 0)
+            _settingsWindow.ShowOnTab(0);
+    }
+
+    private void SetupSettingsWindow()
+    {
+        var profilesVm = new ProfilesViewModel(_profileService!, _settingsService!, OnProfileChanged);
+        if (_settingsWindow!.FindName("ProfilesContent") is ProfilesView profilesView)
+            profilesView.DataContext = profilesVm;
+
+        if (_settingsWindow.FindName("CaptureRegionContent") is CaptureRegionView captureView)
+            captureView.Init(_settingsService!, OnRegionChanged);
+
+        var settingsVm = new SettingsViewModel(_settingsService!, OnSettingsApplied);
+        if (_settingsWindow.FindName("SettingsContent") is SettingsView settingsView)
+            settingsView.DataContext = settingsVm;
+    }
+
+    private void ApplyCaptureRegion(AppSettings settings)
+    {
+        var screenW = (int)SystemParameters.PrimaryScreenWidth;
+        var screenH = (int)SystemParameters.PrimaryScreenHeight;
+        var key = $"{screenW}x{screenH}";
+
+        if (settings.CaptureRegions.TryGetValue(key, out var region))
+        {
+            _pipeline!.SetCaptureRegion(region.X, region.Y, region.Width, region.Height);
+            _logger?.Log($"Capture region: ({region.X},{region.Y}) {region.Width}x{region.Height}");
+        }
+        else
+        {
+            _pipeline!.UseFullScreen();
+            _logger?.Log("Capture: full screen");
+        }
+    }
+
+    private void OnProfileChanged()
+    {
+        var wasRunning = _pipeline?.IsRunning ?? false;
+        if (wasRunning) _pipeline?.Stop();
+        if (_profileService?.ActiveProfile != null && wasRunning) _pipeline?.Start();
+        _trayIcon?.UpdateStatus(_isPaused || !(_pipeline?.IsRunning ?? false));
+    }
+
+    private void OnRegionChanged(CaptureRegion? region)
+    {
+        var wasRunning = _pipeline?.IsRunning ?? false;
+        if (wasRunning) _pipeline?.Stop();
+        if (region != null)
+            _pipeline?.SetCaptureRegion(region.X, region.Y, region.Width, region.Height);
+        else
+            _pipeline?.UseFullScreen();
+        if (wasRunning) _pipeline?.Start();
+    }
+
+    private void OnSettingsApplied(AppSettings settings)
+    {
+        _pipeline?.UpdateSettings(settings.PollingFps, settings.OcrConfidenceThreshold, settings.FuzzyMatchMaxDistance);
+    }
+
+    private void OnPauseResume()
+    {
+        if (_pipeline == null) return;
+        if (_pipeline.IsRunning)
+        {
+            _pipeline.Pause();
+            _isPaused = true;
+        }
+        else
+        {
+            _pipeline.Resume();
+            _isPaused = false;
+        }
+        _trayIcon?.UpdateStatus(_isPaused);
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -107,6 +188,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _pipeline?.Dispose();
+        _trayIcon?.Dispose();
         if (_overlay != null)
         {
             var hwnd = new WindowInteropHelper(_overlay).Handle;
@@ -114,8 +196,7 @@ public partial class App : Application
         }
         _logger?.Log("App exiting");
         _logger?.Dispose();
-        if (_ownsMutex)
-            _mutex?.ReleaseMutex();
+        if (_ownsMutex) _mutex?.ReleaseMutex();
         _mutex?.Dispose();
         base.OnExit(e);
     }
