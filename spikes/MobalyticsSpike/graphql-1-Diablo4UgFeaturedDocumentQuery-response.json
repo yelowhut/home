@@ -1,0 +1,42 @@
+{
+  "data": {
+    "game": {
+      "settings": {
+        "banners": {
+          "topBanners": [
+            {
+              "enabled": true,
+              "display": {
+                "slug": "d4-build-tracker-top-banner",
+                "abTestKey": "",
+                "allowedUserLevels": [
+                  "GUEST",
+                  "REGULAR"
+                ],
+                "platform": [],
+                "whiteListUserIds": [],
+                "countries": [],
+                "minScreenWidth": "300",
+                "urlMatchPatterns": [],
+                "distribution": null,
+                "urlExcludePatterns": []
+              },
+              "content": {
+                "__typename": "NgfBannerContent",
+                "text": "Make following Builds easier than ever with the new D4 Build Tracker",
+                "linkText": "\u2192 Start Tracking",
+                "linkURL": "https://mobalytics.gg/diablo-4?promo=1",
+                "openLinkInNewTab": true,
+                "background": {
+                  "simple": "",
+                  "advanced": "#8A0D04 url(\u0022https://cdn.mobalytics.gg/assets/diablo-4/images/banners/loh/loh-top-banner-fixed.png\u0022) center top / auto 100% no-repeat"
+                },
+                "withCloseButton": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

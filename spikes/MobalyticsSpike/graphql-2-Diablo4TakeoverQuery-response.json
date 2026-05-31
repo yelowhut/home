@@ -1,0 +1,68 @@
+{
+  "data": {
+    "game": {
+      "settings": {
+        "banners": {
+          "takeovers": [
+            {
+              "enabled": false,
+              "display": {
+                "slug": "diablo-4-s-10-builder-takeover",
+                "abTestKey": "",
+                "allowedUserLevels": [],
+                "platform": [],
+                "whiteListUserIds": [],
+                "countries": [],
+                "minScreenWidth": "300",
+                "urlMatchPatterns": [],
+                "distribution": null,
+                "urlExcludePatterns": [
+                  "/diablo-4/build-planner",
+                  "/diablo-4/builds/:classId/:buildId",
+                  "/diablo-4/profile/:profileId/builds/:buildId"
+                ]
+              },
+              "content": {
+                "__typename": "NgfTakeoverContent",
+                "navigationUrl": "/diablo-4/build-planner",
+                "imageAlt": "Diablo 4 s10 builder takeover",
+                "images": [
+                  {
+                    "screenWidth": 320,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-320.png",
+                    "fallbackImageUrl": ""
+                  },
+                  {
+                    "screenWidth": 480,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-480.png",
+                    "fallbackImageUrl": ""
+                  },
+                  {
+                    "screenWidth": 640,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-640.png",
+                    "fallbackImageUrl": ""
+                  },
+                  {
+                    "screenWidth": 960,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-960.png",
+                    "fallbackImageUrl": ""
+                  },
+                  {
+                    "screenWidth": 1280,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-1280.png",
+                    "fallbackImageUrl": ""
+                  },
+                  {
+                    "screenWidth": 1600,
+                    "imageUrl": "https://cdn.mobalytics.gg/assets/diablo-4/images/banners/ngf/s10/takeovers/2nd/diablo-4-season-10-1600.png",
+                    "fallbackImageUrl": ""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

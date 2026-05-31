@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using D4LootFilter.Matching.Models;
 
@@ -8,11 +7,13 @@ namespace D4LootFilter.Views;
 
 public partial class BuildViewerWindow : Window
 {
-    private static readonly HashSet<string> LeftSlots = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots", "Weapon"];
-    private static readonly HashSet<string> RightSlots = ["Amulet", "Ring", "Off-Hand", "Off-Weapon"];
+    private static readonly HashSet<string> ArmorSlots = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots"];
+    private static readonly HashSet<string> WeaponSlots = ["Weapon", "Slashing Weapon", "Bludgeoning Weapon", "Off-Weapon"];
+    private static readonly HashSet<string> JewelrySlots = ["Amulet", "Ring", "Off-Hand"];
 
-    private static readonly string[] LeftSlotOrder = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots", "Weapon"];
-    private static readonly string[] RightSlotOrder = ["Amulet", "Ring", "Off-Hand", "Off-Weapon"];
+    private static readonly string[] ArmorSlotOrder = ["Helm", "Chest Armor", "Gloves", "Pants", "Boots"];
+    private static readonly string[] WeaponSlotOrder = ["Weapon", "Slashing Weapon", "Bludgeoning Weapon", "Off-Weapon"];
+    private static readonly string[] JewelrySlotOrder = ["Amulet", "Ring", "Off-Hand"];
 
     private static readonly Dictionary<string, string> SlotIcons = new()
     {
@@ -21,8 +22,10 @@ public partial class BuildViewerWindow : Window
         ["Gloves"] = "\U0001F9E4",
         ["Pants"] = "\U0001F456",
         ["Boots"] = "\U0001F462",
-        ["Weapon"] = "⚔️",
-        ["Off-Weapon"] = "\U0001F5E1️",
+        ["Weapon"] = "\u2694\ufe0f",
+        ["Slashing Weapon"] = "\u2694\ufe0f",
+        ["Bludgeoning Weapon"] = "\U0001F528",
+        ["Off-Weapon"] = "\U0001F5E1\ufe0f",
         ["Amulet"] = "\U0001F4BF",
         ["Ring"] = "\U0001F48D",
         ["Off-Hand"] = "\U0001F6E1️",
@@ -48,26 +51,28 @@ public partial class BuildViewerWindow : Window
 
         var allItems = variant.Equipment.Categories
             .SelectMany(c => c.Items)
-            .Where(i => LeftSlots.Contains(i.Slot) || RightSlots.Contains(i.Slot))
+            .Where(i => ArmorSlots.Contains(i.Slot) || WeaponSlots.Contains(i.Slot) || JewelrySlots.Contains(i.Slot))
             .ToList();
 
-        LeftColumn.Children.Clear();
-        RightColumn.Children.Clear();
+        ArmorColumn.Children.Clear();
+        WeaponsColumn.Children.Clear();
+        JewelryColumn.Children.Clear();
 
-        foreach (var slotName in LeftSlotOrder)
+        AddItems(ArmorColumn, allItems, ArmorSlotOrder);
+        AddItems(WeaponsColumn, allItems, WeaponSlotOrder);
+        AddItems(JewelryColumn, allItems, JewelrySlotOrder);
+    }
+
+    private static void AddItems(Panel column, List<EquipmentItem> allItems, string[] slotOrder)
+    {
+        foreach (var slotName in slotOrder)
         {
             foreach (var item in allItems.Where(i => i.Slot == slotName))
-                LeftColumn.Children.Add(CreateItemCard(item, isRightAligned: false));
-        }
-
-        foreach (var slotName in RightSlotOrder)
-        {
-            foreach (var item in allItems.Where(i => i.Slot == slotName))
-                RightColumn.Children.Add(CreateItemCard(item, isRightAligned: true));
+                column.Children.Add(CreateItemCard(item));
         }
     }
 
-    private static UIElement CreateItemCard(EquipmentItem item, bool isRightAligned)
+    private static UIElement CreateItemCard(EquipmentItem item)
     {
         var rarityColor = RarityColors.GetValueOrDefault(item.Rarity, RarityColors["Legendary"]);
 
@@ -77,7 +82,7 @@ public partial class BuildViewerWindow : Window
             BorderBrush = new SolidColorBrush(Color.FromArgb(80, rarityColor.R, rarityColor.G, rarityColor.B)),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(4),
-            Padding = new Thickness(10, 8, 10, 8),
+            Padding = new Thickness(8, 7, 8, 7),
             Margin = new Thickness(0, 0, 0, 8),
         };
 
@@ -87,25 +92,27 @@ public partial class BuildViewerWindow : Window
         var iconBlock = new TextBlock
         {
             Text = icon,
-            FontSize = 28,
+            FontSize = 24,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = isRightAligned ? new Thickness(10, 0, 0, 0) : new Thickness(0, 0, 10, 0),
+            Margin = new Thickness(0, 0, 8, 0),
         };
 
         var textStack = new StackPanel();
 
         // Slot label
-        var slotLabel = item.Slot == "Off-Weapon" ? "Off-Hand Weapon" : item.Slot;
+        var slotLabel = string.IsNullOrWhiteSpace(item.DisplaySlot)
+            ? item.Slot == "Off-Weapon" ? "Off-Hand Weapon" : item.Slot
+            : item.DisplaySlot;
         textStack.Children.Add(new TextBlock
         {
             Text = slotLabel,
-            FontSize = 10,
+            FontSize = 9,
             Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#666666")),
             Margin = new Thickness(0, 0, 0, 2),
         });
 
         // Item name with rarity color
-        var nameText = CreateSelectableText(item.Name, 13, rarityColor, FontWeights.SemiBold);
+        var nameText = CreateSelectableText(item.Name, 12, rarityColor, FontWeights.SemiBold);
         textStack.Children.Add(nameText);
 
         // Rarity tag
@@ -124,7 +131,7 @@ public partial class BuildViewerWindow : Window
             tag.Child = new TextBlock
             {
                 Text = item.Rarity.ToUpperInvariant(),
-                FontSize = 9,
+                FontSize = 8,
                 Foreground = new SolidColorBrush(rarityColor),
                 FontWeight = FontWeights.Bold,
             };
@@ -136,12 +143,12 @@ public partial class BuildViewerWindow : Window
         {
             if (affix.IsGa)
             {
-                textStack.Children.Add(CreateSelectableText($"⭐ {affix.Name}", 12,
+                textStack.Children.Add(CreateSelectableText($"⭐ {affix.Name}", 11,
                     (Color)ColorConverter.ConvertFromString("#ffd700")));
             }
             else
             {
-                textStack.Children.Add(CreateSelectableText($"• {affix.Name}", 12,
+                textStack.Children.Add(CreateSelectableText($"• {affix.Name}", 11,
                     (Color)ColorConverter.ConvertFromString("#e0e0e0")));
             }
         }
@@ -153,21 +160,12 @@ public partial class BuildViewerWindow : Window
                 ? (Color)ColorConverter.ConvertFromString("#ffd700")
                 : (Color)ColorConverter.ConvertFromString("#7ba4d4");
             var suffix = temper.IsGa ? " ⭐" : "";
-            textStack.Children.Add(CreateSelectableText($"⚒ {temper.Name}{suffix}", 12, temperColor));
+            textStack.Children.Add(CreateSelectableText($"⚒ {temper.Name}{suffix}", 11, temperColor));
         }
 
-        if (isRightAligned)
-        {
-            DockPanel.SetDock(iconBlock, Dock.Right);
-            outerStack.Children.Add(iconBlock);
-            outerStack.Children.Add(textStack);
-        }
-        else
-        {
-            DockPanel.SetDock(iconBlock, Dock.Left);
-            outerStack.Children.Add(iconBlock);
-            outerStack.Children.Add(textStack);
-        }
+        DockPanel.SetDock(iconBlock, Dock.Left);
+        outerStack.Children.Add(iconBlock);
+        outerStack.Children.Add(textStack);
 
         card.Child = outerStack;
         return card;

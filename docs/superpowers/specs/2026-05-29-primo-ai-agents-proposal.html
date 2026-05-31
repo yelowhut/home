@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primo AI Agents — Архитектурное предложение (ред. 2)</title>
+<style>
+  :root {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-card: #252547;
+    --bg-card-hover: #2d2d5e;
+    --bg-code: #0f0f23;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0b8;
+    --text-muted: #6e6e8a;
+    --accent-blue: #4fc3f7;
+    --accent-green: #81c784;
+    --accent-orange: #ffb74d;
+    --accent-red: #ef5350;
+    --accent-purple: #b39ddb;
+    --accent-cyan: #4dd0e1;
+    --border-color: #3a3a5c;
+    --border-accent: #4fc3f740;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(26,26,46,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 24px;
+  }
+
+  .nav-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    white-space: nowrap;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover {
+    color: var(--accent-blue);
+    background: rgba(79,195,247,0.08);
+  }
+
+  .nav-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 96px 32px 80px;
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 64px 0 48px;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(79,195,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(79,195,247,0.1);
+    border: 1px solid rgba(79,195,247,0.25);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--accent-blue);
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .hero-sub {
+    font-size: 20px;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* SECTIONS */
+  section {
+    margin-bottom: 80px;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-num {
+    font-size: 13px;
+    color: var(--accent-blue);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  h4 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--accent-blue);
+  }
+
+  .section-lead {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 800px;
+    line-height: 1.7;
+  }
+
+  p {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .card-sm {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .card-sm:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+  }
+
+  /* THREE COLUMNS COMPARISON */
+  .trio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 32px 0;
+  }
+
+  .trio-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trio-card.highlight {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 30px rgba(79,195,247,0.1);
+  }
+
+  .trio-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .trio-card h4 {
+    color: var(--text-primary);
+    font-size: 19px;
+    margin-bottom: 8px;
+  }
+
+  .trio-card .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .tag-green { background: rgba(129,199,132,0.15); color: var(--accent-green); }
+  .tag-blue { background: rgba(79,195,247,0.15); color: var(--accent-blue); }
+  .tag-orange { background: rgba(255,183,77,0.15); color: var(--accent-orange); }
+  .tag-purple { background: rgba(179,157,219,0.15); color: var(--accent-purple); }
+  .tag-red { background: rgba(239,83,80,0.15); color: var(--accent-red); }
+
+  .trio-card ul {
+    text-align: left;
+    list-style: none;
+    padding: 0;
+  }
+  .trio-card ul li {
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .trio-card ul li:last-child { border-bottom: none; }
+  .trio-card ul li::before {
+    content: '\2022';
+    color: var(--accent-blue);
+    margin-right: 8px;
+    font-weight: bold;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--bg-secondary);
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-align: left;
+    padding: 14px 18px;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  tr:hover td {
+    background: rgba(79,195,247,0.03);
+  }
+
+  /* SVG DIAGRAMS */
+  .diagram {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin: 24px 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .diagram-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    margin: 40px 0;
+    padding-left: 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 32px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent-blue), var(--accent-green), var(--accent-orange), var(--accent-purple), var(--accent-cyan));
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 80px;
+    margin-bottom: 40px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 22px;
+    top: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid;
+    background: var(--bg-primary);
+  }
+
+  .timeline-phase {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .timeline-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+  }
+
+  .timeline-period {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .timeline-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+  }
+
+  .timeline-content ul {
+    list-style: none;
+    padding: 0;
+  }
+  .timeline-content ul li {
+    padding: 4px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .timeline-content ul li::before {
+    content: '\2192';
+    color: var(--accent-blue);
+    margin-right: 8px;
+  }
+
+  /* DECISION CARDS */
+  .decision-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--accent-orange);
+  }
+
+  .decision-card.resolved {
+    border-left-color: var(--accent-green);
+  }
+
+  .decision-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,183,77,0.15);
+    color: var(--accent-orange);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .decision-card.resolved .decision-num {
+    background: rgba(129,199,132,0.15);
+    color: var(--accent-green);
+  }
+
+  .decision-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .decision-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .decision-opt {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+  }
+
+  .decision-opt h5 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .decision-opt p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+  }
+
+  .decision-rec {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(129,199,132,0.08);
+    border: 1px solid rgba(129,199,132,0.2);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--accent-green);
+  }
+
+  /* COMPARISON SIDE-BY-SIDE */
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 32px 0;
+  }
+
+  .vs-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+  }
+
+  .vs-card.recommended {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 30px rgba(129,199,132,0.08);
+  }
+
+  .vs-card.recommended::after {
+    content: 'РЕКОМЕНДУЕМ';
+    position: absolute;
+    top: -1px;
+    right: 20px;
+    background: var(--accent-green);
+    color: var(--bg-primary);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 0 0 8px 8px;
+    letter-spacing: 1px;
+  }
+
+  .vs-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .vs-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .vs-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+  .vs-list li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 8px;
+  }
+  .vs-list li:last-child { border-bottom: none; }
+
+  .check { color: var(--accent-green); }
+  .cross { color: var(--accent-red); }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin: 16px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* FLOW STEPS */
+  .flow-steps {
+    display: flex;
+    gap: 0;
+    margin: 24px 0;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+
+  .flow-step {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    position: relative;
+    padding: 0 12px;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 28px;
+    right: -12px;
+    width: 24px;
+    height: 2px;
+    background: var(--accent-blue);
+  }
+
+  .flow-step-num {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    border: 2px solid;
+  }
+
+  .flow-step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .flow-step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* SEPARATOR */
+  .sep {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 48px 0;
+  }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-go { background: rgba(79,195,247,0.15); color: var(--accent-blue); }
+  .badge-python { background: rgba(255,183,77,0.15); color: var(--accent-orange); }
+  .badge-react { background: rgba(129,199,132,0.15); color: var(--accent-green); }
+  .badge-pg { background: rgba(179,157,219,0.15); color: var(--accent-purple); }
+  .badge-electron { background: rgba(77,208,225,0.15); color: var(--accent-cyan); }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: rgba(79,195,247,0.06);
+    border: 1px solid rgba(79,195,247,0.2);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .warning-box {
+    background: rgba(255,183,77,0.06);
+    border: 1px solid rgba(255,183,77,0.2);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .success-box {
+    background: rgba(129,199,132,0.06);
+    border: 1px solid rgba(129,199,132,0.2);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .blocker-box {
+    background: rgba(239,83,80,0.06);
+    border: 1px solid rgba(239,83,80,0.25);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .trio-grid { grid-template-columns: 1fr; }
+    .vs-grid { grid-template-columns: 1fr; }
+    .decision-options { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+    h2 { font-size: 28px; }
+    .container { padding: 80px 16px 40px; }
+    .nav { padding: 0 16px; }
+    .flow-steps { flex-direction: column; }
+    .flow-step:not(:last-child)::after { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+  }
+
+  /* PRINT */
+  @media print {
+    .nav { display: none; }
+    body { background: white; color: #222; }
+    .card, .card-sm, .diagram, .timeline-content, .decision-card, .vs-card {
+      border: 1px solid #ccc;
+      background: #fafafa;
+    }
+  }
+
+  /* SMOOTH APPEARANCE */
+  section {
+    animation: fadeIn 0.4s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* STICKY TOC on wide screens */
+  .toc-float {
+    position: fixed;
+    right: 24px;
+    top: 96px;
+    width: 200px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: none;
+  }
+  @media (min-width: 1420px) {
+    .toc-float { display: block; }
+  }
+  .toc-float a {
+    display: block;
+    padding: 4px 0;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+  }
+  .toc-float a:hover {
+    color: var(--accent-blue);
+    border-left-color: var(--accent-blue);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav-logo">Primo AI Agents</div>
+  <div class="nav-links">
+    <a href="#intro">Введение</a>
+    <a href="#architecture">Архитектура</a>
+    <a href="#poc">PoC</a>
+    <a href="#state">Состояние</a>
+    <a href="#mcp-servers">MCP-серверы</a>
+    <a href="#llm">LLM Provider</a>
+    <a href="#governance">Governance</a>
+    <a href="#mvp">Варианты MVP</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#decisions">Развилки</a>
+    <a href="#deployment">Deployment</a>
+  </div>
+  <div class="nav-meta">RFC ред. 2 &middot; 2026-05-29</div>
+</nav>
+
+<!-- FLOATING TOC -->
+<div class="toc-float">
+  <div style="font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Содержание</div>
+  <a href="#intro">1. Введение</a>
+  <a href="#blocker">Блокер AI-сервера</a>
+  <a href="#architecture">2. Архитектура</a>
+  <a href="#poc">Архитектура PoC</a>
+  <a href="#state">3. Хранение состояний</a>
+  <a href="#mcp-servers">4. MCP-серверы</a>
+  <a href="#llm">5. LLM Provider</a>
+  <a href="#own">Свои агент и модель</a>
+  <a href="#governance">6. Governance</a>
+  <a href="#mvp">7. MVP</a>
+  <a href="#roadmap">8. Roadmap</a>
+  <a href="#decisions">9. Развилки</a>
+  <a href="#deployment">10. Deployment</a>
+  <a href="#risks">Риски</a>
+</div>
+
+<div class="container">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">RFC / ARCHITECTURAL PROPOSAL &middot; РЕД. 2</div>
+  <h1>Primo AI Agents</h1>
+  <p class="hero-sub">Архитектурная канва и техническое предложение по платформе сценарных и автономных ИИ агентов для Primo RPA AI Server</p>
+  <div class="hero-meta">
+    <span>Автор: Александр Шубин</span>
+    <span>Дата: 29 мая 2026</span>
+    <span>Статус: Черновик (ред. 2 — учтены итоги встречи)</span>
+  </div>
+</div>
+
+<!-- WHAT CHANGED IN ED.2 -->
+<div class="highlight-box">
+  <h4 style="margin-bottom:12px;">Что изменилось в ред. 2 (итоги встречи 2026-05-29)</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">1.</strong> То, что называлось tools/коннекторами — по факту <strong style="color:var(--accent-blue);">MCP-серверы</strong>; их разработка требует предметной экспертизы.</div>
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">2.</strong> <strong style="color:var(--accent-orange);">Хранение состояний между шагами</strong> — ключевая сложность: нужны долгоживущие, приостанавливаемые процессы (durable-execution).</div>
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">3.</strong> Критический блокер всех 4 кейсов — появление <strong style="color:var(--accent-red);">MCP к AI-серверу</strong> и его компонентам.</div>
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">4.</strong> Архитектура PoC: AI-сервер + MCP к AI-серверу + <strong style="color:var(--accent-blue);">Claude как агент + Claude как модель</strong>.</div>
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">5.</strong> В дальнейшем агент и языковые модели должны стать <strong style="color:var(--accent-green);">собственными</strong>.</div>
+    <div style="font-size:14px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">6.</strong> Роадмеп расширен <strong style="color:var(--accent-purple);">нулевой фазой (MCP к AI-серверу)</strong> и <strong style="color:var(--accent-cyan);">десктопным приложением</strong>.</div>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- SECTION 1: INTRODUCTION -->
+<!-- =========================================================== -->
+<section id="intro">
+  <div class="section-header">
+    <div class="section-num">Раздел 01</div>
+    <h2>Что такое ИИ агенты и зачем они нужны</h2>
+    <p class="section-lead">Primo AI Server сегодня умеет распознавать документы (Умный OCR) и обрабатывать текст (AI Text). Следующий шаг &mdash; ИИ агенты, которые не просто обрабатывают данные, а доводят результат до целевых систем.</p>
+  </div>
+
+  <div class="card">
+    <h3>ИИ агент в контексте Primo RPA</h3>
+    <p><strong style="color:var(--text-primary)">ИИ агент</strong> &mdash; это программа, которая получает задачу на естественном языке, сама определяет шаги для её решения, обращается к корпоративным системам (1С, почта, документы) и возвращает результат. В отличие от RPA-робота, агент понимает текст и принимает решения. В отличие от чат-бота, агент действует &mdash; не просто отвечает, а выполняет операции в системах.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;">
+      <div style="padding:16px;background:rgba(239,83,80,0.06);border:1px solid rgba(239,83,80,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-red);font-size:14px;margin-bottom:4px;">Чат-бот</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Отвечает на вопросы. Не действует в системах. Нет доступа к корпоративным данным.</div>
+      </div>
+      <div style="padding:16px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-blue);font-size:14px;margin-bottom:4px;">ИИ агент</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Понимает задачу, рассуждает, действует в системах. Запрашивает подтверждение на критичные операции.</div>
+      </div>
+      <div style="padding:16px;background:rgba(129,199,132,0.06);border:1px solid rgba(129,199,132,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-green);font-size:14px;margin-bottom:4px;">RPA-робот</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Выполняет строго заданный алгоритм. Не понимает текст. Не адаптируется к исключениям.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THREE TYPES -->
+  <div id="three-types">
+    <h3 style="margin-top:40px;margin-bottom:8px;">Три типа исполнителей</h3>
+    <p>Каждый подходит для своего класса задач. Выбор определяется балансом между предсказуемостью и гибкостью.</p>
+
+    <div class="trio-grid">
+      <div class="trio-card">
+        <div class="trio-icon" style="background:rgba(129,199,132,0.12);">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="#81c784" stroke-width="2"/><path d="M10 14h12M10 18h8" stroke="#81c784" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h4>RPA-робот</h4>
+        <span class="tag tag-green">Зрелый продукт</span>
+        <ul>
+          <li>Фиксированный алгоритм</li>
+          <li>100% предсказуемость</li>
+          <li>Работа с UI приложений</li>
+          <li>Не понимает контекст</li>
+          <li>Ломается при изменении UI</li>
+        </ul>
+        <div style="margin-top:16px;padding:12px;background:rgba(129,199,132,0.06);border-radius:8px;">
+          <div style="font-size:12px;color:var(--accent-green);font-weight:600;margin-bottom:4px;">КОГДА ПРИМЕНЯТЬ</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Массовый ввод данных, перенос между системами, типовые операции без вариативности</div>
+        </div>
+      </div>
+
+      <div class="trio-card highlight">
+        <div class="trio-icon" style="background:rgba(79,195,247,0.12);">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="10" r="5" stroke="#4fc3f7" stroke-width="2"/><path d="M8 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#4fc3f7" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="8" r="3" fill="#4fc3f730" stroke="#4fc3f7" stroke-width="1.5"/></svg>
+        </div>
+        <h4>Сценарный ИИ агент</h4>
+        <span class="tag tag-blue">Ц1-2 &middot; Начинаем продавать</span>
+        <ul>
+          <li>Граф шагов задан заранее</li>
+          <li>LLM работает внутри каждого шага</li>
+          <li>Предсказуемый маршрут</li>
+          <li>Понимает текст и контекст</li>
+          <li>Управляемый и аудируемый</li>
+        </ul>
+        <div style="margin-top:16px;padding:12px;background:rgba(79,195,247,0.06);border-radius:8px;">
+          <div style="font-size:12px;color:var(--accent-blue);font-weight:600;margin-bottom:4px;">КОГДА ПРИМЕНЯТЬ</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Обработка счетов, ответы на типовые запросы ФНС, конвейер документов с ветвлением по типу</div>
+        </div>
+      </div>
+
+      <div class="trio-card">
+        <div class="trio-icon" style="background:rgba(255,183,77,0.12);">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4l3 6h6l-5 4 2 6-6-4-6 4 2-6-5-4h6z" stroke="#ffb74d" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h4>Автономный ИИ агент</h4>
+        <span class="tag tag-orange">Ц1-3 &middot; Проверка гипотезы</span>
+        <ul>
+          <li>Сам выбирает шаги</li>
+          <li>ReAct: Think &rarr; Act &rarr; Observe</li>
+          <li>Адаптируется к исключениям</li>
+          <li>Максимальная гибкость</li>
+          <li>Нужен human-in-the-loop</li>
+        </ul>
+        <div style="margin-top:16px;padding:12px;background:rgba(255,183,77,0.06);border-radius:8px;">
+          <div style="font-size:12px;color:var(--accent-orange);font-weight:600;margin-bottom:4px;">КОГДА ПРИМЕНЯТЬ</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Разбор исключений, расследование расхождений, аналитика по документам, сложные запросы</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE BLOCKER (§1.6) -->
+  <div id="blocker" style="margin-top:40px;">
+    <h3>Что блокирует AI-сервер сегодня &mdash; и роль агента</h3>
+    <p>В стратегической документации зафиксированы <strong style="color:var(--text-primary)">4 основных кейса, которые AI-сервер в текущем виде не закрывает</strong>. Их объединяет общий разрыв: AI-сервер умеет обработать документ (OCR, классификация, извлечение данных), но <strong style="color:var(--text-primary)">не умеет дальше довести результат до смежных систем</strong> (1С, ERP, почта, файловые хранилища). Именно это «доведение результата до целевой системы» и есть задача AI-агента.</p>
+
+    <div class="blocker-box">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 4l12 22H4z" stroke="#ef5350" stroke-width="2" stroke-linejoin="round"/><path d="M16 13v6M16 22.5v.5" stroke="#ef5350" stroke-width="2" stroke-linecap="round"/></svg>
+        <h4 style="margin-bottom:0;color:var(--accent-red);">Единственный реальный блокер &mdash; отсутствие MCP к AI-серверу</h4>
+      </div>
+      <p style="margin-bottom:10px;"><strong style="color:var(--text-primary)">Сам агент и языковая модель для PoC могут быть практически любыми</strong> — это не блокер. Для проверки гипотезы достаточно внешнего агента и внешней модели (Claude).</p>
+      <p style="margin-bottom:0;">Пока AI-сервер (OCR, NLP, выдача обработанных документов) не выставлен наружу как <strong style="color:var(--accent-red)">MCP</strong>, агенту не на что опираться. Поэтому разработка MCP к AI-серверу выносится в <strong style="color:var(--accent-purple)">нулевую фазу роадмепа</strong>.</p>
+    </div>
+  </div>
+
+  <!-- EXAMPLES -->
+  <div id="examples" style="margin-top:40px;">
+    <h3>Конкретные бизнес-сценарии</h3>
+    <div class="card-grid" style="margin-top:20px;">
+      <div class="card-sm">
+        <span class="tag tag-blue" style="margin-bottom:12px;">Сценарный агент</span>
+        <h4 style="color:var(--text-primary);margin-bottom:8px;">Обработка входящего счёта</h4>
+        <p style="font-size:14px;margin-bottom:0;">Агент получает счёт по email, распознаёт реквизиты через OCR, сверяет с данными контрагента в 1С, при совпадении &mdash; проводит документ. При расхождении &mdash; запрашивает подтверждение оператора.</p>
+      </div>
+      <div class="card-sm">
+        <span class="tag tag-blue" style="margin-bottom:12px;">Сценарный агент</span>
+        <h4 style="color:var(--text-primary);margin-bottom:8px;">Ответ на запрос ФНС</h4>
+        <p style="font-size:14px;margin-bottom:0;">Агент получает запрос, классифицирует тип, находит нужные документы в корпоративной базе знаний (RAG), формирует ответ со ссылками на источники, отправляет на согласование юристу.</p>
+      </div>
+      <div class="card-sm">
+        <span class="tag tag-orange" style="margin-bottom:12px;">Автономный агент</span>
+        <h4 style="color:var(--text-primary);margin-bottom:8px;">Разбор исключения по счёту</h4>
+        <p style="font-size:14px;margin-bottom:0;">Застрявший в обработке счёт. Агент сам решает, куда смотреть: лезет в 1С за историей контрагента, проверяет условия договора, сравнивает позиции, формулирует причину расхождения и предлагает решение.</p>
+      </div>
+      <div class="card-sm">
+        <span class="tag tag-purple" style="margin-bottom:12px;">Длинный процесс</span>
+        <h4 style="color:var(--text-primary);margin-bottom:8px;">AI-онбординг сотрудника</h4>
+        <p style="font-size:14px;margin-bottom:0;">Шаги растянуты на весь испытательный срок &mdash; дни, недели, месяцы. Процесс приостанавливается и возобновляется спустя произвольное время. Канонический пример, требующий durable-execution (см. раздел 03).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY BOTH -->
+  <div class="highlight-box" style="margin-top:32px;">
+    <h4 style="margin-bottom:8px;">Почему нужны оба типа агентов?</h4>
+    <p style="margin-bottom:8px;">Сценарные агенты покрывают 70-80% задач &mdash; типовые процессы с известным маршрутом. Но оставшиеся 20-30% &mdash; исключения, аналитика, нестандартные запросы &mdash; требуют агента, который умеет рассуждать. <strong style="color:var(--text-primary)">Без автономных агентов мы проигрываем конкурентам на сложных кейсах. Без сценарных &mdash; не закрываем массовый enterprise-спрос.</strong></p>
+    <p style="margin-bottom:0;">Архитектурно оба типа &mdash; это разные <strong style="color:var(--text-primary)">стратегии исполнения</strong> поверх единой платформы. MCP-серверы, LLM Provider, Governance, UI &mdash; общие. Разница только в движке выбора следующего шага.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 2: ARCHITECTURE -->
+<!-- =========================================================== -->
+<section id="architecture">
+  <div class="section-header">
+    <div class="section-num">Раздел 02</div>
+    <h2>Архитектура платформы</h2>
+    <p class="section-lead">Единая платформа, два типа исполнения. Все компоненты &mdash; общие, кроме движка выбора следующего шага. Интеграции с внешними системами реализуются как MCP-серверы.</p>
+  </div>
+
+  <!-- MAIN ARCHITECTURE DIAGRAM -->
+  <div class="diagram">
+    <svg width="900" height="620" viewBox="0 0 900 620">
+      <!-- Background layers -->
+      <rect x="40" y="10" width="820" height="80" rx="12" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+      <rect x="40" y="110" width="820" height="80" rx="12" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+      <rect x="40" y="210" width="820" height="160" rx="12" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+      <rect x="40" y="390" width="820" height="100" rx="12" fill="#252547" stroke="#b39ddb" stroke-width="1.5"/>
+      <rect x="40" y="510" width="820" height="100" rx="12" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+
+      <!-- Layer labels -->
+      <text x="60" y="55" fill="#4fc3f7" font-size="20" font-weight="700" font-family="Inter,sans-serif">Chat UI / Десктоп</text>
+      <text x="330" y="55" fill="#a0a0b8" font-size="13" font-family="Inter,sans-serif">React / Electron &mdash; чат на рабочем месте, трейс рассуждений</text>
+
+      <text x="60" y="155" fill="#81c784" font-size="20" font-weight="700" font-family="Inter,sans-serif">API Gateway</text>
+      <text x="260" y="155" fill="#a0a0b8" font-size="13" font-family="Inter,sans-serif">Go &mdash; аутентификация, роутинг, rate limiting, WebSocket streaming</text>
+
+      <text x="60" y="240" fill="#ffb74d" font-size="20" font-weight="700" font-family="Inter,sans-serif">Agent Runtime</text>
+      <text x="280" y="240" fill="#a0a0b8" font-size="13" font-family="Inter,sans-serif">Python &mdash; ядро исполнения агентов</text>
+
+      <!-- Executors inside Runtime -->
+      <rect x="80" y="260" width="340" height="90" rx="8" fill="#1a1a2e" stroke="#4fc3f7" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="100" y="285" fill="#4fc3f7" font-size="15" font-weight="600" font-family="Inter,sans-serif">Scenario Executor</text>
+      <text x="100" y="305" fill="#a0a0b8" font-size="12" font-family="Inter,sans-serif">Граф шагов (YAML/JSON)</text>
+      <text x="100" y="325" fill="#a0a0b8" font-size="12" font-family="Inter,sans-serif">LLM внутри шагов, детерминированный маршрут</text>
+
+      <rect x="460" y="260" width="370" height="90" rx="8" fill="#1a1a2e" stroke="#ffb74d" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="480" y="285" fill="#ffb74d" font-size="15" font-weight="600" font-family="Inter,sans-serif">Autonomous Executor</text>
+      <text x="480" y="305" fill="#a0a0b8" font-size="12" font-family="Inter,sans-serif">ReAct-цикл: Think &rarr; Act &rarr; Observe</text>
+      <text x="480" y="325" fill="#a0a0b8" font-size="12" font-family="Inter,sans-serif">LLM выбирает шаги, Human-in-the-loop</text>
+
+      <!-- MCP Router connector -->
+      <rect x="320" y="356" width="240" height="28" rx="6" fill="#1a1a2e" stroke="#81c784" stroke-width="1.5"/>
+      <text x="440" y="376" fill="#81c784" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">MCP Router</text>
+
+      <!-- Platform Services -->
+      <text x="60" y="420" fill="#b39ddb" font-size="20" font-weight="700" font-family="Inter,sans-serif">Platform Services</text>
+
+      <rect x="80" y="435" width="220" height="40" rx="6" fill="#1a1a2e" stroke="#b39ddb" stroke-width="1"/>
+      <text x="190" y="460" fill="#b39ddb" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">LLM Provider Abstraction</text>
+
+      <rect x="320" y="435" width="220" height="40" rx="6" fill="#1a1a2e" stroke="#ffb74d" stroke-width="1.5"/>
+      <text x="430" y="455" fill="#ffb74d" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">State &amp; Durable Execution</text>
+      <text x="430" y="469" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">долгоживущие процессы (раздел 03)</text>
+
+      <rect x="560" y="435" width="270" height="40" rx="6" fill="#1a1a2e" stroke="#b39ddb" stroke-width="1"/>
+      <text x="695" y="460" fill="#b39ddb" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Governance: RBAC &middot; Audit &middot; Guardrails</text>
+
+      <!-- MCP servers layer -->
+      <text x="60" y="540" fill="#4dd0e1" font-size="20" font-weight="700" font-family="Inter,sans-serif">MCP-серверы</text>
+
+      <rect x="80" y="555" width="120" height="40" rx="6" fill="#1a1a2e" stroke="#ef5350" stroke-width="1.5"/>
+      <text x="140" y="572" fill="#ef5350" font-size="12" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">MCP &rarr; AI-сервер</text>
+      <text x="140" y="586" fill="#a0a0b8" font-size="9" text-anchor="middle" font-family="Inter,sans-serif">блокер &middot; Фаза 0</text>
+
+      <rect x="215" y="555" width="100" height="40" rx="6" fill="#1a1a2e" stroke="#4dd0e1" stroke-width="1"/>
+      <text x="265" y="580" fill="#4dd0e1" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">1С (OData)</text>
+
+      <rect x="330" y="555" width="100" height="40" rx="6" fill="#1a1a2e" stroke="#4dd0e1" stroke-width="1"/>
+      <text x="380" y="580" fill="#4dd0e1" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Email</text>
+
+      <rect x="445" y="555" width="110" height="40" rx="6" fill="#1a1a2e" stroke="#4dd0e1" stroke-width="1"/>
+      <text x="500" y="580" fill="#4dd0e1" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">RAG / Docs</text>
+
+      <rect x="570" y="555" width="110" height="40" rx="6" fill="#1a1a2e" stroke="#4dd0e180" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="625" y="580" fill="#4dd0e180" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">RPA (MCP)</text>
+
+      <rect x="695" y="555" width="125" height="40" rx="6" fill="#1a1a2e" stroke="#4dd0e180" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="757" y="580" fill="#4dd0e180" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">HTTP / Custom</text>
+
+      <!-- Arrows between layers -->
+      <path d="M450 90 L450 110" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+      <path d="M450 190 L450 210" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+      <path d="M440 370 L440 390" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+      <path d="M440 490 L440 510" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <defs>
+        <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a3a5c"/>
+        </marker>
+        <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#4fc3f7"/>
+        </marker>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#81c784"/>
+        </marker>
+        <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffb74d"/>
+        </marker>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef5350"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="diagram-caption">Общая архитектура платформы Primo AI Agents</div>
+  </div>
+
+  <!-- COMPONENTS TABLE -->
+  <div id="components">
+    <h3 style="margin-top:40px;">Компоненты и стек</h3>
+    <p>Чёткое разделение: <span class="badge badge-go">Go</span> &mdash; инфраструктура. <span class="badge badge-python">Python</span> &mdash; AI-логика. <span class="badge badge-react">React</span> &mdash; UI.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Компонент</th><th>Язык</th><th>Назначение</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Desktop Client</td><td><span class="badge badge-electron">Electron/Tauri</span></td><td>Десктопное приложение: запуск агента в режиме чата прямо на рабочем месте (Фаза 1)</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">API Gateway</td><td><span class="badge badge-go">Go</span></td><td>Единая точка входа: аутентификация, роутинг, rate limiting, WebSocket</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Agent Runtime</td><td><span class="badge badge-python">Python</span></td><td>Ядро исполнения агентов. Два executor'а с общим интерфейсом AgentEvent</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">MCP Router</td><td><span class="badge badge-python">Python</span></td><td>Единый реестр MCP-серверов. Агент вызывает инструмент по имени, роутер маршрутизирует в нужный сервер</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">LLM Provider</td><td><span class="badge badge-python">Python</span></td><td>Абстракция: Claude (PoC), AI Server, Ollama, vLLM. Цель &mdash; собственная модель</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">State &amp; Durable Execution</td><td><span class="badge badge-python">Python + очередь</span></td><td>Состояние сессии, история, <strong style="color:var(--accent-orange);">долгоживущие приостанавливаемые процессы</strong> (раздел 03)</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Governance</td><td><span class="badge badge-go">Go</span></td><td>RBAC, аудит-лог, guardrails &mdash; сквозной слой для обоих типов агентов</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Chat UI</td><td><span class="badge badge-react">React/TS</span></td><td>Чат с агентом, трейс рассуждений, журнал шагов (web + основа десктоп-клиента)</td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">MCP-серверы</td><td><span class="badge badge-python">Python</span></td><td>Интеграции как MCP-серверы: MCP к AI-серверу, 1С, почта, RAG, RPA. Каждый требует предметной экспертизы</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warning-box">
+      <strong style="color:var(--accent-orange);">Важно про терминологию:</strong> то, что в ранних версиях называлось «tools / коннекторы», по факту является <strong style="color:var(--text-primary);">MCP-серверами</strong>. Это не косметика: разработка каждого MCP-сервера требует экспертизы в предметной области (как устроен AI-сервер, 1С, конкретная ERP), а не только инженерной. Это влияет на оценку трудозатрат и на то, кого подключать к разработке каждого коннектора.
+    </div>
+  </div>
+
+  <!-- DATA FLOW -->
+  <div id="data-flow" style="margin-top:48px;">
+    <h3>Поток данных: от запроса до результата</h3>
+    <p>Единый поток <strong style="color:var(--text-primary)">AgentEvent</strong> &mdash; thought, tool_call, tool_result, approval_request, answer. UI, логирование и governance работают одинаково для обоих типов.</p>
+
+    <div class="diagram">
+      <svg width="860" height="500" viewBox="0 0 860 500">
+        <!-- Actors -->
+        <rect x="30" y="20" width="130" height="36" rx="6" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="95" y="43" fill="#4fc3f7" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Пользователь</text>
+
+        <rect x="230" y="20" width="100" height="36" rx="6" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="280" y="43" fill="#4fc3f7" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Chat UI</text>
+
+        <rect x="400" y="20" width="120" height="36" rx="6" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+        <text x="460" y="43" fill="#81c784" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">API Gateway</text>
+
+        <rect x="590" y="20" width="130" height="36" rx="6" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="655" y="43" fill="#ffb74d" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Agent Runtime</text>
+
+        <rect x="755" y="20" width="85" height="36" rx="6" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+        <text x="797" y="43" fill="#4dd0e1" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">MCP-серв.</text>
+
+        <!-- Lifelines -->
+        <line x1="95" y1="56" x2="95" y2="490" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="280" y1="56" x2="280" y2="490" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="460" y1="56" x2="460" y2="490" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="655" y1="56" x2="655" y2="490" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="797" y1="56" x2="797" y2="490" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Step 1: User sends message -->
+        <line x1="95" y1="90" x2="270" y2="90" stroke="#4fc3f7" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <text x="183" y="83" fill="#e0e0e0" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">"Разбери этот счёт"</text>
+
+        <!-- Step 2: Auth + route -->
+        <line x1="280" y1="110" x2="450" y2="110" stroke="#81c784" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <text x="365" y="103" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">auth + route</text>
+
+        <!-- Step 3: Create session -->
+        <line x1="460" y1="130" x2="645" y2="130" stroke="#ffb74d" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+        <text x="553" y="123" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">create session</text>
+
+        <!-- Step 4: THINK -->
+        <rect x="630" y="155" width="50" height="24" rx="4" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="1"/>
+        <text x="655" y="171" fill="#4fc3f7" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">THINK</text>
+        <line x1="280" y1="175" x2="95" y2="175" stroke="#4fc3f750" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="187" y="168" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">[thought] "Нужно найти счёт в 1С"</text>
+
+        <!-- Step 5: ACT - tool call -->
+        <rect x="630" y="200" width="50" height="24" rx="4" fill="rgba(255,183,77,0.15)" stroke="#ffb74d" stroke-width="1"/>
+        <text x="655" y="216" fill="#ffb74d" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">ACT</text>
+        <line x1="655" y1="230" x2="787" y2="230" stroke="#4dd0e1" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <text x="725" y="223" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">1c.find_invoice</text>
+
+        <!-- Step 6: Tool result -->
+        <line x1="797" y1="260" x2="665" y2="260" stroke="#4dd0e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="731" y="253" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">result: found</text>
+
+        <!-- Step 7: OBSERVE -->
+        <rect x="630" y="280" width="50" height="24" rx="4" fill="rgba(179,157,219,0.15)" stroke="#b39ddb" stroke-width="1"/>
+        <text x="655" y="296" fill="#b39ddb" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">OBSRV</text>
+        <line x1="280" y1="300" x2="95" y2="300" stroke="#4fc3f750" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="187" y="293" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">[thought] "Сумма не совпадает"</text>
+
+        <!-- Step 8: THINK again -->
+        <rect x="630" y="325" width="50" height="24" rx="4" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="1"/>
+        <text x="655" y="341" fill="#4fc3f7" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">THINK</text>
+
+        <!-- Step 9: Approval request -->
+        <rect x="630" y="360" width="50" height="24" rx="4" fill="rgba(239,83,80,0.15)" stroke="#ef5350" stroke-width="1"/>
+        <text x="655" y="376" fill="#ef5350" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">APPRV</text>
+        <line x1="280" y1="380" x2="95" y2="380" stroke="#ef535080" stroke-width="1.5"/>
+        <text x="187" y="373" fill="#ef5350" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">[approval] "Провести с корректировкой?"</text>
+
+        <!-- Step 10: User approves -->
+        <line x1="95" y1="410" x2="270" y2="410" stroke="#81c784" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <text x="183" y="403" fill="#81c784" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">"Да, проведи"</text>
+        <line x1="280" y1="420" x2="460" y2="420" stroke="#81c784" stroke-width="1.5"/>
+        <line x1="460" y1="425" x2="655" y2="425" stroke="#81c784" stroke-width="1.5"/>
+
+        <!-- Step 11: Execute action -->
+        <line x1="655" y1="440" x2="787" y2="440" stroke="#4dd0e1" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <text x="725" y="433" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">1c.post_document</text>
+
+        <!-- Step 12: Answer -->
+        <rect x="630" y="458" width="50" height="24" rx="4" fill="rgba(129,199,132,0.15)" stroke="#81c784" stroke-width="1"/>
+        <text x="655" y="474" fill="#81c784" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">ANSWR</text>
+        <line x1="280" y1="475" x2="95" y2="475" stroke="#81c78480" stroke-width="1.5"/>
+        <text x="187" y="468" fill="#81c784" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">[answer] "Документ проведён"</text>
+      </svg>
+      <div class="diagram-caption">Поток данных: автономный агент обрабатывает запрос пользователя. Для сценарного агента вместо цикла THINK/ACT/OBSERVE идёт последовательность заданных шагов &mdash; EventStream и UI одинаковые</div>
+    </div>
+  </div>
+
+  <!-- AUTONOMOUS FLOW -->
+  <div id="autonomous-flow" style="margin-top:48px;">
+    <h3>Автономный агент: ReAct-цикл</h3>
+    <p>LLM сам выбирает, какой инструмент вызвать и когда остановиться. Цикл Think &rarr; Act &rarr; Observe повторяется до решения задачи или исчерпания лимитов.</p>
+
+    <div class="diagram">
+      <svg width="700" height="380" viewBox="0 0 700 380">
+        <!-- Entry -->
+        <rect x="240" y="10" width="220" height="50" rx="10" fill="#252547" stroke="#ffb74d" stroke-width="2"/>
+        <text x="350" y="31" fill="#ffb74d" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">System Prompt + Task</text>
+        <text x="350" y="48" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">+ Available Tools</text>
+
+        <line x1="350" y1="60" x2="350" y2="90" stroke="#ffb74d" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+        <!-- THINK -->
+        <rect x="260" y="90" width="180" height="55" rx="10" fill="rgba(79,195,247,0.08)" stroke="#4fc3f7" stroke-width="2"/>
+        <text x="350" y="115" fill="#4fc3f7" font-size="18" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">THINK</text>
+        <text x="350" y="133" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">LLM рассуждает о следующем шаге</text>
+
+        <line x1="350" y1="145" x2="350" y2="175" stroke="#4fc3f7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+        <!-- ACT -->
+        <rect x="260" y="175" width="180" height="55" rx="10" fill="rgba(255,183,77,0.08)" stroke="#ffb74d" stroke-width="2"/>
+        <text x="350" y="200" fill="#ffb74d" font-size="18" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">ACT</text>
+        <text x="350" y="218" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Вызов инструмента (MCP)</text>
+
+        <line x1="350" y1="230" x2="350" y2="260" stroke="#ffb74d" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+        <!-- OBSERVE -->
+        <rect x="260" y="260" width="180" height="55" rx="10" fill="rgba(179,157,219,0.08)" stroke="#b39ddb" stroke-width="2"/>
+        <text x="350" y="285" fill="#b39ddb" font-size="18" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">OBSERVE</text>
+        <text x="350" y="303" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Оценка результата</text>
+
+        <!-- Loop back arrow -->
+        <path d="M440 290 C530 290, 530 120, 440 120" stroke="#3a3a5c" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+        <text x="510" y="210" fill="#a0a0b8" font-size="12" text-anchor="middle" font-family="Inter,sans-serif" transform="rotate(90,510,210)">Нужен ещё шаг?</text>
+
+        <!-- Answer exit -->
+        <line x1="260" y1="290" x2="120" y2="290" stroke="#81c784" stroke-width="2"/>
+        <line x1="120" y1="290" x2="120" y2="340" stroke="#81c784" stroke-width="2" marker-end="url(#arrowGreen)"/>
+        <rect x="50" y="340" width="140" height="36" rx="8" fill="rgba(129,199,132,0.12)" stroke="#81c784" stroke-width="2"/>
+        <text x="120" y="363" fill="#81c784" font-size="15" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">ANSWER</text>
+        <text x="190" y="270" fill="#81c784" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Задача решена</text>
+
+        <!-- Guardrails/limits -->
+        <rect x="520" y="320" width="160" height="50" rx="8" fill="rgba(239,83,80,0.06)" stroke="#ef5350" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="600" y="342" fill="#ef5350" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Ограничения</text>
+        <text x="600" y="358" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">макс. шагов &middot; таймаут &middot; запреты</text>
+      </svg>
+      <div class="diagram-caption">ReAct-цикл автономного агента</div>
+    </div>
+  </div>
+
+  <!-- SCENARIO FLOW -->
+  <div id="scenario-flow" style="margin-top:48px;">
+    <h3>Сценарный агент: граф шагов</h3>
+    <p>Маршрут определён заранее в YAML/JSON. LLM работает <strong style="color:var(--text-primary)">внутри</strong> каждого шага, но не выбирает следующий шаг. Детерминированное поведение.</p>
+
+    <div class="diagram">
+      <svg width="700" height="380" viewBox="0 0 700 380">
+        <!-- Step Graph config -->
+        <rect x="250" y="10" width="200" height="40" rx="8" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="350" y="35" fill="#4fc3f7" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Step Graph (YAML/JSON)</text>
+
+        <line x1="350" y1="50" x2="350" y2="80" stroke="#4fc3f7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+        <!-- Step 1 -->
+        <rect x="225" y="80" width="250" height="55" rx="10" fill="rgba(79,195,247,0.08)" stroke="#4fc3f7" stroke-width="2"/>
+        <text x="260" y="102" fill="#4fc3f7" font-size="12" font-weight="700" font-family="Inter,sans-serif">Step 1:</text>
+        <text x="317" y="102" fill="#e0e0e0" font-size="12" font-family="Inter,sans-serif">classify</text>
+        <text x="350" y="122" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">LLM: "Определи тип документа"</text>
+
+        <!-- Branch -->
+        <line x1="300" y1="135" x2="300" y2="165" stroke="#4fc3f7" stroke-width="1.5"/>
+        <line x1="400" y1="135" x2="400" y2="165" stroke="#4fc3f7" stroke-width="1.5"/>
+
+        <!-- Branch labels -->
+        <rect x="245" y="160" width="80" height="20" rx="4" fill="rgba(129,199,132,0.1)"/>
+        <text x="285" y="175" fill="#81c784" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">invoice?</text>
+        <rect x="365" y="160" width="80" height="20" rx="4" fill="rgba(255,183,77,0.1)"/>
+        <text x="405" y="175" fill="#ffb74d" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">contract?</text>
+
+        <line x1="285" y1="180" x2="200" y2="210" stroke="#81c784" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <line x1="405" y1="180" x2="500" y2="210" stroke="#ffb74d" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+
+        <!-- Step 2a -->
+        <rect x="100" y="210" width="200" height="55" rx="10" fill="rgba(129,199,132,0.06)" stroke="#81c784" stroke-width="1.5"/>
+        <text x="130" y="232" fill="#81c784" font-size="12" font-weight="700" font-family="Inter,sans-serif">Step 2a:</text>
+        <text x="207" y="232" fill="#e0e0e0" font-size="12" font-family="Inter,sans-serif">extract</text>
+        <text x="200" y="252" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Извлечь реквизиты (OCR)</text>
+
+        <!-- Step 2b -->
+        <rect x="400" y="210" width="200" height="55" rx="10" fill="rgba(255,183,77,0.06)" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="430" y="232" fill="#ffb74d" font-size="12" font-weight="700" font-family="Inter,sans-serif">Step 2b:</text>
+        <text x="508" y="232" fill="#e0e0e0" font-size="12" font-family="Inter,sans-serif">summarize</text>
+        <text x="500" y="252" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Выделить условия договора</text>
+
+        <!-- Merge -->
+        <line x1="200" y1="265" x2="350" y2="305" stroke="#3a3a5c" stroke-width="1.5"/>
+        <line x1="500" y1="265" x2="350" y2="305" stroke="#3a3a5c" stroke-width="1.5"/>
+
+        <!-- Step 3 -->
+        <rect x="215" y="305" width="270" height="60" rx="10" fill="rgba(179,157,219,0.08)" stroke="#b39ddb" stroke-width="2"/>
+        <text x="245" y="330" fill="#b39ddb" font-size="12" font-weight="700" font-family="Inter,sans-serif">Step 3:</text>
+        <text x="300" y="330" fill="#e0e0e0" font-size="12" font-family="Inter,sans-serif">action (1С)</text>
+        <text x="350" y="352" fill="#ef5350" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">human_approval: true</text>
+      </svg>
+      <div class="diagram-caption">Граф шагов сценарного агента: обработка документа</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION: POC ARCHITECTURE (§2.3) -->
+<!-- =========================================================== -->
+<section id="poc">
+  <div class="section-header">
+    <div class="section-num">Архитектура PoC</div>
+    <h2>Связка для PoC: Claude + MCP к AI-серверу</h2>
+    <p class="section-lead">Для PoC-фазы сознательно берём готовые внешние компоненты &mdash; цель проверить гипотезу и снять блокер, а не строить финальный стек.</p>
+  </div>
+
+  <div class="diagram">
+    <svg width="700" height="420" viewBox="0 0 700 420">
+      <!-- Desktop / Chat -->
+      <rect x="180" y="10" width="340" height="50" rx="10" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+      <text x="350" y="32" fill="#4fc3f7" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Десктоп-клиент / Chat UI</text>
+      <text x="350" y="50" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">чат на рабочем месте</text>
+
+      <line x1="350" y1="60" x2="350" y2="90" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- Claude agent -->
+      <rect x="230" y="90" width="240" height="60" rx="10" fill="rgba(79,195,247,0.08)" stroke="#4fc3f7" stroke-width="2"/>
+      <text x="350" y="116" fill="#4fc3f7" font-size="15" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Claude &mdash; агент</text>
+      <text x="350" y="135" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Claude Agent SDK &middot; ReAct / сценарий</text>
+
+      <!-- branches -->
+      <line x1="290" y1="150" x2="190" y2="195" stroke="#b39ddb" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+      <text x="190" y="178" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">LLM-вызовы</text>
+      <line x1="410" y1="150" x2="510" y2="195" stroke="#ef5350" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+      <text x="505" y="178" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">вызовы инструментов</text>
+
+      <!-- Claude model -->
+      <rect x="80" y="195" width="200" height="60" rx="10" fill="#252547" stroke="#b39ddb" stroke-width="1.5"/>
+      <text x="180" y="221" fill="#b39ddb" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Claude (модель)</text>
+      <text x="180" y="240" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">внешняя LLM на PoC</text>
+
+      <!-- MCP to AI server -->
+      <rect x="420" y="195" width="200" height="60" rx="10" fill="rgba(239,83,80,0.08)" stroke="#ef5350" stroke-width="2"/>
+      <text x="520" y="216" fill="#ef5350" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">MCP к AI-серверу</text>
+      <text x="520" y="234" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">OCR / NLP / документы</text>
+      <text x="520" y="249" fill="#ef5350" font-size="10" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">&#9733; ГЛАВНЫЙ БЛОКЕР</text>
+
+      <line x1="520" y1="255" x2="520" y2="290" stroke="#ef5350" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+      <!-- AI server -->
+      <rect x="420" y="290" width="200" height="55" rx="10" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+      <text x="520" y="316" fill="#4dd0e1" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">AI-сервер</text>
+      <text x="520" y="334" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">существующий продукт</text>
+
+      <!-- more MCP note -->
+      <rect x="150" y="370" width="400" height="36" rx="8" fill="rgba(77,208,225,0.04)" stroke="#4dd0e130" stroke-width="1"/>
+      <text x="350" y="392" fill="#a0a0b8" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">+ по мере надобности: MCP к 1С, почте, RAG</text>
+    </svg>
+    <div class="diagram-caption">Состав PoC: AI-сервер + MCP к AI-серверу + Claude как агент + Claude как модель</div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Компонент PoC</th><th>Чем закрываем</th><th>Статус</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:var(--text-primary);font-weight:600;">AI-сервер</td><td>Существующий продукт (OCR, NLP)</td><td><span class="tag tag-green">Есть</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">MCP к AI-серверу</td><td>Разрабатываем (нулевая фаза)</td><td><span class="tag tag-red">Блокер</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Агент</td><td>Claude (Claude Agent SDK)</td><td><span class="tag tag-blue">Внешний, на PoC</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Языковая модель</td><td>Claude</td><td><span class="tag tag-blue">Внешний, на PoC</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Клиент</td><td>Десктопное приложение / чат</td><td><span class="tag tag-purple">Фаза 1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="success-box">
+    <strong style="color:var(--accent-green);">Почему так:</strong> агент и модель на PoC не критичны и заменяемы, поэтому берём самый быстрый путь к работающей демонстрации &mdash; Claude и как агент, и как модель. Всё, что отделяет PoC от продукта, &mdash; это абстракции <strong style="color:var(--text-primary);">LLM Provider</strong> (раздел 05) и <strong style="color:var(--text-primary);">MCP Router</strong> (раздел 04), которые позволяют позже подменить Claude на собственные агент и модель <strong style="color:var(--text-primary);">без переписывания бизнес-логики</strong>.
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 3: STATE & DURABLE EXECUTION (§3.5) -->
+<!-- =========================================================== -->
+<section id="state">
+  <div class="section-header">
+    <div class="section-num">Раздел 03</div>
+    <h2>Хранение состояний между шагами &mdash; ключевая сложность</h2>
+    <p class="section-lead">По итогам обсуждения это самая тяжёлая часть сценарного агента &mdash; возможно, более сложная, чем кажется сейчас. От выбора здесь зависит вся архитектура runtime.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card-sm" style="border-left:3px solid var(--accent-blue);">
+      <h4 style="color:var(--text-primary);">Почему состояние нужно хранить</h4>
+      <p style="font-size:14px;margin-bottom:8px;">Шаги агента &mdash; не одна непрерывная транзакция. Между ними возможны:</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="padding:6px 0;font-size:14px;color:var(--text-secondary);"><span style="color:var(--accent-blue);">&#8226;</span> <strong style="color:var(--text-primary);">Human-in-the-loop</strong> &mdash; процесс ждёт решения человека (минуты, часы).</li>
+        <li style="padding:6px 0;font-size:14px;color:var(--text-secondary);"><span style="color:var(--accent-orange);">&#8226;</span> <strong style="color:var(--text-primary);">Длинные фазы ожидания</strong> &mdash; дни, недели, месяцы (AI-онбординг сотрудника).</li>
+      </ul>
+      <p style="font-size:14px;margin-bottom:0;">Процесс должен уметь <strong style="color:var(--text-primary);">приостанавливаться и возобновляться</strong> спустя произвольное время, переживая рестарты сервиса. Это задача durable-execution, а не «сохранить контекст диалога».</p>
+    </div>
+
+    <div class="card-sm" style="border-left:3px solid var(--accent-red);">
+      <h4 style="color:var(--accent-red);">Почему PostgreSQL «в лоб» — плохая практика</h4>
+      <p style="font-size:14px;margin-bottom:8px;">Соблазн хранить состояние как строки/JSON в Postgres велик, но у нас <strong style="color:var(--text-primary);">неопределённость в том, какие процессы будут и какие состояния нужно хранить</strong>.</p>
+      <p style="font-size:14px;margin-bottom:0;">Проектировать жёсткую схему под неизвестные процессы &mdash; значит почти гарантированно её ломать и мигрировать. Нужен слой, управляющий состоянием и переходами как первоклассной сущностью, а не самописная машина состояний поверх таблиц.</p>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none"><path d="M16 4l12 22H4z" stroke="#ffb74d" stroke-width="2" stroke-linejoin="round"/><path d="M16 13v6M16 22.5v.5" stroke="#ffb74d" stroke-width="2" stroke-linecap="round"/></svg>
+      <h4 style="margin-bottom:0;color:var(--accent-orange);">Риск, который фиксируем прямо: «упороться» в Celery</h4>
+    </div>
+    <p style="margin-bottom:10px;"><strong style="color:var(--text-primary);">Направление &mdash; очередь задач / durable-execution.</strong> Базовый кандидат &mdash; <strong style="color:var(--accent-orange);">Celery</strong> или более верхнеуровневые инструменты на его базе: отложенные задачи, ретраи, расписания закрывают «ожидания» и частично HITL.</p>
+    <p style="margin-bottom:10px;">У Celery есть глобальная проблема &mdash; сложность. Использовать его «в сыром виде» под долгоживущие приостанавливаемые процессы &mdash; это риск написать поверх него самодельный движок состояний и утонуть в нём. Поэтому:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+      <div style="padding:14px;background:rgba(255,183,77,0.06);border-radius:8px;font-size:13px;color:var(--text-secondary);">либо берём <strong style="color:var(--text-primary);">обёртку/оркестратор поверх Celery</strong>, скрывающую сложность;</div>
+      <div style="padding:14px;background:rgba(255,183,77,0.06);border-radius:8px;font-size:13px;color:var(--text-secondary);">либо отдельно оцениваем <strong style="color:var(--text-primary);">purpose-built durable-execution движки</strong> (где приостановка/возобновление &mdash; встроенная функция).</div>
+    </div>
+  </div>
+
+  <div class="success-box">
+    <strong style="color:var(--accent-green);">Главное решение раздела:</strong> состояние и долгоживущие процессы строим на готовом движке, <strong style="color:var(--text-primary);">а не пишем с нуля поверх PostgreSQL</strong>. Конкретный выбор (Celery-обёртка vs purpose-built) &mdash; развилка №3 для техдира, решить до Фазы 2.
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 4: MCP SERVERS -->
+<!-- =========================================================== -->
+<section id="mcp-servers">
+  <div class="section-header">
+    <div class="section-num">Раздел 04</div>
+    <h2>MCP-серверы и интеграции</h2>
+    <p class="section-lead">Агент общается с интеграциями по протоколу MCP. Добавление новой интеграции = новый MCP-сервер в MCP Router. Каждый требует предметной экспертизы в своей области.</p>
+  </div>
+
+  <!-- MCP servers table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>MCP-сервер</th><th>Что делает</th><th>Фаза</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(239,83,80,0.05);"><td style="color:var(--accent-red);font-weight:700;">MCP к AI-серверу</td><td>Доступ к OCR/NLP/выдаче обработанных документов AI-сервера. <strong style="color:var(--text-primary);">Критический блокер всего продукта.</strong></td><td><span class="tag tag-red">Фаза 0</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">1С (REST/OData)</td><td>Чтение справочников, документов, контрагентов. Создание/проведение документов. Загрузка обработанных документов.</td><td><span class="tag tag-blue">PoC / MVP</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Email (IMAP/SMTP)</td><td>Чтение входящих, парсинг вложений, отправка ответов.</td><td><span class="tag tag-blue">PoC / MVP</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">RAG / Document Search</td><td>Поиск по загруженным документам. Векторный поиск + цитирование со ссылкой на источник.</td><td><span class="tag tag-green">MVP</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">RPA Robot (MCP)</td><td>Вызов RPA-робота для действий в системах без API.</td><td><span class="tag tag-purple">Post-MVP</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">HTTP / REST</td><td>Универсальный MCP-сервер для вызова произвольных API.</td><td><span class="tag tag-purple">Post-MVP</span></td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">File System</td><td>Чтение/запись файлов, работа с сетевыми папками.</td><td><span class="tag tag-purple">Post-MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="blocker-box">
+    <strong style="color:var(--accent-red);">Почему MCP к AI-серверу — нулевая фаза:</strong> все 4 нерешённых кейса упираются в одно &mdash; обработанный AI-сервером документ нужно довести до целевой системы, а для этого агенту нужен программный доступ к AI-серверу через MCP. Пока этого MCP нет, любой агент (хоть Claude, хоть собственный) бесполезен. Поэтому он идёт раньше всего остального.
+  </div>
+
+  <!-- MCP contract -->
+  <div class="card" style="margin-top:24px;">
+    <h3>Контракт MCP-сервера</h3>
+    <p>Агент не знает деталей реализации интеграции &mdash; он вызывает инструмент MCP-сервера по имени. MCP Router маршрутизирует вызов в нужный сервер. Это даёт совместимость со стандартом и позволяет переиспользовать чужие MCP-серверы.</p>
+    <div class="code-block">MCP Tool (в составе MCP-сервера):
+  name: str                  # уникальный идентификатор
+  description: str           # описание для LLM
+  parameters: JSONSchema     # входные параметры
+  requires_approval: bool    # нужно ли подтверждение оператора
+  invoke(params) &rarr; Result    # вызов через MCP (sync / async)</div>
+  </div>
+
+  <!-- 1C INTEGRATION -->
+  <div class="card">
+    <h3>Интеграция с 1С (OData)</h3>
+    <p>1С 8.x публикует OData-интерфейс из коробки. Агент не знает про OData &mdash; вызывает инструмент MCP-сервера по имени с параметрами, сервер транслирует в запрос.</p>
+
+    <div class="diagram">
+      <svg width="700" height="160" viewBox="0 0 700 160">
+        <rect x="20" y="50" width="120" height="60" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="80" y="80" fill="#ffb74d" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Agent</text>
+        <text x="80" y="96" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">find_partner()</text>
+
+        <line x1="140" y1="80" x2="200" y2="80" stroke="#81c784" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+        <rect x="200" y="50" width="120" height="60" rx="8" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+        <text x="260" y="80" fill="#81c784" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">MCP Router</text>
+
+        <line x1="320" y1="80" x2="380" y2="80" stroke="#4dd0e1" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+        <rect x="380" y="50" width="120" height="60" rx="8" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+        <text x="440" y="80" fill="#4dd0e1" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">1С MCP-сервер</text>
+        <text x="440" y="96" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">OData mapper</text>
+
+        <line x1="500" y1="80" x2="560" y2="80" stroke="#4dd0e1" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+        <rect x="560" y="30" width="120" height="100" rx="8" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="620" y="60" fill="#4fc3f7" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">1С REST</text>
+        <text x="620" y="80" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Справочники</text>
+        <text x="620" y="95" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Документы</text>
+        <text x="620" y="110" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Регистры</text>
+      </svg>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <div style="padding:14px;background:rgba(129,199,132,0.06);border-radius:8px;">
+        <div style="font-size:12px;color:var(--accent-green);font-weight:600;margin-bottom:6px;">Доступные операции</div>
+        <div style="font-size:13px;color:var(--text-secondary);">find_partner, get_invoice, create_document, post_document, list_registers</div>
+      </div>
+      <div style="padding:14px;background:rgba(255,183,77,0.06);border-radius:8px;">
+        <div style="font-size:12px;color:var(--accent-orange);font-weight:600;margin-bottom:6px;">Требования к заказчику</div>
+        <div style="font-size:13px;color:var(--text-secondary);">1С 8.x с включённым OData, сетевой доступ от сервера агентов до 1С</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RAG -->
+  <div class="card">
+    <h3>RAG &mdash; поиск по документам с цитированием</h3>
+    <p>Enterprise-требование: ответ должен содержать ссылку на конкретный источник (документ, страницу).</p>
+
+    <div class="diagram">
+      <svg width="750" height="230" viewBox="0 0 750 230">
+        <!-- Indexing pipeline -->
+        <text x="30" y="30" fill="#4fc3f7" font-size="12" font-weight="600" font-family="Inter,sans-serif">ИНДЕКСАЦИЯ</text>
+
+        <rect x="30" y="45" width="110" height="36" rx="6" fill="#252547" stroke="#4dd0e1" stroke-width="1"/>
+        <text x="85" y="68" fill="#4dd0e1" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Документы</text>
+
+        <line x1="140" y1="63" x2="175" y2="63" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="175" y="45" width="100" height="36" rx="6" fill="#252547" stroke="#b39ddb" stroke-width="1"/>
+        <text x="225" y="68" fill="#b39ddb" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Chunking</text>
+
+        <line x1="275" y1="63" x2="310" y2="63" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="310" y="45" width="110" height="36" rx="6" fill="#252547" stroke="#ffb74d" stroke-width="1"/>
+        <text x="365" y="68" fill="#ffb74d" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Embedding</text>
+
+        <line x1="420" y1="63" x2="460" y2="63" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="460" y="40" width="150" height="45" rx="6" fill="rgba(179,157,219,0.1)" stroke="#b39ddb" stroke-width="1.5"/>
+        <text x="535" y="60" fill="#b39ddb" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Vector Store</text>
+        <text x="535" y="76" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">pgvector (PostgreSQL)</text>
+
+        <!-- Search pipeline -->
+        <text x="30" y="120" fill="#81c784" font-size="12" font-weight="600" font-family="Inter,sans-serif">ПОИСК</text>
+
+        <rect x="30" y="135" width="130" height="36" rx="6" fill="#252547" stroke="#ffb74d" stroke-width="1"/>
+        <text x="95" y="158" fill="#ffb74d" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Запрос агента</text>
+
+        <line x1="160" y1="153" x2="195" y2="153" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="195" y="135" width="100" height="36" rx="6" fill="#252547" stroke="#ffb74d" stroke-width="1"/>
+        <text x="245" y="158" fill="#ffb74d" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Embed</text>
+
+        <line x1="295" y1="153" x2="330" y2="153" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="330" y="135" width="110" height="36" rx="6" fill="#252547" stroke="#b39ddb" stroke-width="1"/>
+        <text x="385" y="158" fill="#b39ddb" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">Top-K Search</text>
+
+        <!-- Connection to vector store -->
+        <path d="M535 85 L535 110 L435 110 L435 135" stroke="#b39ddb" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <line x1="440" y1="153" x2="480" y2="153" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+        <rect x="480" y="135" width="100" height="36" rx="6" fill="#252547" stroke="#4fc3f7" stroke-width="1"/>
+        <text x="530" y="158" fill="#4fc3f7" font-size="12" text-anchor="middle" font-family="Inter,sans-serif">LLM + Context</text>
+
+        <line x1="580" y1="153" x2="620" y2="153" stroke="#81c784" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+        <rect x="620" y="130" width="110" height="45" rx="6" fill="rgba(129,199,132,0.1)" stroke="#81c784" stroke-width="1.5"/>
+        <text x="675" y="152" fill="#81c784" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Ответ</text>
+        <text x="675" y="167" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">+ цитата + источник</text>
+
+        <!-- Output example -->
+        <rect x="30" y="190" width="700" height="30" rx="6" fill="rgba(129,199,132,0.04)" stroke="rgba(129,199,132,0.15)" stroke-width="1"/>
+        <text x="45" y="210" fill="#a0a0b8" font-size="12" font-family="var(--font-mono),monospace">"Отсрочка 30 дней, скидка 5% при объёме &gt;1М&#8381;" [Источник: Договор_123.pdf, стр.3]</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- AI Server Integration -->
+  <div class="card">
+    <h3>MCP к AI-серверу (нулевая фаза)</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div style="padding:16px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-blue);font-size:14px;margin-bottom:8px;">OCR</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Распознавание документов и сканов. Агент отправляет файл, получает структурированный текст с координатами полей.</div>
+      </div>
+      <div style="padding:16px;background:rgba(255,183,77,0.06);border:1px solid rgba(255,183,77,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-orange);font-size:14px;margin-bottom:8px;">NLP</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Классификация текста, извлечение сущностей. Агент использует для автоматической маршрутизации документов по типу.</div>
+      </div>
+      <div style="padding:16px;background:rgba(129,199,132,0.06);border:1px solid rgba(129,199,132,0.15);border-radius:8px;">
+        <div style="font-weight:600;color:var(--accent-green);font-size:14px;margin-bottom:8px;">Выдача документов</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Получение обработанных документов AI-сервера для дальнейшего доведения до целевых систем.</div>
+      </div>
+    </div>
+    <p style="margin-top:16px;margin-bottom:0;font-size:14px;">AI-сервер также остаётся production-провайдером LLM inference через абстракцию LLM Provider (раздел 05) &mdash; но это отдельный путь от MCP-доступа к OCR/NLP.</p>
+  </div>
+
+  <!-- RPA Integration -->
+  <div class="card" style="border-left:4px solid var(--accent-purple);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <h3 style="margin-bottom:0;">RPA-роботы как MCP-сервер</h3>
+      <span class="tag tag-purple">Post-MVP</span>
+    </div>
+    <p>Для систем без API агент может запустить RPA-робота через MCP. Робот выполняет действия в UI, агент получает результат.</p>
+    <div class="diagram" style="padding:20px;">
+      <svg width="600" height="120" viewBox="0 0 600 120">
+        <rect x="20" y="30" width="110" height="60" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="75" y="60" fill="#ffb74d" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Agent</text>
+        <text x="75" y="78" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">run_robot()</text>
+
+        <line x1="130" y1="60" x2="190" y2="60" stroke="#b39ddb" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+        <rect x="190" y="30" width="120" height="60" rx="8" fill="rgba(179,157,219,0.1)" stroke="#b39ddb" stroke-width="1.5"/>
+        <text x="250" y="55" fill="#b39ddb" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">MCP-сервер</text>
+        <text x="250" y="73" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Стандарт MCP</text>
+
+        <line x1="310" y1="60" x2="370" y2="60" stroke="#b39ddb" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+        <rect x="370" y="30" width="100" height="60" rx="8" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+        <text x="420" y="55" fill="#81c784" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Primo RPA</text>
+        <text x="420" y="73" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Orchestrator</text>
+
+        <line x1="470" y1="60" x2="510" y2="60" stroke="#81c784" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+        <rect x="510" y="30" width="70" height="60" rx="8" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+        <text x="545" y="55" fill="#4dd0e1" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Robot</text>
+        <text x="545" y="73" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">UI actions</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 5: LLM PROVIDER -->
+<!-- =========================================================== -->
+<section id="llm">
+  <div class="section-header">
+    <div class="section-num">Раздел 05</div>
+    <h2>LLM Provider &mdash; абстракция над моделями</h2>
+    <p class="section-lead">Переключение провайдера &mdash; одна строка в конфиге. Код агента не меняется. Это механизм перехода с Claude (PoC) на собственную модель.</p>
+  </div>
+
+  <div class="diagram">
+    <svg width="700" height="300" viewBox="0 0 700 300">
+      <!-- Agent Runtime -->
+      <rect x="220" y="15" width="260" height="60" rx="10" fill="#252547" stroke="#ffb74d" stroke-width="2"/>
+      <text x="350" y="42" fill="#ffb74d" font-size="15" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Agent Runtime</text>
+      <text x="350" y="62" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">llm.chat(messages, tools) &middot; llm.embed(text)</text>
+
+      <line x1="350" y1="75" x2="350" y2="110" stroke="#b39ddb" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- LLM Provider Interface -->
+      <rect x="220" y="110" width="260" height="45" rx="10" fill="rgba(179,157,219,0.1)" stroke="#b39ddb" stroke-width="2"/>
+      <text x="350" y="138" fill="#b39ddb" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">LLM Provider Interface</text>
+
+      <!-- Fan out -->
+      <line x1="220" y1="155" x2="100" y2="195" stroke="#b39ddb" stroke-width="1.5"/>
+      <line x1="300" y1="155" x2="280" y2="195" stroke="#b39ddb" stroke-width="1.5"/>
+      <line x1="400" y1="155" x2="450" y2="195" stroke="#b39ddb" stroke-width="1.5"/>
+      <line x1="480" y1="155" x2="620" y2="195" stroke="#b39ddb" stroke-width="1.5"/>
+
+      <!-- Claude -->
+      <rect x="30" y="195" width="140" height="70" rx="8" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+      <text x="100" y="222" fill="#4fc3f7" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Claude</text>
+      <text x="100" y="240" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Anthropic API</text>
+      <text x="100" y="256" fill="#4fc3f7" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">PoC</text>
+
+      <!-- AI Server -->
+      <rect x="200" y="195" width="140" height="70" rx="8" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+      <text x="270" y="222" fill="#81c784" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">AI Server</text>
+      <text x="270" y="240" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Primo RPA</text>
+      <text x="270" y="256" fill="#81c784" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">prod</text>
+
+      <!-- Ollama / vLLM -->
+      <rect x="370" y="195" width="140" height="70" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+      <text x="440" y="222" fill="#ffb74d" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Ollama / vLLM</text>
+      <text x="440" y="240" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Local / GPU</text>
+      <text x="440" y="256" fill="#ffb74d" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">prod</text>
+
+      <!-- Own model -->
+      <rect x="540" y="195" width="140" height="70" rx="8" fill="rgba(129,199,132,0.06)" stroke="#81c784" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="610" y="222" fill="#81c784" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Собственная</text>
+      <text x="610" y="240" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">модель</text>
+      <text x="610" y="256" fill="#81c784" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">цель</text>
+    </svg>
+    <div class="diagram-caption">LLM Provider: единый интерфейс. Claude на PoC, AI Server / Ollama / vLLM в проде, собственная модель — цель</div>
+  </div>
+
+  <div class="code-block">llm:
+  provider: claude           # claude | ai_server | ollama | vllm | own
+  model: claude-opus-4-x     # на PoC
+
+  embedding:
+    provider: ollama
+    model: bge-m3</div>
+
+  <!-- OWN AGENT & MODEL (§5.5) -->
+  <div id="own" style="margin-top:40px;">
+    <h3>Целевое состояние: собственные агент и модель</h3>
+    <p>На PoC и агент, и модель &mdash; внешние (Claude). Это сознательный временный выбор ради скорости. <strong style="color:var(--text-primary)">В дальнейшем и агент, и языковые модели должны стать собственными.</strong> Архитектура заложена так, чтобы этот переход не требовал переписывания.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Слой</th><th>PoC</th><th>Цель</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Агент (логика рассуждения/сценария)</td><td><span class="tag tag-blue">Claude Agent SDK</span></td><td><span class="tag tag-green">Собственный Agent Runtime</span></td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Языковая модель</td><td><span class="tag tag-blue">Claude</span></td><td><span class="tag tag-green">Собственная (AI Server / vLLM)</span></td></tr>
+          <tr><td style="color:var(--text-primary);font-weight:600;">Точка подмены</td><td>&mdash;</td><td><span class="tag tag-purple">LLM Provider + MCP Router</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="success-box">
+      <strong style="color:var(--accent-green);">Что это значит на практике:</strong> бизнес-логика, сценарии, MCP-серверы и governance не зависят от того, кто внутри &mdash; Claude или собственная модель. Миграция = смена провайдера в конфиге + перенос логики агента в собственный runtime, без затрагивания интеграций. Риск миграции и зависимость от Claude на переходный период вынесены в раздел «Риски».
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 6: GOVERNANCE -->
+<!-- =========================================================== -->
+<section id="governance">
+  <div class="section-header">
+    <div class="section-num">Раздел 06</div>
+    <h2>Governance &mdash; контроль и безопасность</h2>
+    <p class="section-lead">Сквозной слой для обоих типов агентов. Без RBAC, аудита и guardrails enterprise-заказчик не пустит агента в контур.</p>
+  </div>
+
+  <div class="card-grid">
+    <!-- RBAC -->
+    <div class="card-sm">
+      <h4>RBAC &mdash; управление доступом</h4>
+      <div class="diagram" style="padding:16px;margin:12px 0;">
+        <svg width="300" height="180" viewBox="0 0 300 180">
+          <rect x="100" y="10" width="100" height="32" rx="6" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+          <text x="150" y="31" fill="#4fc3f7" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">User</text>
+
+          <line x1="150" y1="42" x2="150" y2="62" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+          <rect x="100" y="62" width="100" height="32" rx="6" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+          <text x="150" y="83" fill="#81c784" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Role</text>
+
+          <line x1="100" y1="94" x2="40" y2="120" stroke="#3a3a5c" stroke-width="1.5"/>
+          <line x1="150" y1="94" x2="150" y2="120" stroke="#3a3a5c" stroke-width="1.5"/>
+          <line x1="200" y1="94" x2="260" y2="120" stroke="#3a3a5c" stroke-width="1.5"/>
+
+          <rect x="5" y="120" width="90" height="32" rx="4" fill="rgba(79,195,247,0.08)" stroke="#4fc3f730" stroke-width="1"/>
+          <text x="50" y="140" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">agents:use</text>
+
+          <rect x="105" y="120" width="90" height="32" rx="4" fill="rgba(255,183,77,0.08)" stroke="#ffb74d30" stroke-width="1"/>
+          <text x="150" y="140" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">tools:1c:read</text>
+
+          <rect x="205" y="120" width="90" height="32" rx="4" fill="rgba(239,83,80,0.08)" stroke="#ef535030" stroke-width="1"/>
+          <text x="250" y="140" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">agents:admin</text>
+
+          <text x="150" y="172" fill="#6e6e8a" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">MVP: admin / operator. SSO: post-MVP</text>
+        </svg>
+      </div>
+      <p style="font-size:13px;">Интеграция с AD/LDAP/Keycloak. Разграничение: кто пользуется, кто настраивает, какие MCP-серверы доступны.</p>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="card-sm">
+      <h4>Audit Log &mdash; полная трассировка</h4>
+      <div class="code-block" style="font-size:12px;margin:12px 0;">{
+  "timestamp": "...",
+  "session_id": "ses_abc123",
+  "agent_id": "invoice-processor",
+  "user_id": "operator@company.ru",
+  "event": "tool_call",
+  "tool": "1c.post_document",
+  "params": { "doc_id": "INV-2024-001" },
+  "reasoning": "Счёт сверен, расхождений нет",
+  "result": "success",
+  "approved_by": "operator@company.ru"
+}</div>
+      <p style="font-size:13px;">Каждое действие агента записывается: от запроса до финального результата. Для автономных агентов &mdash; полная цепочка рассуждений.</p>
+    </div>
+  </div>
+
+  <!-- Guardrails -->
+  <div class="card" style="margin-top:20px;">
+    <h3>Guardrails &mdash; защита от нежелательных действий</h3>
+    <div class="diagram">
+      <svg width="700" height="120" viewBox="0 0 700 120">
+        <rect x="20" y="35" width="110" height="50" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="75" y="60" fill="#ffb74d" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Agent</text>
+        <text x="75" y="76" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">action</text>
+
+        <line x1="130" y1="60" x2="195" y2="60" stroke="#3a3a5c" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+        <rect x="195" y="25" width="180" height="70" rx="10" fill="rgba(239,83,80,0.06)" stroke="#ef5350" stroke-width="2"/>
+        <text x="285" y="52" fill="#ef5350" font-size="14" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Guardrails Check</text>
+        <text x="285" y="72" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Чёрный список &middot; Лимиты &middot; PII</text>
+        <text x="285" y="85" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Макс. шагов &middot; Таймаут</text>
+
+        <!-- Allowed path -->
+        <line x1="375" y1="45" x2="460" y2="45" stroke="#81c784" stroke-width="2" marker-end="url(#arrowGreen)"/>
+        <text x="418" y="38" fill="#81c784" font-size="11" font-family="Inter,sans-serif">OK</text>
+        <rect x="460" y="25" width="130" height="40" rx="8" fill="rgba(129,199,132,0.08)" stroke="#81c784" stroke-width="1.5"/>
+        <text x="525" y="50" fill="#81c784" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Tool Execution</text>
+
+        <!-- Blocked path -->
+        <line x1="375" y1="75" x2="460" y2="75" stroke="#ef5350" stroke-width="2" marker-end="url(#arrowGray)"/>
+        <text x="418" y="68" fill="#ef5350" font-size="11" font-family="Inter,sans-serif">BLOCK</text>
+        <rect x="460" y="55" width="130" height="40" rx="8" fill="rgba(239,83,80,0.06)" stroke="#ef5350" stroke-width="1.5"/>
+        <text x="525" y="80" fill="#ef5350" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Block + Log</text>
+      </svg>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;">
+      <div style="padding:12px;background:rgba(239,83,80,0.06);border-radius:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent-red);">Чёрный список</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Запрещённые действия<br>(удаление в 1С и т.д.)</div>
+      </div>
+      <div style="padding:12px;background:rgba(255,183,77,0.06);border-radius:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent-orange);">Лимиты</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Макс. шагов, таймаут,<br>макс. сумма операции</div>
+      </div>
+      <div style="padding:12px;background:rgba(179,157,219,0.06);border-radius:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent-purple);">Content Filter</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Проверка PII<br>на входе/выходе LLM</div>
+      </div>
+      <div style="padding:12px;background:rgba(129,199,132,0.06);border-radius:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--accent-green);">Human Approval</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Подтверждение оператора<br>на критических действиях</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <strong style="color:var(--accent-orange);">Почему без этого не обойтись:</strong> Enterprise-заказчик не подпишет договор, если агент может неконтролируемо действовать в 1С, отправлять email или изменять документы. RBAC и audit &mdash; это не &laquo;потом&raquo;, это условие первого пилота. MVP: базовые лимиты (макс. шагов, таймаут); полные guardrails &mdash; следующая фаза.
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 7: MVP COMPARISON -->
+<!-- =========================================================== -->
+<section id="mvp">
+  <div class="section-header">
+    <div class="section-num">Раздел 07</div>
+    <h2>Два варианта MVP</h2>
+    <p class="section-lead">Общая архитектура, стек и подходы не меняются. Вариант MVP определяет только, какой тип агента строим первым.</p>
+  </div>
+
+  <!-- SIDE BY SIDE -->
+  <div class="vs-grid">
+    <!-- VARIANT A -->
+    <div class="vs-card">
+      <div class="vs-label" style="color:var(--accent-blue);">Вариант A</div>
+      <div class="vs-title">Сценарные агенты</div>
+      <span class="tag tag-blue" style="margin-bottom:16px;">Цель Ц1-2 &middot; Run</span>
+
+      <ul class="vs-list">
+        <li><span class="check">&#10003;</span> Предсказуемость демо</li>
+        <li><span class="check">&#10003;</span> Высокое доверие enterprise</li>
+        <li><span class="check">&#10003;</span> Ближе к продаже</li>
+        <li><span class="cross">&#10007;</span> Сложнее MVP (DSL графов)</li>
+        <li><span class="cross">&#10007;</span> Слабая дифференциация</li>
+        <li><span class="cross">&#10007;</span> Острее упирается в хранение состояний (раздел 03)</li>
+      </ul>
+
+      <h4 style="font-size:14px;margin-top:20px;">Демо-сценарий</h4>
+      <p style="font-size:13px;">&laquo;Обработка входящего счёта&raquo; &mdash; агент получает счёт, извлекает реквизиты через OCR, сверяет с 1С, при расхождении запрашивает подтверждение, проводит документ.</p>
+
+      <h4 style="font-size:14px;margin-top:16px;">Календарь (3-4 недели)</h4>
+      <div style="font-size:13px;color:var(--text-secondary);">
+        <div>Нед 1: LLM Provider, MCP-интерфейс, API Gateway, Chat UI</div>
+        <div>Нед 1-2: Scenario Executor (DSL, граф, переходы)</div>
+        <div>Нед 2-3: MCP-серверы (1С, Email), RAG</div>
+        <div>Нед 3-4: Audit log, human approval, стабилизация</div>
+      </div>
+
+      <div style="margin-top:16px;padding:10px;background:rgba(239,83,80,0.06);border-radius:6px;font-size:13px;color:var(--accent-red);">
+        <strong>Риск:</strong> DSL графов с ветвлениями &mdash; 2-3 недели. Плюс длинные ожидания и HITL требуют durable-execution (раздел 03), а не таблицы в Postgres.
+      </div>
+    </div>
+
+    <!-- VARIANT B -->
+    <div class="vs-card recommended">
+      <div class="vs-label" style="color:var(--accent-orange);">Вариант B</div>
+      <div class="vs-title">Автономные агенты</div>
+      <span class="tag tag-orange" style="margin-bottom:16px;">Цель Ц1-3 &middot; Discovery</span>
+
+      <ul class="vs-list">
+        <li><span class="check">&#10003;</span> Быстрее до MVP</li>
+        <li><span class="check">&#10003;</span> Высокий wow-фактор на демо</li>
+        <li><span class="check">&#10003;</span> Сильная дифференциация</li>
+        <li><span class="check">&#10003;</span> Проще путь ко 2-му типу</li>
+        <li><span class="cross">&#10007;</span> Зависимость от качества LLM</li>
+        <li><span class="cross">&#10007;</span> Нужен human-in-the-loop</li>
+      </ul>
+
+      <h4 style="font-size:14px;margin-top:20px;">Демо-сценарий</h4>
+      <p style="font-size:13px;">&laquo;Разбор исключения по счёту&raquo; &mdash; агент получает застрявший счёт, сам решает куда смотреть, проверяет историю в 1С, условия договора, формулирует причину и предлагает решение.</p>
+
+      <h4 style="font-size:14px;margin-top:16px;">Календарь (3-4 недели)</h4>
+      <div style="font-size:13px;color:var(--text-secondary);">
+        <div>Нед 1: LLM Provider, MCP-интерфейс, API Gateway, Chat UI</div>
+        <div>Нед 1-2: Autonomous Executor (ReAct, tool calling)</div>
+        <div>Нед 2-3: MCP-серверы (1С, Email), RAG</div>
+        <div>Нед 3: Human-in-the-loop, audit с reasoning trace</div>
+        <div>Нед 4: Guardrails, стабилизация</div>
+      </div>
+
+      <div style="margin-top:16px;padding:10px;background:rgba(255,183,77,0.06);border-radius:6px;font-size:13px;color:var(--accent-orange);">
+        <strong>Риск:</strong> ReAct-цикл проще (1-1.5 недели). Основной риск &mdash; качество LLM. Митигация: Claude на PoC/демо, локальную модель проверять отдельно.
+      </div>
+    </div>
+  </div>
+
+  <!-- FRAMEWORK FORK -->
+  <h3 style="margin-top:32px;">Развилка: фреймворк агентов</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Вариант</th><th>Плюсы</th><th>Минусы</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(129,199,132,0.05);"><td style="color:var(--accent-green);font-weight:700;">Claude Agent SDK</td><td>Самый быстрый путь к PoC, готовый агент + сильная модель, нативная поддержка MCP и tool calling</td><td>Внешняя зависимость, требует замены на собственное</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Кастомный runtime</td><td>Полный контроль, нет чужих абстракций; целевое состояние</td><td>Всё пишем сами, дольше до результата</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">LangGraph</td><td>Зрелый, графы и ReAct, встроенный checkpointing состояния (релевантно разделу 03)</td><td>Тяжёлая зависимость, vendor lock на LangChain</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">smolagents (HuggingFace)</td><td>Лёгкий, минимум абстракций</td><td>Молодой проект, меньше production-кейсов</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <h3 style="margin-top:32px;">Сравнительная таблица вариантов</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Критерий</th><th style="color:var(--accent-blue);">A &mdash; Сценарный</th><th style="color:var(--accent-orange);">B &mdash; Автономный</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Сложность MVP</td><td>Выше (DSL графов)</td><td style="color:var(--accent-green);">Ниже (ReAct-цикл)</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Риск по срокам</td><td>Средний (движок графов)</td><td style="color:var(--accent-green);">Низкий (код), средний (LLM)</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Wow-фактор на демо</td><td>Умеренный</td><td style="color:var(--accent-green);">Высокий</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Предсказуемость демо</td><td style="color:var(--accent-green);">Высокая</td><td>Средняя (зависит от LLM)</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Доверие enterprise</td><td style="color:var(--accent-green);">Высокое</td><td>Среднее (нужен HITL)</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Дифференциация</td><td>Слабая (commoditized)</td><td style="color:var(--accent-green);">Сильная</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Путь ко 2-му типу</td><td>B после A &mdash; сложнее</td><td style="color:var(--accent-green);">A после B &mdash; проще</td></tr>
+        <tr><td style="color:var(--text-primary);font-weight:600;">Стратегическая цель</td><td>Ц1-2 (Run)</td><td>Ц1-3 (Discovery)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="success-box">
+    <strong style="color:var(--accent-green);">Рекомендации:</strong> на PoC &mdash; <strong style="color:var(--text-primary);">Claude Agent SDK</strong> (быстрее всего проверяем гипотезу); для последующих фаз &mdash; оценить кастомный runtime / LangGraph с прицелом на собственного агента и встроенную работу с состоянием. По типу агента &mdash; <strong style="color:var(--text-primary);">Вариант B</strong>: быстрее до MVP, сильнее на демо, проще путь к добавлению сценарного режима потом (ReAct + фиксированный план = scenario). Решение за командой.
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 8: ROADMAP -->
+<!-- =========================================================== -->
+<section id="roadmap">
+  <div class="section-header">
+    <div class="section-num">Раздел 08</div>
+    <h2>Фазы развития до конца 2026</h2>
+    <p class="section-lead">Роадмеп пересобран по итогам встречи: впереди появляются нулевая фаза (MCP к AI-серверу) и десктопное приложение, после которых идёт прежнее тело роадмепа с адаптациями. Это снимает главный блокер до того, как вкладываться в остальное.</p>
+  </div>
+
+  <!-- VISUAL TIMELINE BAR -->
+  <div class="diagram" style="padding:20px 32px;">
+    <svg width="800" height="110" viewBox="0 0 800 110">
+      <!-- Main bar -->
+      <rect x="0" y="40" width="800" height="30" rx="15" fill="#252547"/>
+
+      <!-- Phase segments (5 phases) -->
+      <rect x="0" y="40" width="160" height="30" rx="15" fill="rgba(239,83,80,0.25)"/>
+      <rect x="160" y="40" width="160" height="30" rx="0" fill="rgba(77,208,225,0.2)"/>
+      <rect x="320" y="40" width="160" height="30" rx="0" fill="rgba(255,183,77,0.2)"/>
+      <rect x="480" y="40" width="160" height="30" rx="0" fill="rgba(179,157,219,0.2)"/>
+      <rect x="640" y="40" width="160" height="30" rx="15" fill="rgba(129,199,132,0.2)"/>
+
+      <!-- Phase labels inside -->
+      <text x="80" y="60" fill="#ef5350" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Фаза 0</text>
+      <text x="240" y="60" fill="#4dd0e1" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Фаза 1</text>
+      <text x="400" y="60" fill="#ffb74d" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Фаза 2</text>
+      <text x="560" y="60" fill="#b39ddb" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Фаза 3</text>
+      <text x="720" y="60" fill="#81c784" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Фаза 4</text>
+
+      <!-- Descriptions above -->
+      <text x="80" y="28" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">MCP к AI-серв. (PoC)</text>
+      <text x="240" y="28" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Десктоп (чат)</text>
+      <text x="400" y="28" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Пилот + 2-й тип</text>
+      <text x="560" y="28" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Production Grade</text>
+      <text x="720" y="28" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">Масштаб + свои</text>
+
+      <!-- Critical path note -->
+      <text x="80" y="92" fill="#ef5350" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">критический путь</text>
+      <text x="240" y="92" fill="#6e6e8a" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">первый клиент</text>
+      <text x="560" y="92" fill="#6e6e8a" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">тело роадмепа с адаптациями</text>
+    </svg>
+  </div>
+
+  <div class="warning-box" style="font-size:14px;">
+    <strong style="color:var(--accent-orange);">Сроки:</strong> добавление двух фронтальных фаз сдвигает прежнюю датировку (июнь&rarr;декабрь). Конкретные даты фиксируем <strong style="color:var(--text-primary);">после оценки Фазы 0</strong>, т.к. она на критическом пути и зависит от готовности AI-сервера к выставлению MCP.
+  </div>
+
+  <!-- DETAILED TIMELINE -->
+  <div class="timeline">
+    <!-- Phase 0 -->
+    <div class="timeline-item">
+      <div class="timeline-dot" style="border-color:var(--accent-red);"></div>
+      <div class="timeline-phase" style="color:var(--accent-red);">Фаза 0 (нулевая) &middot; MCP + PoC</div>
+      <div class="timeline-title">MCP к AI-серверу + PoC</div>
+      <div class="timeline-period">3-4 недели &middot; критический путь &middot; Discovery &rarr; Run</div>
+      <div class="timeline-content">
+        <ul>
+          <li>MCP к AI-серверу (OCR/NLP/выдача обработанных документов)</li>
+          <li>Связка PoC: AI-сервер + MCP + Claude как агент + Claude как модель</li>
+          <li>Один сквозной кейс: обработанный документ доведён до целевой системы</li>
+          <li>MCP к одной целевой системе (1С / почта) для «доведения результата»</li>
+          <li>Базовый audit log</li>
+        </ul>
+        <div style="margin-top:12px;padding:10px;background:rgba(239,83,80,0.06);border-radius:6px;font-size:13px;color:var(--accent-red);">
+          <strong>Проверяем:</strong> работает ли связка «AI-сервер &rarr; MCP &rarr; агент &rarr; целевая система»? Закрывает ли хотя бы один из 4 нерешённых кейсов?
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="timeline-item">
+      <div class="timeline-dot" style="border-color:var(--accent-cyan);"></div>
+      <div class="timeline-phase" style="color:var(--accent-cyan);">Фаза 1 &middot; Десктоп</div>
+      <div class="timeline-title">Десктопное приложение (чат на рабочем месте)</div>
+      <div class="timeline-period">3-4 недели &middot; первый рабочий клиент &middot; Run</div>
+      <div class="timeline-content">
+        <ul>
+          <li>Десктоп-клиент (Electron/Tauri + чат-UI)</li>
+          <li>Чат с агентом, трейс шагов/рассуждений</li>
+          <li>Работа поверх связки Фазы 0 (MCP + Claude)</li>
+          <li>Human-in-the-loop в интерфейсе</li>
+          <li>Локальная установка на рабочем месте</li>
+        </ul>
+        <div style="margin-top:12px;padding:10px;background:rgba(77,208,225,0.06);border-radius:6px;font-size:13px;color:var(--accent-cyan);">
+          <strong>Проверяем:</strong> можно ли показать заказчику ценность на его рабочем месте и получить интерес к пилоту? Основной артефакт для пресейлов.
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="timeline-item">
+      <div class="timeline-dot" style="border-color:var(--accent-orange);"></div>
+      <div class="timeline-phase" style="color:var(--accent-orange);">Фаза 2 &middot; Пилот + 2-й тип</div>
+      <div class="timeline-title">Первый пилот + второй тип агента</div>
+      <div class="timeline-period">Тело роадмепа, адаптировано &middot; Discovery &rarr; Run</div>
+      <div class="timeline-content">
+        <ul>
+          <li>Второй тип агента</li>
+          <li><strong style="color:var(--accent-orange);">Durable-execution для длинных/HITL-процессов</strong> (Celery-based или purpose-built, раздел 03)</li>
+          <li>Проверка на локальных LLM (AI Server, Ollama) — шаг к собственной модели</li>
+          <li>RBAC: admin / operator / viewer; SSO: AD/LDAP</li>
+          <li>Agent Builder v0: конфигурация через web-форму</li>
+          <li>Мониторинг: дашборд работы агентов</li>
+        </ul>
+        <div style="margin-top:12px;padding:10px;background:rgba(255,183,77,0.06);border-radius:6px;font-size:13px;color:var(--accent-orange);">
+          <strong>Проверяем:</strong> держит ли агент надёжность на локальной модели? Выдерживает ли длинные процессы (онбординг)? Платит ли заказчик?
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="timeline-item">
+      <div class="timeline-dot" style="border-color:var(--accent-purple);"></div>
+      <div class="timeline-phase" style="color:var(--accent-purple);">Фаза 3 &middot; Production Grade</div>
+      <div class="timeline-title">Продукт для прода у заказчика</div>
+      <div class="timeline-period">Тело роадмепа, адаптировано &middot; Run</div>
+      <div class="timeline-content">
+        <ul>
+          <li>Полноценные Guardrails + audit log compliance-уровня</li>
+          <li>Отказоустойчивость: retry, degradation, health checks</li>
+          <li>Kubernetes-деплой (Helm chart)</li>
+          <li>Agent Builder v1: визуальный конструктор (если подтверждён спрос)</li>
+          <li>RPA-интеграция через MCP</li>
+          <li>Расширение MCP-серверов: HTTP/REST, файловая система</li>
+        </ul>
+        <div style="margin-top:12px;padding:10px;background:rgba(179,157,219,0.06);border-radius:6px;font-size:13px;color:var(--accent-purple);">
+          <strong>Проверяем:</strong> может ли продукт работать в проде без нашего сопровождения?
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="timeline-item">
+      <div class="timeline-dot" style="border-color:var(--accent-green);"></div>
+      <div class="timeline-phase" style="color:var(--accent-green);">Фаза 4 &middot; Масштаб + свои агент/LLM</div>
+      <div class="timeline-title">Масштабирование, оркестрация, замена Claude</div>
+      <div class="timeline-period">Тело роадмепа, адаптировано &middot; Discovery &rarr; Run</div>
+      <div class="timeline-content">
+        <ul>
+          <li><strong style="color:var(--accent-green);">Собственный Agent Runtime вместо Claude Agent SDK</strong></li>
+          <li><strong style="color:var(--accent-green);">Собственная языковая модель вместо Claude</strong> (через AI Server/vLLM)</li>
+          <li>Мультиагентность: несколько агентов в одном процессе (Ц3)</li>
+          <li>Контур оркестрации v0: агент + робот + человек (Ц3)</li>
+          <li>Конструктор рассуждающего агента; Marketplace MCP-серверов</li>
+          <li>Метрики: стоимость сессии, время решения, success rate</li>
+        </ul>
+        <div style="margin-top:12px;padding:10px;background:rgba(129,199,132,0.06);border-radius:6px;font-size:13px;color:var(--accent-green);">
+          <strong>Проверяем к декабрю 2026:</strong> Ц1-2 — платный агент в проде месяц без откатов? Ц1-3 — оплаченный кейс? Ц3 — спрос на оркестрацию? Свои агент/модель — возможна ли замена Claude без потери качества?
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 9: DECISIONS -->
+<!-- =========================================================== -->
+<section id="decisions">
+  <div class="section-header">
+    <div class="section-num">Раздел 09</div>
+    <h2>Развилки для решения</h2>
+    <p class="section-lead">7 решений, которые нужно принять до начала разработки. Для каждого &mdash; варианты, trade-offs и рекомендация.</p>
+  </div>
+
+  <!-- Decision 1 -->
+  <div class="decision-card">
+    <div class="decision-num">1</div>
+    <div class="decision-title">MVP: сценарный или автономный?</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>A &mdash; Сценарный</h5>
+        <p>Предсказуемо, ближе к продаже. Цель Ц1-2 (Run). Выше сложность MVP из-за DSL графов.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>B &mdash; Автономный</h5>
+        <p>Быстрее до MVP, сильнее на демо. Цель Ц1-3 (Discovery). Риск в качестве LLM.</p>
+      </div>
+    </div>
+    <div class="decision-rec">&#9654; Рекомендация: <strong style="margin-left:4px;">Вариант B</strong> &mdash; проще, быстрее, легче путь ко 2-му типу. Решение за командой</div>
+  </div>
+
+  <!-- Decision 2 -->
+  <div class="decision-card">
+    <div class="decision-num">2</div>
+    <div class="decision-title">Фреймворк агентов</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>Claude Agent SDK</h5>
+        <p>Быстрый PoC, готовый агент + сильная модель, нативный MCP. Внешняя зависимость.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>Кастомный runtime / LangGraph</h5>
+        <p>Контроль и путь к собственному агенту. Дольше до результата либо vendor lock.</p>
+      </div>
+    </div>
+    <div class="decision-rec">&#9654; Рекомендация: <strong style="margin-left:4px;">Claude на PoC</strong>, собственное &mdash; далее (раздел 05)</div>
+  </div>
+
+  <!-- Decision 3 -->
+  <div class="decision-card">
+    <div class="decision-num">3</div>
+    <div class="decision-title">Движок состояний (раздел 03)</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>Celery (или обёртка над ним)</h5>
+        <p>Уже распространён, отложенные задачи, ретраи. Риск самописного движка состояний.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>Purpose-built durable-execution</h5>
+        <p>Приостановка/возобновление процесса &mdash; встроенная функция, а не дописываем сами.</p>
+      </div>
+    </div>
+    <div class="decision-rec" style="background:rgba(255,183,77,0.08);border-color:rgba(255,183,77,0.2);color:var(--accent-orange);">&#9654; Решить до Фазы 2; <strong style="margin-left:4px;">не писать с нуля поверх Postgres</strong></div>
+  </div>
+
+  <!-- Decision 4 -->
+  <div class="decision-card">
+    <div class="decision-num">4</div>
+    <div class="decision-title">Отношение к AI Server</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>Модуль внутри AI Server</h5>
+        <p>Общий UI, auth, инфраструктура. Зависимость от релизного цикла AI Server.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>Standalone продукт</h5>
+        <p>Свой деплой, MCP-интеграция с AI Server. Независимость, но дублирование инфры.</p>
+      </div>
+    </div>
+    <div class="decision-rec" style="background:rgba(255,183,77,0.08);border-color:rgba(255,183,77,0.2);color:var(--accent-orange);">&#9654; Обсудить с техдиром &mdash; стратегическое решение</div>
+  </div>
+
+  <!-- Decision 5 -->
+  <div class="decision-card">
+    <div class="decision-num">5</div>
+    <div class="decision-title">Agent Builder</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>Строим сами</h5>
+        <p>Полный контроль UX, оптимизация под наши сценарии. Дополнительное время разработки.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>Переиспользуем из AI Server</h5>
+        <p>Быстрее, но завязка на существующий UI/UX. Зависит от развилки №4.</p>
+      </div>
+    </div>
+    <div class="decision-rec" style="background:rgba(255,183,77,0.08);border-color:rgba(255,183,77,0.2);color:var(--accent-orange);">&#9654; Зависит от решения по развилке №4</div>
+  </div>
+
+  <!-- Decision 6 -->
+  <div class="decision-card">
+    <div class="decision-num">6</div>
+    <div class="decision-title">Vector Store</div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>pgvector (PostgreSQL)</h5>
+        <p>Уже в стеке, одна БД для всего. Достаточно для MVP и средних объёмов документов.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>Qdrant</h5>
+        <p>Быстрее на больших объёмах, ANN-индексы. Дополнительный компонент в деплое.</p>
+      </div>
+    </div>
+    <div class="decision-rec">&#9654; Рекомендация: <strong style="margin-left:4px;">pgvector на старте</strong> &mdash; уже в стеке, минимум сложности</div>
+  </div>
+
+  <!-- Decision 7 (resolved) -->
+  <div class="decision-card resolved">
+    <div class="decision-num">7</div>
+    <div class="decision-title">Протокол инструментов <span class="tag tag-green" style="margin-left:8px;font-size:11px;">РЕШЕНО</span></div>
+    <div class="decision-options">
+      <div class="decision-opt">
+        <h5>Свой протокол</h5>
+        <p>Полный контроль, оптимизация под наши нужды. Несовместимость с экосистемой.</p>
+      </div>
+      <div class="decision-opt">
+        <h5>MCP (Model Context Protocol)</h5>
+        <p>Стандарт, совместимость с экосистемой, переиспользование чужих MCP-серверов.</p>
+      </div>
+    </div>
+    <div class="decision-rec">&#9654; <strong style="margin-left:4px;">Решено: MCP</strong> &mdash; все коннекторы суть MCP-серверы (разделы 01, 04)</div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- =========================================================== -->
+<!-- SECTION 10: DEPLOYMENT -->
+<!-- =========================================================== -->
+<section id="deployment">
+  <div class="section-header">
+    <div class="section-num">Раздел 10</div>
+    <h2>Deployment</h2>
+    <p class="section-lead">Docker Compose для MVP и пилотов. Kubernetes для production. Архитектура одна, меняется оркестрация.</p>
+  </div>
+
+  <!-- DEPLOYMENT DIAGRAM -->
+  <div class="diagram">
+    <svg width="800" height="490" viewBox="0 0 800 490">
+      <!-- Host border -->
+      <rect x="20" y="10" width="520" height="430" rx="12" fill="none" stroke="#4fc3f7" stroke-width="2" stroke-dasharray="6,4"/>
+      <text x="40" y="35" fill="#4fc3f7" font-size="14" font-weight="700" font-family="Inter,sans-serif">Host (Linux, on-premise)</text>
+      <text x="40" y="52" fill="#6e6e8a" font-size="11" font-family="Inter,sans-serif">Docker Compose</text>
+
+      <!-- nginx -->
+      <rect x="40" y="70" width="140" height="55" rx="8" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+      <text x="110" y="94" fill="#81c784" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">nginx</text>
+      <text x="110" y="112" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">reverse proxy</text>
+
+      <!-- chat-ui -->
+      <rect x="40" y="140" width="140" height="55" rx="8" fill="#252547" stroke="#4fc3f7" stroke-width="1.5"/>
+      <text x="110" y="164" fill="#4fc3f7" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">chat-ui</text>
+      <text x="110" y="182" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">React (static)</text>
+
+      <!-- api-gateway -->
+      <rect x="210" y="70" width="160" height="55" rx="8" fill="#252547" stroke="#81c784" stroke-width="1.5"/>
+      <text x="290" y="94" fill="#81c784" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">api-gateway</text>
+      <text x="290" y="112" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Go</text>
+
+      <!-- agent-runtime -->
+      <rect x="210" y="140" width="310" height="55" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="2"/>
+      <text x="365" y="164" fill="#ffb74d" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">agent-runtime</text>
+      <text x="365" y="182" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">Python, uvicorn</text>
+
+      <!-- worker (durable execution) -->
+      <rect x="210" y="210" width="310" height="50" rx="8" fill="#252547" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="365" y="232" fill="#ffb74d" font-size="13" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">worker (durable-execution)</text>
+      <text x="365" y="248" fill="#a0a0b8" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">очередь задач &middot; длинные процессы (раздел 03)</text>
+
+      <!-- Arrows -->
+      <line x1="180" y1="97" x2="210" y2="97" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+      <line x1="290" y1="125" x2="290" y2="140" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+      <line x1="365" y1="195" x2="365" y2="210" stroke="#3a3a5c" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+      <!-- PostgreSQL -->
+      <rect x="40" y="280" width="200" height="65" rx="8" fill="#252547" stroke="#b39ddb" stroke-width="1.5"/>
+      <text x="140" y="308" fill="#b39ddb" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">PostgreSQL</text>
+      <text x="140" y="325" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">+ pgvector</text>
+      <text x="140" y="339" fill="#6e6e8a" font-size="10" text-anchor="middle" font-family="Inter,sans-serif">audit, vectors</text>
+
+      <!-- Redis / broker -->
+      <rect x="270" y="280" width="160" height="65" rx="8" fill="#252547" stroke="#ef5350" stroke-width="1.5"/>
+      <text x="350" y="308" fill="#ef5350" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">Redis</text>
+      <text x="350" y="325" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">broker, sessions</text>
+
+      <!-- Connections to DB -->
+      <line x1="300" y1="260" x2="140" y2="280" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="365" y1="260" x2="350" y2="280" stroke="#3a3a5c" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Requirements -->
+      <rect x="40" y="365" width="480" height="62" rx="8" fill="rgba(79,195,247,0.04)" stroke="#4fc3f730" stroke-width="1"/>
+      <text x="60" y="388" fill="#4fc3f7" font-size="12" font-weight="600" font-family="Inter,sans-serif">МИНИМАЛЬНЫЕ ТРЕБОВАНИЯ</text>
+      <text x="60" y="407" fill="#a0a0b8" font-size="12" font-family="Inter,sans-serif">Linux VM &middot; 4 CPU &middot; 16 GB RAM &middot; PostgreSQL 15+ &middot; Docker + Compose</text>
+      <text x="60" y="422" fill="#81c784" font-size="12" font-family="Inter,sans-serif">GPU НЕ ТРЕБУЕТСЯ &mdash; агенты не крутят LLM, только вызывают</text>
+
+      <!-- External dependencies -->
+      <text x="590" y="35" fill="#6e6e8a" font-size="12" font-weight="600" font-family="Inter,sans-serif">ВНЕШНИЕ ЗАВИСИМОСТИ</text>
+      <text x="590" y="50" fill="#6e6e8a" font-size="11" font-family="Inter,sans-serif">(у заказчика)</text>
+
+      <rect x="580" y="70" width="190" height="55" rx="8" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+      <text x="675" y="95" fill="#4dd0e1" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">AI Server</text>
+      <text x="675" y="113" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">OCR/NLP + LLM inference</text>
+
+      <rect x="580" y="145" width="190" height="55" rx="8" fill="#252547" stroke="#4dd0e1" stroke-width="1.5"/>
+      <text x="675" y="170" fill="#4dd0e1" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">1С</text>
+      <text x="675" y="188" fill="#a0a0b8" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">OData API</text>
+
+      <rect x="580" y="220" width="190" height="55" rx="8" fill="#252547" stroke="#6e6e8a" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="675" y="245" fill="#6e6e8a" font-size="14" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">LDAP / AD</text>
+      <text x="675" y="263" fill="#6e6e8a" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">post-MVP</text>
+
+      <!-- Network arrows -->
+      <line x1="540" y1="160" x2="580" y2="100" stroke="#4dd0e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="540" y1="160" x2="580" y2="172" stroke="#4dd0e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Docker Compose file hint -->
+      <rect x="580" y="340" width="190" height="87" rx="8" fill="#252547" stroke="#3a3a5c" stroke-width="1"/>
+      <text x="675" y="364" fill="#a0a0b8" font-size="12" font-weight="600" text-anchor="middle" font-family="Inter,sans-serif">docker-compose.yml</text>
+      <text x="675" y="384" fill="#6e6e8a" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">~6 сервисов &middot; 1 network</text>
+      <text x="675" y="400" fill="#6e6e8a" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">2 volumes (pg, redis)</text>
+      <text x="675" y="416" fill="#6e6e8a" font-size="11" text-anchor="middle" font-family="Inter,sans-serif">+ desktop-клиент (Фаза 1)</text>
+    </svg>
+    <div class="diagram-caption">Схема развёртывания MVP: Docker Compose на on-premise сервере</div>
+  </div>
+
+  <!-- What customer needs -->
+  <h3 style="margin-top:32px;">Что нужно от заказчика</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-left:3px solid var(--accent-blue);">
+      <h4>Инфраструктура</h4>
+      <ul style="list-style:none;padding:0;">
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; Linux-сервер или VM</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; 4 CPU, 16 GB RAM</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; Docker + Docker Compose</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; PostgreSQL 15+ с pgvector</li>
+      </ul>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--accent-green);">
+      <h4>Системы</h4>
+      <ul style="list-style:none;padding:0;">
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; AI Server (OCR/NLP + LLM inference, с MCP)</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; 1С 8.x с OData</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; Сетевой доступ между серверами</li>
+        <li style="padding:4px 0;font-size:14px;color:var(--text-secondary);">&#8226; AD/LDAP (post-MVP)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- RISKS -->
+<section id="risks">
+  <div class="section-header">
+    <div class="section-num">Приложение</div>
+    <h2>Риски</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Риск</th><th>Вероятность</th><th>Влияние</th><th>Митигация</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--text-primary);">AI-сервер не готов быстро выставить MCP (нулевая фаза на критическом пути)</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-red">Высокое</span></td>
+          <td>Синхронизация с командой AI-сервера в неделю 0; начать с минимального набора операций</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Хранение состояний: «упороться» в Celery «в сыром виде» (раздел 03)</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-red">Высокое</span></td>
+          <td>Не писать поверх Postgres; обёртка/оркестратор или purpose-built; решить развилку №3 до Фазы 2</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Разработка MCP-серверов требует предметной экспертизы, которой может не хватать</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-orange">Среднее</span></td>
+          <td>Подключать доменных экспертов по каждой системе; начинать с одной системы</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Зависимость от Claude на PoC + риск миграции на собственные агент/модель (раздел 05)</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-orange">Среднее</span></td>
+          <td>Абстракции LLM Provider и MCP Router изолируют замену; проверять локальную модель параллельно с Фазы 2</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Качество рассуждений LLM на локальных/собственных моделях недостаточно</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-red">Высокое</span></td>
+          <td>Claude на PoC, параллельная проверка локальных моделей</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">3-4 недели на фазу недостаточно</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-orange">Среднее</span></td>
+          <td>Жёсткий скоуп, cut features, а не сроки</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Интеграция с 1С сложнее ожидаемого (нестандартные конфигурации)</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-orange">Среднее</span></td>
+          <td>Начать с типовой конфигурации, кастомизация на пилоте</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-primary);">Конкуренция за скоуп с командой AI Server</td>
+          <td><span class="tag tag-orange">Средняя</span></td>
+          <td><span class="tag tag-red">Высокое</span></td>
+          <td>Чёткие границы продуктов (этот документ)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section style="margin-top:48px;">
+  <div class="card" style="border:2px solid var(--accent-blue);">
+    <h3 style="color:var(--accent-blue);">Ближайшие шаги (Неделя 0)</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px;">
+      <div style="padding:16px;background:rgba(79,195,247,0.06);border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">1. Решение по развилкам</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Обсуждение с техдиром. Принять решения по всем 7 развилкам.</div>
+      </div>
+      <div style="padding:16px;background:rgba(239,83,80,0.06);border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">2. Синхронизация с командой AI-сервера</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Готовность выставить MCP. Подтверждённый объём и сроки MCP к AI-серверу.</div>
+      </div>
+      <div style="padding:16px;background:rgba(129,199,132,0.06);border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">3. Согласование скоупа Фазы 0 с PO</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Подтверждённый сквозной кейс (один из 4 нерешённых).</div>
+      </div>
+      <div style="padding:16px;background:rgba(255,183,77,0.06);border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">4. Spike по движку состояний</div>
+        <div style="font-size:13px;color:var(--text-secondary);">Celery-обёртка vs durable-execution (раздел 03). Обоснованный выбор по развилке №3. Двое backend.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:48px 0 24px;color:var(--text-muted);font-size:13px;">
+  <div style="margin-bottom:8px;font-weight:600;color:var(--text-secondary);">Primo AI Agents &mdash; Архитектурная канва и техническое предложение (ред. 2)</div>
+  <div>Автор: Александр Шубин &middot; 29 мая 2026 &middot; Черновик для обсуждения с техдиром</div>
+  <div style="margin-top:8px;">Команда: 1 Tech Lead + 6 Backend (Python/Go) + 1 Frontend (React/TS)</div>
+</div>
+
+</div><!-- /container -->
+
+</body>
+</html>

@@ -68,6 +68,57 @@ public class BuildProfileParserTests
     }
 
     [Fact]
+    public void Parse_MapsBarbarianWeaponSlotsToCanonicalWeapon()
+    {
+        var json = """
+        {
+          "data": {
+            "game": {
+              "documents": {
+                "userGeneratedDocumentBySlug": {
+                  "error": null,
+                  "data": {
+                    "id": "build-id",
+                    "slugifiedName": "barbarian-test",
+                    "data": {
+                      "name": "Test",
+                      "buildVariants": {
+                        "values": [
+                          {
+                            "id": "1",
+                            "genericBuilder": {
+                              "slots": [
+                                { "gameSlotSlug": "slashing-weapon", "gameEntity": { "slug": "a", "title": "A", "type": "aspects", "modifiers": { "gearStats": [{ "id": "strength", "isGreater": false }], "temperingStats": [] }, "entity": { "__typename": "D4Aspect" } } },
+                                { "gameSlotSlug": "bludgeoning-weapon", "gameEntity": { "slug": "b", "title": "B", "type": "aspects", "modifiers": { "gearStats": [{ "id": "maximum-life", "isGreater": false }], "temperingStats": [] }, "entity": { "__typename": "D4Aspect" } } },
+                                { "gameSlotSlug": "dual-wield-weapon-1", "gameEntity": { "slug": "c", "title": "C", "type": "aspects", "modifiers": { "gearStats": [{ "id": "critical-strike-damage", "isGreater": false }], "temperingStats": [] }, "entity": { "__typename": "D4Aspect" } } },
+                                { "gameSlotSlug": "dual-wield-weapon-2", "gameEntity": { "slug": "d", "title": "D", "type": "aspects", "modifiers": { "gearStats": [{ "id": "vulnerable-damage", "isGreater": false }], "temperingStats": [] }, "entity": { "__typename": "D4Aspect" } } }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "content": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """;
+
+        var profile = BuildProfileParser.Parse(json, "https://mobalytics.gg/diablo-4/builds/barbarian-test");
+        var items = profile.Variants[0].Equipment.Categories.SelectMany(c => c.Items).ToList();
+
+        Assert.Equal(4, items.Count(i => i.Slot == "Weapon"));
+        Assert.Contains(items, i => i.DisplaySlot == "Slashing Weapon");
+        Assert.Contains(items, i => i.DisplaySlot == "Bludgeoning Weapon");
+        Assert.Contains(items, i => i.DisplaySlot == "Dual-Wield Weapon 1");
+        Assert.Contains(items, i => i.DisplaySlot == "Dual-Wield Weapon 2");
+        Assert.Equal(4, profile.Variants[0].GetAffixesForSlot("Weapon").Count);
+    }
+
+    [Fact]
     public void Parse_ConvertsAffixSlugsToTitleCase()
     {
         var profile = BuildProfileParser.Parse(_testJson, "https://mobalytics.gg/diablo-4/builds/barbarian-whirl-wind-barb");

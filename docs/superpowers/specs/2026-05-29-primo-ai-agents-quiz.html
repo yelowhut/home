@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primo AI Agents — Тест на понимание</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --bg2: #252547;
+    --text: #e0e0e0;
+    --text2: #a0a0b8;
+    --muted: #6e6e8a;
+    --blue: #4fc3f7;
+    --green: #81c784;
+    --red: #ef5350;
+    --orange: #ffb74d;
+    --border: #3a3a5c;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  .container { max-width:800px; margin:0 auto; padding:40px 24px 80px; }
+  .hero { text-align:center; padding:40px 0 32px; }
+  .hero h1 { font-size:36px; font-weight:800; letter-spacing:-1px; background:linear-gradient(135deg,var(--blue),#4dd0e1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:12px; }
+  .hero p { color:var(--text2); font-size:17px; max-width:600px; margin:0 auto; }
+  .progress-wrap { position:sticky; top:0; z-index:100; background:rgba(26,26,46,0.95); backdrop-filter:blur(12px); padding:12px 0; border-bottom:1px solid var(--border); }
+  .progress-inner { max-width:800px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:16px; }
+  .progress-bar { flex:1; height:8px; background:var(--bg2); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); border-radius:4px; transition:width 0.4s ease; width:0%; }
+  .progress-text { font-size:13px; color:var(--text2); white-space:nowrap; min-width:80px; text-align:right; }
+  .question { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:28px; margin-bottom:20px; transition:border-color 0.3s; }
+  .question.answered-correct { border-color:var(--green); }
+  .question.answered-wrong { border-color:var(--red); }
+  .question.answered-correct .q-num { background:rgba(129,199,132,0.15); color:var(--green); }
+  .question.answered-wrong .q-num { background:rgba(239,83,80,0.15); color:var(--red); }
+  .q-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; }
+  .q-num { min-width:36px; height:36px; border-radius:10px; background:rgba(79,195,247,0.12); color:var(--blue); font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .q-category { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .q-text { font-size:17px; font-weight:600; color:var(--text); line-height:1.5; }
+  .options { display:flex; flex-direction:column; gap:8px; }
+  .option { display:flex; align-items:center; gap:12px; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; cursor:pointer; transition:all 0.2s; font-size:15px; color:var(--text2); }
+  .option:hover:not(.disabled) { border-color:var(--blue); background:rgba(79,195,247,0.04); color:var(--text); }
+  .option .marker { min-width:28px; height:28px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--muted); transition:all 0.2s; flex-shrink:0; }
+  .option:hover:not(.disabled) .marker { border-color:var(--blue); color:var(--blue); }
+  .option.selected-correct { border-color:var(--green); background:rgba(129,199,132,0.08); color:var(--text); }
+  .option.selected-correct .marker { border-color:var(--green); background:var(--green); color:var(--bg); }
+  .option.selected-wrong { border-color:var(--red); background:rgba(239,83,80,0.08); color:var(--text); }
+  .option.selected-wrong .marker { border-color:var(--red); background:var(--red); color:white; }
+  .option.show-correct { border-color:var(--green); background:rgba(129,199,132,0.05); }
+  .option.show-correct .marker { border-color:var(--green); color:var(--green); }
+  .option.disabled { cursor:default; opacity:0.7; }
+  .explanation { margin-top:14px; padding:14px; border-radius:8px; font-size:14px; color:var(--text2); line-height:1.6; display:none; }
+  .explanation.visible { display:block; }
+  .explanation.correct { background:rgba(129,199,132,0.06); border:1px solid rgba(129,199,132,0.15); }
+  .explanation.wrong { background:rgba(239,83,80,0.06); border:1px solid rgba(239,83,80,0.15); }
+  .results { display:none; text-align:center; padding:40px; background:var(--bg2); border:2px solid var(--border); border-radius:var(--radius); margin-top:32px; }
+  .results.visible { display:block; }
+  .results h2 { font-size:28px; margin-bottom:8px; }
+  .results .score { font-size:64px; font-weight:800; margin:16px 0; }
+  .results .score.great { color:var(--green); }
+  .results .score.ok { color:var(--orange); }
+  .results .score.poor { color:var(--red); }
+  .results .verdict { font-size:18px; color:var(--text2); margin-bottom:24px; }
+  .results .breakdown { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-top:24px; text-align:center; }
+  .results .breakdown .cat { padding:12px; background:rgba(255,255,255,0.03); border-radius:8px; }
+  .results .breakdown .cat-name { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+  .results .breakdown .cat-score { font-size:20px; font-weight:700; }
+  .btn-restart { display:inline-block; margin-top:20px; padding:12px 32px; background:var(--blue); color:var(--bg); font-weight:700; font-size:15px; border:none; border-radius:8px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-restart:hover { opacity:0.85; }
+  @media(max-width:600px) {
+    .container { padding:24px 16px 60px; }
+    .hero h1 { font-size:26px; }
+    .q-text { font-size:15px; }
+    .option { font-size:14px; padding:12px; }
+    .results .breakdown { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0 / 25</div>
+  </div>
+</div>
+
+<div class="container">
+<div class="hero">
+  <h1>Primo AI Agents</h1>
+  <p>Тест на понимание архитектуры и концепций. 25 вопросов. Объяснение после каждого ответа.</p>
+</div>
+<div id="quiz"></div>
+<div class="results" id="results">
+  <h2>Результаты</h2>
+  <div class="score" id="scoreNum"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="breakdown" id="breakdown"></div>
+  <button class="btn-restart" onclick="restart()">Пройти заново</button>
+</div>
+</div>
+
+<script>
+const questions = [
+  {
+    cat: "Основы",
+    q: "200 одинаковых платёжек в день, формат не меняется. Кто обработает?",
+    opts: [
+      "Автономный агент — он адаптируется к любым документам и форматам",
+      "Сценарный агент — у него граф шагов с LLM внутри каждого шага",
+      "RPA-робот",
+      "Сценарный агент с подключённым RAG и человеком в контуре"
+    ],
+    ans: 2,
+    explain: "Типовая задача без вариативности. Робот дешевле и предсказуемее. Принцип: самый простой исполнитель, который справляется."
+  },
+  {
+    cat: "Основы",
+    q: "Чем агент принципиально отличается от чат-бота с доступом к базе знаний?",
+    opts: [
+      "Агент использует более мощную LLM с поддержкой reasoning и длинного контекста",
+      "Агент выполняет действия в системах",
+      "Агент хранит историю разговоров между сессиями в PostgreSQL",
+      "Агент работает на on-premise серверах заказчика и использует локальные модели"
+    ],
+    ans: 1,
+    explain: "Чат-бот отвечает. Агент действует — проводит документ в 1С, отправляет email, создаёт записи. Это ключевое отличие."
+  },
+  {
+    cat: "Основы",
+    q: "Счёт от нового контрагента в нестандартном формате. Робот встал. Что поможет?",
+    opts: [
+      "Обновить шаблон робота, добавив новый формат документа в парсер",
+      "Подключить OCR с предобученной моделью для распознавания всех типов счетов",
+      "Сценарный агент с LLM внутри шага извлечения данных",
+      "Переключить робота на другой алгоритм обработки через оркестратор"
+    ],
+    ans: 2,
+    explain: "LLM внутри шага понимает текст — ей не нужен шаблон под каждый формат. Она прочитает и извлечёт данные из нестандартного документа."
+  },
+  {
+    cat: "Основы",
+    q: "Сумма в счёте не совпадает с договором. Нужно расследовать причину. Кто?",
+    opts: [
+      "Автономный агент",
+      "Сценарный агент с ветвлением по типам расхождений и предзаданными проверками",
+      "RPA-робот, обученный проверять суммы документов по заданному алгоритму",
+      "Связка OCR + NLP для автоматической классификации и маршрутизации расхождений"
+    ],
+    ans: 0,
+    explain: "Расследование — задача с неизвестным маршрутом. Автономный агент сам решает куда смотреть: история контрагента, условия договора, прошлые счета."
+  },
+  {
+    cat: "Основы",
+    q: "Что Primo начинает продавать с появлением агентов?",
+    opts: [
+      "Облачную платформу для обработки документов с интеграцией в любые ERP-системы",
+      "Результат: решённую задачу целиком",
+      "Комплексную AI-платформу с OCR, NLP, LLM и визуальным конструктором процессов",
+      "Подписочную модель доступа к моделям ИИ для enterprise-заказчиков"
+    ],
+    ans: 1,
+    explain: "Раньше — инструменты (OCR, NLP, роботы). С агентами — результат. Не \"распознай документ\", а \"обработай счёт и проведи в 1С\"."
+  },
+
+  {
+    cat: "Типы агентов",
+    q: "В сценарном агенте LLM выбирает следующий шаг. Верно?",
+    opts: [
+      "Да, LLM анализирует контекст и принимает решение о маршруте на каждом переходе",
+      "Да, но только если в конфиге включён режим автоматических переходов",
+      "Нет, переходы детерминированные",
+      "Нет, переходами управляет API Gateway на основе правил, заданных администратором"
+    ],
+    ans: 2,
+    explain: "Маршрут задан в графе (YAML/JSON). LLM работает внутри шага — понимает текст, извлекает данные. Но не выбирает, куда идти."
+  },
+  {
+    cat: "Типы агентов",
+    q: "ReAct — это:",
+    opts: [
+      "React-фреймворк для Chat UI с поддержкой стриминга агентских событий",
+      "Цикл: Think → Act → Observe",
+      "Реактивная архитектура обработки событий между микросервисами платформы",
+      "Протокол взаимодействия Agent Runtime с LLM Provider через event stream"
+    ],
+    ans: 1,
+    explain: "ReAct = Reasoning + Acting. Думает, действует (вызывает tool), оценивает результат, повторяет или отвечает."
+  },
+  {
+    cat: "Типы агентов",
+    q: "Новый бизнес-процесс в сценарном агенте требует:",
+    opts: [
+      "Переобучения LLM на данных нового процесса и доменной адаптации модели",
+      "Написания Python-кода нового executor-а с регистрацией в Agent Registry",
+      "Развёртывания отдельного контейнера с настроенной конфигурацией и отдельной БД",
+      "Описания графа шагов, промптов и tools"
+    ],
+    ans: 3,
+    explain: "Конфигурация, не программирование. Описываешь шаги, промпты и инструменты. На MVP — YAML, потом — визуальный конструктор."
+  },
+  {
+    cat: "Типы агентов",
+    q: "Автономный агент получает задачу через:",
+    opts: [
+      "YAML-файл с описанием каждого шага, условиями переходов и доступными инструментами",
+      "SQL-процедуру, которую API Gateway вызывает при создании новой сессии",
+      "Системный промпт с ролью и правилами",
+      "Визуальный конструктор процессов с drag-and-drop интерфейсом в Agent Builder"
+    ],
+    ans: 2,
+    explain: "Инструкция как для сотрудника: роль, правила, ограничения. Дальше агент сам выбирает шаги."
+  },
+  {
+    cat: "Типы агентов",
+    q: "Что сложнее реализовать для MVP: сценарного или автономного агента?",
+    opts: [
+      "Автономного — ReAct-цикл требует сложной логики управления состоянием и откатов",
+      "Одинаково — оба используют одни и те же компоненты платформы и tool layer",
+      "Сценарного — движок графов с DSL тяжелее",
+      "Автономного — нужен human-in-the-loop, guardrails и reasoning trace одновременно"
+    ],
+    ans: 2,
+    explain: "ReAct-цикл — 1-1.5 недели. DSL графов с ветвлениями — 2-3 недели. Ключевой аргумент за вариант B."
+  },
+
+  {
+    cat: "Архитектура",
+    q: "Agent Runtime написан на:",
+    opts: [
+      "Go — как и все backend-сервисы платформы для единообразия и производительности",
+      "TypeScript — чтобы переиспользовать код между frontend и backend",
+      "Rust — для максимальной производительности при обработке агентских событий",
+      "Python"
+    ],
+    ans: 3,
+    explain: "Go — инфраструктура (API Gateway, auth, governance). Python — AI-логика (runtime, tools, LLM)."
+  },
+  {
+    cat: "Архитектура",
+    q: "Что общего у двух типов агентов на уровне платформы?",
+    opts: [
+      "Только Chat UI и база данных PostgreSQL для хранения состояния сессий",
+      "Только LLM Provider, потому что оба типа агентов вызывают одни и те же модели",
+      "Всё кроме движка выбора шага",
+      "Только формат событий AgentEvent и транспортный протокол WebSocket"
+    ],
+    ans: 2,
+    explain: "Tools, LLM Provider, Governance, EventStream, UI — общие. Разница только в логике: граф шагов vs ReAct-цикл."
+  },
+  {
+    cat: "Архитектура",
+    q: "API Gateway отвечает за:",
+    opts: [
+      "Запуск и управление LLM-моделями на GPU-серверах через абстракцию провайдеров",
+      "Индексацию документов в pgvector и обслуживание RAG-запросов от агентов",
+      "Маршрутизацию вызовов tools к внешним системам (1С, почта, AI Server)",
+      "Auth, роутинг, rate limiting"
+    ],
+    ans: 3,
+    explain: "API Gateway (Go) — точка входа. Проверяет авторизацию, маршрутизирует запросы к Agent Runtime, ограничивает нагрузку."
+  },
+  {
+    cat: "Архитектура",
+    q: "AgentEvent включает типы событий:",
+    opts: [
+      "connect, disconnect, heartbeat, error, timeout, retry, circuit_break, fallback",
+      "thought, tool_call, tool_result, approval_request, answer",
+      "create_session, load_model, warm_cache, run_inference, stream_token, finalize",
+      "auth_check, rbac_verify, guardrail_pass, audit_write, session_close, metric_emit"
+    ],
+    ans: 1,
+    explain: "Единый поток событий для обоих типов агентов. UI, логирование и audit работают одинаково, потому что формат один."
+  },
+  {
+    cat: "Архитектура",
+    q: "Где живут tools (1С, Email, RAG)?",
+    opts: [
+      "В AI Server как плагины, доступные всем продуктам линейки Primo через общий API",
+      "В отдельном микросервисе Tool Gateway, который масштабируется независимо",
+      "В Agent Runtime",
+      "В Chat UI — каждый tool реализован как React-компонент с серверной частью"
+    ],
+    ans: 2,
+    explain: "Tools живут на стороне агентской платформы. AI Server — один из tools (для LLM, OCR, NLP), а не хозяин."
+  },
+
+  {
+    cat: "Tools",
+    q: "Агент «обращается к 1С». Что реально происходит?",
+    opts: [
+      "LLM генерирует SQL-запрос к информационной базе 1С и исполняет его напрямую",
+      "Agent Runtime устанавливает RDP-соединение и имитирует действия пользователя",
+      "Tool шлёт HTTP-запрос к OData API",
+      "MCP-клиент запускает RPA-робота, который открывает 1С и кликает по интерфейсу"
+    ],
+    ans: 2,
+    explain: "Никто не \"открывает 1С\". Python-код tool-а формирует HTTP-запрос к OData API, получает JSON, возвращает агенту."
+  },
+  {
+    cat: "Tools",
+    q: "LLM знает, как устроен OData API 1С?",
+    opts: [
+      "Да — мы включаем полную документацию OData в системный промпт каждого агента",
+      "Да — LLM дообучена на корпусе запросов к типовым конфигурациям 1С",
+      "Нет — она видит только имя tool-а и параметры",
+      "Да — LLM Provider транслирует вызовы в OData автоматически через адаптер"
+    ],
+    ans: 2,
+    explain: "LLM видит: \"tool 1c.find_invoice, параметры: number, partner\". HTTP-запрос формирует код tool-а, не LLM."
+  },
+  {
+    cat: "Tools",
+    q: "RAG возвращает агенту:",
+    opts: [
+      "Полный текст всех найденных документов целиком для дальнейшего анализа",
+      "Ответ + цитату + ссылку на источник",
+      "Эмбеддинг-вектор запроса для дальнейшей обработки в Agent Runtime",
+      "Список URL-ов документов, ранжированных по TF-IDF релевантности"
+    ],
+    ans: 1,
+    explain: "Ответ со ссылкой на конкретный документ и страницу — требование enterprise. Не просто \"текст похож\", а \"вот источник\"."
+  },
+  {
+    cat: "Tools",
+    q: "MCP-интеграция с RPA нужна, когда:",
+    opts: [
+      "У целевой системы нет API",
+      "Агент обрабатывает больше 100 документов в час и нужна параллелизация",
+      "Заказчик хочет видеть визуальное выполнение действий на экране для аудита",
+      "LLM-провайдер не поддерживает tool calling и нужен fallback через промпт"
+    ],
+    ans: 0,
+    explain: "Для 1С, почты, документов есть API. MCP + RPA — для систем, где можно только кликать в GUI."
+  },
+  {
+    cat: "Tools",
+    q: "Добавление нового tool в платформу требует:",
+    opts: [
+      "Обновления API Gateway, Agent Runtime, Chat UI и перезагрузки всех контейнеров",
+      "Один Python-файл + регистрация в реестре",
+      "Согласования с командой AI Server и включения в следующий релизный цикл",
+      "Создания нового Docker-контейнера с отдельным endpoint-ом и health check"
+    ],
+    ans: 1,
+    explain: "Каждый tool — Python-класс с единым интерфейсом: name, description, parameters, execute(). Один файл, регистрация в реестре."
+  },
+
+  {
+    cat: "LLM и безопасность",
+    q: "Смена LLM-провайдера (OpenAI → AI Server) требует:",
+    opts: [
+      "Изменения одной строки в конфиге",
+      "Рефакторинга промптов всех агентов под формат нового провайдера",
+      "Переразвёртывания Agent Runtime с новыми зависимостями и библиотеками",
+      "Миграции данных из PostgreSQL и перестроения RAG-индексов"
+    ],
+    ans: 0,
+    explain: "LLM Provider — абстракция. provider: openai → provider: ai_server. Код агентов не меняется."
+  },
+  {
+    cat: "LLM и безопасность",
+    q: "OpenAI на MVP вместо локальных моделей — почему?",
+    opts: [
+      "AI Server ещё не поддерживает streaming и tool calling через свой API",
+      "OpenAI бесплатен для пилотных проектов в рамках партнёрской программы",
+      "Для демо нужно гарантированное качество рассуждений",
+      "Локальные модели не поддерживают русский язык на достаточном уровне"
+    ],
+    ans: 2,
+    explain: "Главный риск автономного агента — качество рассуждений. Для демо берём проверенное, локальные модели тестируем параллельно."
+  },
+  {
+    cat: "LLM и безопасность",
+    q: "Guardrails заблокировали действие агента. Что происходит дальше?",
+    opts: [
+      "Агент автоматически пробует альтернативное действие через другой tool",
+      "Сессия завершается и пользователь получает уведомление об ошибке",
+      "Запрос эскалируется на администратора через отдельный канал уведомлений",
+      "Блокировка + запись в audit log"
+    ],
+    ans: 3,
+    explain: "Блокировка + лог. Enterprise должен видеть не только что агент сделал, но и что ему запретили."
+  },
+  {
+    cat: "MVP и стратегия",
+    q: "Почему вариант B (автономный MVP) рекомендуется?",
+    opts: [
+      "Автономные агенты надёжнее сценарных на production-нагрузках с большим потоком",
+      "Заказчики на пресейлах просят именно автономных агентов, а не сценарных",
+      "ReAct проще, и из него легче сделать сценарный потом",
+      "Сценарные агенты требуют визуального конструктора, которого ещё нет"
+    ],
+    ans: 2,
+    explain: "ReAct + фиксированный план = сценарный. Обратное (из сценарного сделать автономный) сложнее. Плюс ReAct быстрее реализовать."
+  },
+  {
+    cat: "MVP и стратегия",
+    q: "Платформе агентов нужен GPU?",
+    opts: [
+      "Да, для RAG-индексации и построения эмбеддингов больших документных коллекций",
+      "Да, для inference — агенты запускают LLM локально для минимальной задержки",
+      "Нет, GPU нужен только AI Server",
+      "Да, для обучения domain-specific моделей на данных каждого заказчика"
+    ],
+    ans: 2,
+    explain: "Агентская платформа — оркестрация. Она шлёт HTTP-запросы к AI Server, который крутит модели на GPU. Платформе хватит 4 CPU, 16 GB RAM."
+  },
+];
+
+let answered = 0, correct = 0;
+const catStats = {};
+
+function render() {
+  const el = document.getElementById('quiz');
+  el.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q' + i;
+    div.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${i + 1}</div>
+        <div>
+          <div class="q-category">${q.cat}</div>
+          <div class="q-text">${q.q}</div>
+        </div>
+      </div>
+      <div class="options">
+        ${q.opts.map((o, j) => `
+          <div class="option" data-q="${i}" data-o="${j}" onclick="answer(${i},${j})">
+            <div class="marker">${String.fromCharCode(65 + j)}</div>
+            <div>${o}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="explanation" id="explain${i}">${q.explain}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function answer(qi, oi) {
+  const q = questions[qi];
+  const card = document.getElementById('q' + qi);
+  if (card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+  const ok = oi === q.ans;
+  answered++;
+  if (ok) correct++;
+  if (!catStats[q.cat]) catStats[q.cat] = { total: 0, correct: 0 };
+  catStats[q.cat].total++;
+  if (ok) catStats[q.cat].correct++;
+  card.classList.add(ok ? 'answered-correct' : 'answered-wrong');
+  card.querySelectorAll('.option').forEach((opt, j) => {
+    opt.classList.add('disabled');
+    if (j === oi && ok) opt.classList.add('selected-correct');
+    if (j === oi && !ok) opt.classList.add('selected-wrong');
+    if (j === q.ans && !ok) opt.classList.add('show-correct');
+  });
+  const ex = document.getElementById('explain' + qi);
+  ex.classList.add('visible', ok ? 'correct' : 'wrong');
+  updateProgress();
+  if (answered === questions.length) setTimeout(showResults, 600);
+}
+
+function updateProgress() {
+  document.getElementById('progressFill').style.width = (answered / questions.length * 100) + '%';
+  document.getElementById('progressText').textContent = `${answered} / ${questions.length}`;
+}
+
+function showResults() {
+  const pct = Math.round(correct / questions.length * 100);
+  const res = document.getElementById('results');
+  res.classList.add('visible');
+  const s = document.getElementById('scoreNum');
+  s.textContent = `${correct} / ${questions.length}`;
+  s.className = 'score ' + (pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'poor');
+  document.getElementById('verdict').textContent =
+    pct >= 90 ? 'Отличное понимание! Можно идти к техдиру.' :
+    pct >= 75 ? 'Хорошо! Есть пробелы, но основа понята.' :
+    pct >= 50 ? 'Неплохо, но стоит перечитать спек.' :
+    'Стоит вернуться к документу и разобраться подробнее.';
+  const bd = document.getElementById('breakdown');
+  bd.innerHTML = '';
+  for (const cat in catStats) {
+    const c = catStats[cat];
+    const p = Math.round(c.correct / c.total * 100);
+    bd.innerHTML += `<div class="cat"><div class="cat-name">${cat}</div><div class="cat-score" style="color:${p >= 80 ? 'var(--green)' : p >= 50 ? 'var(--orange)' : 'var(--red)'}">${c.correct}/${c.total}</div></div>`;
+  }
+  res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restart() {
+  answered = 0; correct = 0;
+  for (const k in catStats) delete catStats[k];
+  document.getElementById('results').classList.remove('visible');
+  render(); updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+render();
+</script>
+</body>
+</html>

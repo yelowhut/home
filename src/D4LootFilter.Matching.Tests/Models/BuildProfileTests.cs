@@ -100,6 +100,61 @@ public class BuildProfileTests
     }
 
     [Fact]
+    public void GetAffixesForSlot_WeaponIncludesLegacyWeaponSlots()
+    {
+        var variant = new BuildVariant
+        {
+            Id = 0,
+            Name = "Default",
+            Equipment = new Equipment
+            {
+                Categories =
+                [
+                    new EquipmentCategory
+                    {
+                        Name = "Legendary",
+                        Items =
+                        [
+                            new EquipmentItem
+                            {
+                                Slot = "Weapon",
+                                Name = "Main",
+                                Affixes = [new Affix { Name = "Strength", IsGa = false }]
+                            },
+                            new EquipmentItem
+                            {
+                                Slot = "Off-Weapon",
+                                Name = "Legacy Off",
+                                Affixes = [new Affix { Name = "Maximum Life", IsGa = false }]
+                            },
+                            new EquipmentItem
+                            {
+                                Slot = "Slashing Weapon",
+                                Name = "Legacy Slashing",
+                                Affixes = [new Affix { Name = "Critical Strike Damage", IsGa = false }]
+                            },
+                            new EquipmentItem
+                            {
+                                Slot = "Bludgeoning Weapon",
+                                Name = "Legacy Bludgeoning",
+                                Affixes = [new Affix { Name = "Vulnerable Damage", IsGa = false }]
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        var weaponAffixes = variant.GetAffixesForSlot("Weapon");
+
+        Assert.Equal(4, weaponAffixes.Count);
+        Assert.Contains(weaponAffixes, a => a.Name == "Strength");
+        Assert.Contains(weaponAffixes, a => a.Name == "Maximum Life");
+        Assert.Contains(weaponAffixes, a => a.Name == "Critical Strike Damage");
+        Assert.Contains(weaponAffixes, a => a.Name == "Vulnerable Damage");
+    }
+
+    [Fact]
     public void GetAllAffixes_ReturnsAffixesFromAllCategories()
     {
         var variant = new BuildVariant

@@ -21,6 +21,10 @@ artifacts/
 
 # Tessdata (large binary, download at build time)
 src/D4LootFilter/tessdata/
+**/tessdata/*.traineddata
+
+# Superpowers tooling state
+.superpowers/
 
 # OS
 .DS_Store

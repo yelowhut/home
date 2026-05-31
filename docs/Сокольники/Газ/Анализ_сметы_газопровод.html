@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Анализ сметы — Перекладка газопровода, Песочный пер. 3, кв. 64</title>
+<style>
+  :root {
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --red-border: #fecaca;
+    --orange: #ea580c;
+    --orange-light: #fff7ed;
+    --orange-border: #fed7aa;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --green-border: #bbf7d0;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --blue-border: #bfdbfe;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, var(--gray-900) 0%, #1e3a5f 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+  }
+  header .container { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+  header .subtitle { opacity: 0.8; font-size: 0.95rem; }
+  .header-meta { text-align: right; font-size: 0.9rem; opacity: 0.8; line-height: 1.8; }
+  .header-meta strong { color: #93c5fd; }
+
+  /* Alert banner */
+  .alert-banner {
+    background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #991b1b 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(185, 28, 28, 0.3);
+  }
+  .alert-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .alert-banner .alert-label {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .alert-banner h2 { font-size: 1.7rem; margin-bottom: 6px; }
+  .alert-banner .alert-sub { font-size: 1.05rem; opacity: 0.9; margin-bottom: 20px; }
+
+  .price-compare {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .price-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 18px 24px;
+    flex: 1;
+    min-width: 200px;
+  }
+  .price-card .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 4px; }
+  .price-card .amount { font-size: 1.6rem; font-weight: 700; }
+  .price-card .note { font-size: 0.8rem; opacity: 0.7; margin-top: 4px; }
+  .price-card.highlight { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.4); }
+  .price-card.highlight .amount { color: #fde68a; }
+
+  .savings-bar {
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .savings-bar .icon { font-size: 1.5rem; }
+  .savings-bar .text { font-size: 1rem; }
+  .savings-bar strong { color: #fde68a; }
+
+  /* Section cards */
+  .section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-header .num {
+    background: var(--gray-900);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-header h3 { font-size: 1.15rem; font-weight: 600; }
+  .section-body { padding: 24px 28px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 16px 0;
+  }
+  thead th {
+    background: var(--gray-100);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-600);
+    border-bottom: 2px solid var(--gray-200);
+  }
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  tbody tr:hover { background: var(--gray-50); }
+  tbody tr.total-row { font-weight: 700; background: var(--gray-50); }
+  tbody tr.total-row td { border-top: 2px solid var(--gray-300); }
+
+  /* Comparison table special */
+  .compare-table td:nth-child(2),
+  .compare-table td:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+  .compare-table th:nth-child(2),
+  .compare-table th:nth-child(3) { text-align: right; }
+  .compare-table .overpriced { color: var(--red); font-weight: 600; }
+  .compare-table .fair { color: var(--green); }
+
+  /* Bar chart */
+  .bar-chart { margin: 20px 0; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+  .bar-label {
+    width: 180px;
+    font-size: 0.85rem;
+    text-align: right;
+    color: var(--gray-600);
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    background: var(--gray-100);
+    border-radius: 6px;
+    height: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    transition: width 0.5s ease;
+  }
+  .bar-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .bar-fill.orange { background: linear-gradient(90deg, #f97316, #ea580c); }
+  .bar-fill.blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+  .bar-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .bar-fill.gray { background: linear-gradient(90deg, #9ca3af, #6b7280); }
+
+  /* Donut chart */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .donut-svg { width: 220px; height: 220px; }
+  .donut-legend { font-size: 0.9rem; }
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .donut-legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .donut-legend-value { font-weight: 600; margin-left: auto; padding-left: 16px; font-variant-numeric: tabular-nums; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 0.9rem;
+  }
+  .callout-red { background: var(--red-light); border-color: var(--red); }
+  .callout-orange { background: var(--orange-light); border-color: var(--orange); }
+  .callout-green { background: var(--green-light); border-color: var(--green); }
+  .callout-blue { background: var(--blue-light); border-color: var(--blue); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* Red flags */
+  .flag-list { list-style: none; }
+  .flag-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--gray-100);
+    align-items: flex-start;
+  }
+  .flag-item:last-child { border-bottom: none; }
+  .flag-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .flag-icon.critical { background: var(--red); }
+  .flag-icon.warning { background: var(--orange); }
+  .flag-icon.info { background: var(--blue); }
+  .flag-text { flex: 1; }
+  .flag-text .title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+  .flag-text .desc { font-size: 0.85rem; color: var(--gray-600); }
+  .flag-saving {
+    background: var(--red-light);
+    color: var(--red);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .flag-saving.orange-badge { background: var(--orange-light); color: var(--orange); }
+
+  /* Recommendations */
+  .rec-list { counter-reset: rec; list-style: none; }
+  .rec-item {
+    counter-increment: rec;
+    padding: 14px 0 14px 52px;
+    border-bottom: 1px solid var(--gray-100);
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .rec-item:last-child { border-bottom: none; }
+  .rec-item::before {
+    content: counter(rec);
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 32px;
+    height: 32px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .rec-item .rec-title { font-weight: 600; margin-bottom: 4px; }
+  .rec-item .rec-desc { font-size: 0.85rem; color: var(--gray-600); }
+
+  /* Reference block */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .ref-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 0.85rem;
+  }
+  .ref-card .ref-source {
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .ref-card .ref-detail { color: var(--gray-600); }
+  .ref-card .ref-price { font-weight: 700; color: var(--gray-900); margin-top: 6px; font-size: 1rem; }
+
+  /* Position breakdown */
+  .pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .pos-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .pos-card .pos-num { font-size: 0.75rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; }
+  .pos-card .pos-name { font-weight: 600; margin: 4px 0 8px; font-size: 0.95rem; }
+  .pos-card .pos-amount { font-size: 1.3rem; font-weight: 700; color: var(--gray-900); }
+  .pos-card .pos-pct { font-size: 0.85rem; color: var(--gray-500); }
+  .pos-card .pos-detail { font-size: 0.8rem; color: var(--gray-600); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray-100); }
+
+  /* Verdict strip */
+  .verdict {
+    display: flex;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .verdict-item {
+    flex: 1;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: white;
+  }
+  .verdict-item .v-label { opacity: 0.8; margin-bottom: 2px; }
+  .verdict-item .v-value { font-weight: 700; font-size: 1rem; }
+  .verdict-item.v-green { background: var(--green); }
+  .verdict-item.v-orange { background: var(--orange); }
+  .verdict-item.v-red { background: var(--red); }
+  .verdict-item.v-blue { background: var(--blue); }
+
+  /* Gauge */
+  .gauge-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .gauge-box {
+    text-align: center;
+  }
+  .gauge-svg { width: 280px; height: 160px; }
+  .gauge-label { font-size: 0.9rem; color: var(--gray-600); margin-top: 8px; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--gray-500);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 40px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    header .container { flex-direction: column; }
+    .header-meta { text-align: left; }
+    .alert-banner { padding: 24px 20px; }
+    .alert-banner h2 { font-size: 1.3rem; }
+    .price-compare { flex-direction: column; }
+    .bar-label { width: 120px; font-size: 0.75rem; }
+    .donut-container { flex-direction: column; align-items: center; }
+    .pos-grid { grid-template-columns: 1fr; }
+    .ref-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: white; }
+    .alert-banner { box-shadow: none; border: 2px solid var(--red); }
+    .section { box-shadow: none; border: 1px solid var(--gray-200); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div>
+      <h1>Анализ сметы на перекладку газопровода</h1>
+      <div class="subtitle">Финансовый, юридический, технический анализ и сравнение с рынком</div>
+    </div>
+    <div class="header-meta">
+      <strong>Песочный пер., д. 3, кв. 64, Москва</strong><br>
+      Исполнитель: АО &laquo;МОСГАЗ&raquo;<br>
+      5-этажный кирпичный дом, 2 кв./этаж<br>
+      Дата анализа: 27.05.2026
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ==================== MAIN ALERT ==================== -->
+  <div class="alert-banner">
+    <div class="alert-label">Главный вывод</div>
+    <h2>Смета завышена в 2 раза</h2>
+    <div class="alert-sub">По сравнению с типовыми расценками самого АО &laquo;МОСГАЗ&raquo;, опубликованными на официальном сайте</div>
+
+    <div class="price-compare">
+      <div class="price-card highlight">
+        <div class="label">Ваша смета (ТСН-2001)</div>
+        <div class="amount">199 481 &#8381;</div>
+        <div class="note">с НДС 22% &middot; индивидуальный расчёт</div>
+      </div>
+      <div class="price-card">
+        <div class="label">Типовые расценки МОСГАЗ</div>
+        <div class="amount">~99 000 &#8381;</div>
+        <div class="note">с НДС &middot; прейскурант mos-gaz.ru</div>
+      </div>
+      <div class="price-card">
+        <div class="label">Частные подрядчики (без врезки)</div>
+        <div class="amount">50 000&ndash;70 000 &#8381;</div>
+        <div class="note">без врезки и пуска газа</div>
+      </div>
+    </div>
+
+    <div class="savings-bar">
+      <div class="icon">&#11015;</div>
+      <div class="text">Потенциальная экономия при пересчёте по типовым расценкам: <strong>~100 000 &#8381;</strong></div>
+    </div>
+  </div>
+
+  <!-- ==================== EVIDENCE: WHY 2x ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num" style="background: var(--red);">!</div>
+      <h3>Доказательства двукратного завышения</h3>
+    </div>
+    <div class="section-body">
+
+      <p style="margin-bottom: 16px; font-size: 0.95rem;">
+        Смета составлена по методологии <strong>ТСН-2001</strong> (базисно-индексный метод, цены 2001 года с коэффициентами пересчёта), тогда как на сайте АО &laquo;МОСГАЗ&raquo; для аналогичных работ опубликованы <strong>фиксированные типовые расценки</strong>, которые значительно ниже.
+      </p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Работа</th>
+            <th>Типовые расценки МОСГАЗ</th>
+            <th>Эквивалент в вашей смете</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Монтаж газопровода (до 1 п.м. + 1 врезка)</td>
+            <td>33 000 &#8381;</td>
+            <td class="overpriced">Поз. 5 + 7 = 100 294 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Дополнительные метры прокладки (4 м)</td>
+            <td>16 800 &#8381;</td>
+            <td class="overpriced">Включено в поз. 5</td>
+          </tr>
+          <tr>
+            <td>Замена газового крана (2 шт.)</td>
+            <td>5 000 &#8381;</td>
+            <td class="overpriced">Поз. 6 = 5 786 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Демонтаж участка газопровода</td>
+            <td>1 500 &#8381;</td>
+            <td class="overpriced">Поз. 2 = 3 933 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Составление документации</td>
+            <td>4 758 &#8381;</td>
+            <td class="fair">Поз. 10 = 3 900 &#8381; (без НДС)</td>
+          </tr>
+          <tr>
+            <td>Приостановление / пуск газа</td>
+            <td>20 000 &#8381;</td>
+            <td class="overpriced">Поз. 1+8+9 = 44 455 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Проезд бригады</td>
+            <td>&mdash;</td>
+            <td>Поз. 11 = 2 900 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Пробивка стены</td>
+            <td>Не входит в типовые</td>
+            <td>Поз. 3+4 = 2 242 &#8381;</td>
+          </tr>
+          <tr class="total-row">
+            <td>ИТОГО без НДС</td>
+            <td>~81 058 &#8381;</td>
+            <td class="overpriced">163 509 &#8381;</td>
+          </tr>
+          <tr class="total-row">
+            <td>ИТОГО с НДС 22%</td>
+            <td>~98 891 &#8381;</td>
+            <td class="overpriced">199 481 &#8381;</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-red">
+        <strong>Почему такая разница?</strong>
+        На сайте МОСГАЗ указано: работы, не соответствующие утверждённым типовым схемам, выполняются по <em>индивидуальному расчёту по расценкам ТСН-2001</em>. Ваша смета составлена именно по ТСН-2001, что даёт двукратное превышение. Однако из состава работ не очевидно, почему они не могут быть выполнены по типовой схеме &mdash; пробивка стены (2 242 руб.) не оправдывает удорожание на 100 000 руб.
+      </div>
+
+      <h4 style="margin: 20px 0 12px;">Источники для проверки</h4>
+      <div class="ref-grid">
+        <div class="ref-card">
+          <div class="ref-source">mos-gaz.ru/individuals/prices</div>
+          <div class="ref-detail">Официальный прейскурант АО &laquo;МОСГАЗ&raquo; на работы для физических лиц</div>
+          <div class="ref-price">Монтаж до 1 м + врезка: 33 000 &#8381;</div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-source">mos-gaz.ru/individuals/service/peredelka-gazovoy-razvodki</div>
+          <div class="ref-detail">Описание услуги &laquo;Переделка газовой разводки&raquo; с указанием на типовые схемы</div>
+          <div class="ref-price">Доп. метр: 4 200 &#8381; &middot; Кран: 2 500 &#8381;</div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-source">gorgas.online</div>
+          <div class="ref-detail">ООО &laquo;ГОРГАЗ&raquo; &mdash; альтернативный подрядчик с допусками в Москве</div>
+          <div class="ref-price">Сварка: от 5 500 &#8381;</div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-source">gazovik.ru, gazmontage.com, profgaz</div>
+          <div class="ref-detail">Частные газовые компании (не выполняют врезку в стояк)</div>
+          <div class="ref-price">Перенос трубы: от 7 000&ndash;9 500 &#8381;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FINANCIAL ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">1</div>
+      <h3>Финансовый анализ</h3>
+    </div>
+    <div class="section-body">
+
+      <h4 style="margin-bottom: 12px;">Структура затрат (163 509 руб. без НДС)</h4>
+
+      <div class="donut-container">
+        <svg class="donut-svg" viewBox="0 0 42 42">
+          <!-- НР 35.6% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#ef4444" stroke-width="5"
+            stroke-dasharray="35.6 64.4" stroke-dashoffset="25" />
+          <!-- ЗП 33.3% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#3b82f6" stroke-width="5"
+            stroke-dasharray="33.3 66.7" stroke-dashoffset="89.4" />
+          <!-- СП 18.5% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#f97316" stroke-width="5"
+            stroke-dasharray="18.5 81.5" stroke-dashoffset="56.1" />
+          <!-- МР 5.3% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#22c55e" stroke-width="5"
+            stroke-dasharray="5.3 94.7" stroke-dashoffset="37.6" />
+          <!-- Прочие 4.2% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#6b7280" stroke-width="5"
+            stroke-dasharray="4.2 95.8" stroke-dashoffset="32.3" />
+          <!-- ЭМ 3.2% -->
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#a78bfa" stroke-width="5"
+            stroke-dasharray="3.2 96.8" stroke-dashoffset="28.1" />
+          <text x="21" y="20" text-anchor="middle" font-size="3.5" font-weight="700" fill="#1f2937">54,1%</text>
+          <text x="21" y="24" text-anchor="middle" font-size="2" fill="#6b7280">НР + СП</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #ef4444;"></div>
+            <span>Накладные расходы (НР)</span>
+            <span class="donut-legend-value">58 126 &#8381; &middot; 35,6%</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #3b82f6;"></div>
+            <span>Зарплата рабочих (ЗП)</span>
+            <span class="donut-legend-value">54 505 &#8381; &middot; 33,3%</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #f97316;"></div>
+            <span>Сметная прибыль (СП)</span>
+            <span class="donut-legend-value">30 274 &#8381; &middot; 18,5%</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #22c55e;"></div>
+            <span>Материалы (МР)</span>
+            <span class="donut-legend-value">8 605 &#8381; &middot; 5,3%</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #6b7280;"></div>
+            <span>Прочие (документы + проезд)</span>
+            <span class="donut-legend-value">6 800 &#8381; &middot; 4,2%</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-dot" style="background: #a78bfa;"></div>
+            <span>Эксплуатация машин (ЭМ)</span>
+            <span class="donut-legend-value">5 199 &#8381; &middot; 3,2%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-orange">
+        <strong>Более половины стоимости &mdash; не работа и не материалы</strong>
+        Прямые затраты (ЗП + ЭМ + МР) = 68 310 руб. (41,8%). Начисления (НР + СП) = 88 399 руб. (54,1%).
+        На каждый рубль прямых затрат начисляется 1,29 руб. накладных и прибыли.
+        Стоимость самих труб в смете &mdash; всего <strong>347 руб.</strong> (0,2% от итога).
+      </div>
+
+      <h4 style="margin: 20px 0 12px;">Крупнейшие позиции (62% сметы)</h4>
+      <div class="pos-grid">
+        <div class="pos-card">
+          <div class="pos-num">Позиция 5 &middot; расценка 6.65-44-6</div>
+          <div class="pos-name">Прокладка газопровода 5,115 м с огнезащитой</div>
+          <div class="pos-amount">60 065 &#8381;</div>
+          <div class="pos-pct">36,7% от сметы &middot; ~11 743 &#8381;/м</div>
+          <div class="pos-detail">Трубы d=15 мм (2,115 м) + d=20 мм (2,9 м). Стоимость труб: 347 руб. (0,6% от позиции). Остальное &mdash; работа + НР 103% + СП 52%.</div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-num">Позиция 7 &middot; расценка 6.65-44-5</div>
+          <div class="pos-name">Врезка стык в стык в действующий газопровод</div>
+          <div class="pos-amount">40 228 &#8381;</div>
+          <div class="pos-pct">24,6% от сметы &middot; 1 врезка</div>
+          <div class="pos-detail">Огневые работы на действующем газопроводе. Технически сложная и опасная операция &mdash; стоимость более обоснована, чем у других позиций.</div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-num">Позиция 1 &middot; расценка 6.66-175-1</div>
+          <div class="pos-name">Продувка воздухом 78,9 м</div>
+          <div class="pos-amount">36 971 &#8381;</div>
+          <div class="pos-pct">22,6% от сметы &middot; ~469 &#8381;/м</div>
+          <div class="pos-detail" style="color: var(--red);">Для 5-этажного дома реалистичный объём: 50&ndash;75 м. Заявленные 78,9 м &mdash; на верхней границе или выше. Возможная переплата до 11 000 руб.</div>
+        </div>
+      </div>
+
+      <h4 style="margin: 20px 0 12px;">Все 11 позиций сметы</h4>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <div class="bar-label">5. Прокладка (5,1 м)</div>
+          <div class="bar-track"><div class="bar-fill blue" style="width: 100%;">60 065 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">7. Врезка (1 шт.)</div>
+          <div class="bar-track"><div class="bar-fill blue" style="width: 67%;">40 228 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">1. Продувка (78,9 м)</div>
+          <div class="bar-track"><div class="bar-fill orange" style="width: 61.5%;">36 971 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">8. Пуск газа (9 кв.)</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 9.7%;">5 835 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">6. Вентили (2 шт.)</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 9.6%;">5 786 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">10. Документация</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 6.5%;">3 900 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">2. Разборка (4,5 м)</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 6.5%;">3 933 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">11. Проезд бригады</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 4.8%;">2 900 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">3. Пробивка стены</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 3.5%;">2 082 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">9. Доплата 2-й прибор</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 2.7%;">1 649 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">4. Футляр (0,1 м)</div>
+          <div class="bar-track"><div class="bar-fill gray" style="width: 0.8%;min-width:60px;">159 &#8381;</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LEGAL ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">2</div>
+      <h3>Юридический анализ</h3>
+    </div>
+    <div class="section-body">
+
+      <div class="verdict">
+        <div class="verdict-item v-red">
+          <div class="v-label">&laquo;Утверждаю&raquo;</div>
+          <div class="v-value">Пусто</div>
+        </div>
+        <div class="verdict-item v-red">
+          <div class="v-label">Даты</div>
+          <div class="v-value">Не заполнены</div>
+        </div>
+        <div class="verdict-item v-red">
+          <div class="v-label">Заказчик</div>
+          <div class="v-value">Не указан</div>
+        </div>
+        <div class="verdict-item v-orange">
+          <div class="v-label">Статус</div>
+          <div class="v-value">Оферта</div>
+        </div>
+      </div>
+
+      <div class="callout callout-green">
+        <strong>Документ не порождает обязательств</strong>
+        Смета является односторонним расчётом стоимости (коммерческим предложением) от АО &laquo;МОСГАЗ&raquo;. Поле &laquo;УТВЕРЖДАЮ&raquo; пустое, даты не проставлены, реквизиты заказчика отсутствуют. Вы не обязаны принимать её в текущем виде (ст. 709 ГК РФ).
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Аспект</th><th>Оценка</th><th>Основание</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Нормативная база (ТСН-2001)</td>
+            <td style="color: var(--green);">Допустимо</td>
+            <td>Не обязательна для частного заказчика. Приказ Минстроя №421/пр</td>
+          </tr>
+          <tr>
+            <td>НДС 22%</td>
+            <td style="color: var(--orange);">Проверить</td>
+            <td>Сверить со ст. 164 НК РФ на дату работ. Если ставка 20% &mdash; переплата 3 270 &#8381;</td>
+          </tr>
+          <tr>
+            <td>Двойной НДС по поз. 10&ndash;11</td>
+            <td style="color: var(--red);">Риск</td>
+            <td>Базовые цены уже включают НДС (4 758/1,22), затем НДС начисляется повторно</td>
+          </tr>
+          <tr>
+            <td>Позиции 10&ndash;11 (приказ)</td>
+            <td style="color: var(--orange);">Сомнительно</td>
+            <td>Обоснованы внутренним приказом, не нормативной базой. Ст. 16 ЗоЗПП &mdash; навязывание</td>
+          </tr>
+          <tr>
+            <td>Право выбора подрядчика</td>
+            <td style="color: var(--orange);">Формально есть</td>
+            <td>ПП РФ №410. На практике МОСГАЗ безальтернативен для врезки и пуска газа</td>
+          </tr>
+          <tr>
+            <td>Право оспорить цену</td>
+            <td style="color: var(--green);">Есть</td>
+            <td>Ст. 709 ГК РФ, ст. 10 ЗоЗПП. Можно заказать независимую экспертизу (3&ndash;10 тыс. руб.)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-blue">
+        <strong>Ключевые нормативные акты</strong>
+        ФЗ-69 &laquo;О газоснабжении&raquo; &middot; ПП РФ №410 (ВДГО/ВКГО) &middot; ФЗ-135 &laquo;О защите конкуренции&raquo; &middot; ФЗ-116 &laquo;О промышленной безопасности&raquo; &middot; Закон &laquo;О защите прав потребителей&raquo; &middot; ГК РФ ст. 709 (подряд) &middot; СП 62.13330 (газоснабжение)
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TECHNICAL ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">3</div>
+      <h3>Технический анализ</h3>
+    </div>
+    <div class="section-body">
+
+      <h4 style="margin-bottom: 12px;">Параметры объекта (по фото и плану)</h4>
+      <table>
+        <tbody>
+          <tr><td style="width:40%; font-weight:600;">Дом</td><td>5-этажный кирпичный, 2 кв. на этаж, потолки ~3 м</td></tr>
+          <tr><td style="font-weight:600;">Стояк</td><td>1 газовый стояк на обе квартиры &mdash; 10 квартир на стояке</td></tr>
+          <tr><td style="font-weight:600;">Газовые приборы</td><td>2 в каждой квартире: плита + газовая колонка (водонагреватель)</td></tr>
+          <tr><td style="font-weight:600;">Характер работ</td><td>Перенос газовой разводки из-за перепланировки кухни, проход через кирпичную стену 51 см</td></tr>
+          <tr><td style="font-weight:600;">Новая разводка</td><td>5,115 м: d=15 мм (2,115 м) + d=20 мм (2,9 м)</td></tr>
+          <tr><td style="font-weight:600;">Заглушка / кран</td><td>Высота установки 150&ndash;160 см от пола (по фото)</td></tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin: 20px 0 12px;">Проверка объёмов</h4>
+      <table>
+        <thead>
+          <tr><th>Позиция</th><th>Объём в смете</th><th>Расчёт для 5-этажного дома</th><th>Вердикт</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Продувка</td>
+            <td>78,9 м</td>
+            <td>Стояк 15 м + подвал/двор 5&ndash;10 м + ответвления в 10 кв. по 3&ndash;5 м = <strong>50&ndash;75 м</strong></td>
+            <td style="color: var(--orange); font-weight:600;">Верхняя граница / завышено</td>
+          </tr>
+          <tr>
+            <td>Разборка</td>
+            <td>4,5 м</td>
+            <td>Старая разводка в квартире</td>
+            <td style="color: var(--green); font-weight:600;">Корректно</td>
+          </tr>
+          <tr>
+            <td>Прокладка</td>
+            <td>5,115 м</td>
+            <td>Новая трассировка: d=15 (2,115 м) + d=20 (2,9 м) + футляр</td>
+            <td style="color: var(--green); font-weight:600;">Корректно</td>
+          </tr>
+          <tr>
+            <td>Переключения</td>
+            <td>9 шт.</td>
+            <td>10 кв. на стояке &minus; 1 (ваша) = 9</td>
+            <td style="color: var(--green); font-weight:600;">Обоснованно</td>
+          </tr>
+          <tr>
+            <td>Доплата 2-й прибор</td>
+            <td>9 шт.</td>
+            <td>9 кв. &times; 2 прибора (плита + колонка)</td>
+            <td style="color: var(--green); font-weight:600;">Подтверждено фото</td>
+          </tr>
+          <tr>
+            <td>Пробивка стены</td>
+            <td>1 шт.</td>
+            <td>Проход через кирпичную стену 51 см (видно на плане)</td>
+            <td style="color: var(--green); font-weight:600;">Корректно</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-orange">
+        <strong>Пропущенные обязательные этапы</strong>
+        В смете отсутствуют: испытания газопровода на герметичность (обязательны по СП 62.13330), дегазация стояка перед демонтажём, контроль качества соединений. Возможно, включены в состав расценок, но это требует подтверждения.
+      </div>
+
+      <h4 style="margin: 20px 0 12px;">Расценки ТСН-2001: проверка соответствия</h4>
+      <table>
+        <thead>
+          <tr><th>Шифр</th><th>Сборник</th><th>Применение</th><th>Оценка</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>6.66-175-1</td><td>Газоснабжение (наружные)</td><td>Продувка d&le;100 мм</td><td style="color:var(--orange);">Допустимо, но сборник для наружных сетей</td></tr>
+          <tr><td>6.65-1-3</td><td>Газоснабжение (внутренние)</td><td>Разборка d&le;50 мм</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>6.69-37-6</td><td>Газоснабжение (прочие)</td><td>Пробивка в кирпиче</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>3.16-10-5</td><td>Трубопроводы</td><td>Футляр</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>6.65-44-6</td><td>Газоснабжение (внутренние)</td><td>Прокладка с огнезащитой</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>3.16-15-1</td><td>Трубопроводы</td><td>Установка кранов d&le;25</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>6.65-44-5</td><td>Газоснабжение (внутренние)</td><td>Врезка стык в стык</td><td style="color:var(--green);">Корректно</td></tr>
+          <tr><td>14.19-1-1/3</td><td>Пусконаладочные</td><td>Переключение и пуск газа</td><td style="color:var(--green);">Корректно</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 8px;">Подмена расценок не выявлена. Шифры соответствуют характеру работ.</p>
+    </div>
+  </div>
+
+  <!-- ==================== MARKET ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">4</div>
+      <h3>Сравнение с рынком</h3>
+    </div>
+    <div class="section-body">
+
+      <h4 style="margin-bottom: 12px;">Визуальное сравнение</h4>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <div class="bar-label" style="font-weight:600;">Ваша смета (ТСН-2001)</div>
+          <div class="bar-track"><div class="bar-fill red" style="width: 100%;">199 481 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" style="font-weight:600;">Типовые МОСГАЗ</div>
+          <div class="bar-track"><div class="bar-fill green" style="width: 49.5%;">~99 000 &#8381;</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" style="font-weight:600;">Частные + МОСГАЗ (врезка)</div>
+          <div class="bar-track"><div class="bar-fill blue" style="width: 45%;">70 000&ndash;110 000 &#8381;</div></div>
+        </div>
+      </div>
+
+      <h4 style="margin: 20px 0 12px;">Альтернативные подрядчики</h4>
+      <table>
+        <thead>
+          <tr><th>Компания</th><th>Допуски</th><th>Цены</th><th>Ограничения</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">АО &laquo;МОСГАЗ&raquo; (типовые)</td>
+            <td style="color:var(--green);">Полные</td>
+            <td>~99 000 &#8381; за аналогичный объём</td>
+            <td>Нужно запросить пересчёт</td>
+          </tr>
+          <tr>
+            <td>ООО &laquo;ГОРГАЗ&raquo;</td>
+            <td style="color:var(--green);">Есть</td>
+            <td>Сварка от 5 500 &#8381;</td>
+            <td>Прайс не опубликован</td>
+          </tr>
+          <tr>
+            <td>Газовик.ру</td>
+            <td style="color:var(--green);">Есть</td>
+            <td>Перенос от 9 490 &#8381;</td>
+            <td style="color:var(--red);">Не врезают в стояк</td>
+          </tr>
+          <tr>
+            <td>ГазМонтаж</td>
+            <td style="color:var(--green);">Есть</td>
+            <td>Обрезка от 5 500 &#8381;</td>
+            <td style="color:var(--red);">Не врезают в стояк</td>
+          </tr>
+          <tr>
+            <td>ПРОФГАЗ</td>
+            <td style="color:var(--green);">Есть</td>
+            <td>Перенос от 7 000 &#8381;</td>
+            <td style="color:var(--red);">Не врезают в стояк</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-blue">
+        <strong>Врезка в стояк = монополия МОСГАЗ</strong>
+        Частные подрядчики выполняют только внутриквартирную разводку (30&ndash;50 тыс. руб.), но врезку в действующий газопровод и пуск газа в Москве делает только МОСГАЗ. Полностью заменить исполнителя невозможно.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RED FLAGS ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num" style="background: var(--red);">!</div>
+      <h3>Красные флаги</h3>
+    </div>
+    <div class="section-body">
+      <ul class="flag-list">
+        <li class="flag-item">
+          <div class="flag-icon critical">1</div>
+          <div class="flag-text">
+            <div class="title">Смета в 2 раза дороже типовых расценок МОСГАЗ</div>
+            <div class="desc">Собственный прейскурант МОСГАЗ (mos-gaz.ru) даёт ~99 000 &#8381; за аналогичный объём. Смета по ТСН-2001 &mdash; 199 481 &#8381;. Разница не обоснована составом работ.</div>
+          </div>
+          <div class="flag-saving">до 100 000 &#8381;</div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon warning">2</div>
+          <div class="flag-text">
+            <div class="title">Продувка 78,9 м завышена для 5-этажного дома</div>
+            <div class="desc">Расчётный объём для 5 этажей с 10 квартирами: 50&ndash;75 м. Заявленные 78,9 м на верхней границе или выше реалистичного диапазона.</div>
+          </div>
+          <div class="flag-saving orange-badge">до 11 090 &#8381;</div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon warning">3</div>
+          <div class="flag-text">
+            <div class="title">НДС 22% &mdash; проверить актуальную ставку</div>
+            <div class="desc">Стандартная ставка НДС была 20% (ст. 164 НК РФ). Если 22% введена &mdash; корректно. Если нет &mdash; переплата.</div>
+          </div>
+          <div class="flag-saving orange-badge">~3 270 &#8381;</div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon warning">4</div>
+          <div class="flag-text">
+            <div class="title">Возможное двойное начисление НДС по поз. 10&ndash;11</div>
+            <div class="desc">Базовые цены (4 758 и 3 538 &#8381;) уже с НДС, из них выделяется база (/1,22), а затем НДС начисляется повторно на итоговую сумму.</div>
+          </div>
+          <div class="flag-saving orange-badge">~1 496 &#8381;</div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon info">5</div>
+          <div class="flag-text">
+            <div class="title">НР + СП = 54,1% от итога</div>
+            <div class="desc">Формально законно (нормативы Минстроя), но более половины стоимости &mdash; не прямые затраты на работу и материалы, а начисления организации.</div>
+          </div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon info">6</div>
+          <div class="flag-text">
+            <div class="title">Отсутствие испытаний на герметичность</div>
+            <div class="desc">Обязательны по СП 62.13330, но нет отдельной позиции в смете. Возможно, включены в состав расценки, но это нужно подтвердить.</div>
+          </div>
+        </li>
+        <li class="flag-item">
+          <div class="flag-icon info">7</div>
+          <div class="flag-text">
+            <div class="title">Документ не подписан &mdash; это оферта</div>
+            <div class="desc">Поле &laquo;УТВЕРЖДАЮ&raquo; пустое, даты не заполнены. Смета не порождает обязательств до вашей подписи.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ==================== RECOMMENDATIONS ==================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num" style="background: var(--blue);">&#10003;</div>
+      <h3>Рекомендации</h3>
+    </div>
+    <div class="section-body">
+
+      <h4 style="margin-bottom: 12px; color: var(--red);">Немедленные действия</h4>
+      <ol class="rec-list">
+        <li class="rec-item">
+          <div class="rec-title">Не подписывать смету в текущем виде</div>
+          <div class="rec-desc">Документ является офертой. До подписания вы не несёте обязательств по оплате.</div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">Запросить пересчёт по типовым расценкам МОСГАЗ</div>
+          <div class="rec-desc">Сослаться на прейскурант mos-gaz.ru/individuals/prices. Целевая стоимость: ~99 000 руб. с НДС. Потребовать письменное обоснование, почему работы не могут быть выполнены по типовой схеме.</div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">Проверить ставку НДС</div>
+          <div class="rec-desc">Сверить с актуальной редакцией ст. 164 НК РФ. Если 20% &mdash; потребовать перерасчёт (экономия 3 270 руб.).</div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">Запросить обоснование объёма продувки 78,9 м</div>
+          <div class="rec-desc">Для 5-этажного дома с 10 квартирами реалистичный объём: 50&ndash;75 м. Попросить детальный расчёт длины продуваемого участка.</div>
+        </li>
+      </ol>
+
+      <h4 style="margin: 24px 0 12px;">Если МОСГАЗ не идёт на уступки</h4>
+      <ol class="rec-list" style="counter-reset: rec 4;">
+        <li class="rec-item">
+          <div class="rec-title">Заказать независимую экспертизу сметы</div>
+          <div class="rec-desc">Стоимость: 3 000&ndash;10 000 руб. Окупится при подтверждении завышения. Эксперт проверит расценки, объёмы и коэффициенты.</div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">Получить альтернативную смету</div>
+          <div class="rec-desc">Обратиться в ООО &laquo;ГОРГАЗ&raquo; (gorgas.online, +7 499 302-50-04) или другую организацию из реестра ГЖИ. Альтернативная смета &mdash; аргумент для переговоров.</div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">Обратиться в контролирующие органы</div>
+          <div class="rec-desc">Московское УФАС (злоупотребление доминирующим положением, ст. 10 ФЗ-135), Роспотребнадзор (навязывание услуг, ст. 16 ЗоЗПП), Мосжилинспекция.</div>
+        </li>
+      </ol>
+
+      <div class="callout callout-green" style="margin-top: 20px;">
+        <strong>Потенциальная экономия</strong>
+        При пересчёте по типовым расценкам МОСГАЗ: <strong>~100 000 &#8381;</strong> (с 199 481 до ~99 000 &#8381;).
+        Даже частичный пересчёт отдельных позиций может сэкономить 30 000&ndash;50 000 &#8381;.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Анализ выполнен 27.05.2026. Данные о рыночных ценах актуальны на дату анализа.<br>
+  Документ носит информационный характер и не является юридической консультацией.
+</footer>
+
+</body>
+</html>

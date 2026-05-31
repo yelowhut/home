@@ -1,0 +1,4 @@
+{
+  "query": "query Diablo4TopBannerQuery {\n  game: diablo4 {\n    settings {\n      banners {\n        topBanners {\n          ...NgfTopBannerFragment\n        }\n      }\n    }\n  }\n}\n\nfragment NgfTopBannerFragment on NgfTopBanner {\n  enabled\n  display {\n    ...NgfBannerDisplayFragment\n  }\n  content {\n    __typename\n    text\n    linkText\n    linkURL\n    openLinkInNewTab\n    background {\n      simple\n      advanced\n    }\n    withCloseButton\n  }\n}\n\nfragment NgfBannerDisplayFragment on NgfBannerDisplay {\n  slug\n  abTestKey\n  allowedUserLevels\n  platform\n  whiteListUserIds\n  countries\n  minScreenWidth\n  countries\n  urlMatchPatterns\n  distribution\n  urlExcludePatterns\n}",
+  "operationName": "Diablo4TopBannerQuery"
+}

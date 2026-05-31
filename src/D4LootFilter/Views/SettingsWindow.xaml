@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:D4LootFilter.Views"
         Title="D4 Loot Filter — Settings"
-        Width="550" Height="450"
-        ResizeMode="NoResize"
+        Width="550" Height="560"
+        MinWidth="550" MinHeight="500"
+        ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BgBrush}">
 
@@ -37,13 +38,19 @@
         </TabControl.Resources>
 
         <TabItem Header="Profiles">
-            <views:ProfilesView x:Name="ProfilesContent"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <views:ProfilesView x:Name="ProfilesContent"/>
+            </ScrollViewer>
         </TabItem>
         <TabItem Header="Capture Region">
-            <views:CaptureRegionView x:Name="CaptureRegionContent"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <views:CaptureRegionView x:Name="CaptureRegionContent"/>
+            </ScrollViewer>
         </TabItem>
         <TabItem Header="Settings">
-            <views:SettingsView x:Name="SettingsContent"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <views:SettingsView x:Name="SettingsContent"/>
+            </ScrollViewer>
         </TabItem>
     </TabControl>
 </Window>

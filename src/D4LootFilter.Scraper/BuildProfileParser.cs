@@ -16,12 +16,31 @@ public static class BuildProfileParser
         ["amulet"] = "Amulet",
         ["ring-1"] = "Ring",
         ["ring-2"] = "Ring",
+        ["slashing-weapon"] = "Weapon",
+        ["bludgeoning-weapon"] = "Weapon",
         ["two-handed-weapon"] = "Weapon",
+        ["two-handed-slashing-weapon"] = "Weapon",
+        ["two-handed-bludgeoning-weapon"] = "Weapon",
         ["dual-wield-weapon-1"] = "Weapon",
-        ["dual-wield-weapon-2"] = "Off-Weapon",
+        ["dual-wield-weapon-2"] = "Weapon",
         ["main-hand"] = "Weapon",
-        ["off-hand-weapon"] = "Off-Weapon",
+        ["off-hand-weapon"] = "Weapon",
         ["off-hand"] = "Off-Hand",
+    };
+
+    private static readonly Dictionary<string, string> DisplaySlotMapping = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ring-1"] = "Ring 1",
+        ["ring-2"] = "Ring 2",
+        ["slashing-weapon"] = "Slashing Weapon",
+        ["bludgeoning-weapon"] = "Bludgeoning Weapon",
+        ["two-handed-weapon"] = "Two-Handed Weapon",
+        ["two-handed-slashing-weapon"] = "Two-Handed Slashing Weapon",
+        ["two-handed-bludgeoning-weapon"] = "Two-Handed Bludgeoning Weapon",
+        ["dual-wield-weapon-1"] = "Dual-Wield Weapon 1",
+        ["dual-wield-weapon-2"] = "Dual-Wield Weapon 2",
+        ["main-hand"] = "Main-Hand Weapon",
+        ["off-hand-weapon"] = "Off-Hand Weapon",
     };
 
     private static readonly Dictionary<string, string> CategoryMapping = new(StringComparer.OrdinalIgnoreCase)
@@ -118,6 +137,7 @@ public static class BuildProfileParser
                     if (string.IsNullOrEmpty(category)) continue;
 
                     var slotName = SlotMapping.GetValueOrDefault(slotSlug, SlugToTitleCase(slotSlug));
+                    var displaySlot = DisplaySlotMapping.GetValueOrDefault(slotSlug, slotName);
                     var rarity = ExtractRarity(entity);
 
                     var affixes = ParseGearStats(entity);
@@ -126,6 +146,7 @@ public static class BuildProfileParser
                     items.Add((category, new EquipmentItem
                     {
                         Slot = slotName,
+                        DisplaySlot = displaySlot,
                         Name = itemTitle,
                         Category = category,
                         Rarity = rarity,

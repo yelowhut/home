@@ -1,0 +1,4 @@
+{
+  "query": "query Diablo4TakeoverQuery {\n  game: diablo4 {\n    settings {\n      banners {\n        takeovers {\n          ...NgfTakeoverFragment\n        }\n      }\n    }\n  }\n}\n\nfragment NgfTakeoverFragment on NgfTakeoverBanner {\n  enabled\n  display {\n    ...NgfBannerDisplayFragment\n  }\n  content {\n    __typename\n    navigationUrl\n    imageAlt\n    images {\n      screenWidth\n      imageUrl\n      fallbackImageUrl\n    }\n  }\n}\n\nfragment NgfBannerDisplayFragment on NgfBannerDisplay {\n  slug\n  abTestKey\n  allowedUserLevels\n  platform\n  whiteListUserIds\n  countries\n  minScreenWidth\n  countries\n  urlMatchPatterns\n  distribution\n  urlExcludePatterns\n}",
+  "operationName": "Diablo4TakeoverQuery"
+}

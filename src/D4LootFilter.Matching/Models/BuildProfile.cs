@@ -25,7 +25,7 @@ public record BuildVariant
     public List<Affix> GetAffixesForSlot(string slot) =>
         Equipment.Categories
             .SelectMany(c => c.Items)
-            .Where(i => i.Slot.Equals(slot, StringComparison.OrdinalIgnoreCase))
+            .Where(i => SlotMatches(i.Slot, slot))
             .SelectMany(i => i.Affixes)
             .ToList();
 
@@ -34,6 +34,22 @@ public record BuildVariant
             .SelectMany(c => c.Items)
             .SelectMany(i => i.Affixes)
             .ToList();
+
+    private static bool SlotMatches(string itemSlot, string requestedSlot)
+    {
+        if (itemSlot.Equals(requestedSlot, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return requestedSlot.Equals("Weapon", StringComparison.OrdinalIgnoreCase)
+            && IsLegacyWeaponSlot(itemSlot);
+    }
+
+    private static bool IsLegacyWeaponSlot(string itemSlot)
+    {
+        return itemSlot.Equals("Off-Weapon", StringComparison.OrdinalIgnoreCase)
+            || itemSlot.Equals("Slashing Weapon", StringComparison.OrdinalIgnoreCase)
+            || itemSlot.Equals("Bludgeoning Weapon", StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 public record Equipment
@@ -50,6 +66,7 @@ public record EquipmentCategory
 public record EquipmentItem
 {
     public string Slot { get; init; } = "";
+    public string DisplaySlot { get; init; } = "";
     public string Name { get; init; } = "";
     public string Category { get; init; } = "";
     public string Rarity { get; init; } = "";

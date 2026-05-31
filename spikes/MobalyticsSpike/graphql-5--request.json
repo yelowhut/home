@@ -1,0 +1,145 @@
+{
+  "query": "query Diablo4NgfStaticDataMetaQuery {\n  game: diablo4 {\n    staticData: staticDataV2 {\n      meta: d4Skills {\n        version\n      }\n    }\n  }\n}",
+  "variables": {
+    "statsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "statImplicitFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "statTemperingFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "transfiguredStatsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "aspectsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "uniqueItemsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "skillsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "runesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "gemsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "witchcraftPowersFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "bossPowersFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "paragonBoardFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "paragonGlyphFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "paragonNodesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "classesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "skillSectionsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "skillTreeConnectorsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "mercenariesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "mercenarySkillsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "reinforcementMercenaryOpportunitiesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "buildSlotsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "chaosPerksFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "bloodiedAffixesFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "divineGiftsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "elixirsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "soulShardsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "charmsFilter": {
+      "page": {
+        "all": true
+      }
+    },
+    "sealsFilter": {
+      "page": {
+        "all": true
+      }
+    }
+  }
+}
