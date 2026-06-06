@@ -29,3 +29,12 @@ src/D4LootFilter/tessdata/
 # OS
 .DS_Store
 Thumbs.db
+
+# androguard scratch session state
+androguard.db
+androguard.db-shm
+androguard.db-wal
+
+# HayDay shared_prefs dumps contain live account tokens — never commit
+docs/hayday/SEND ME 1 COIN!/
+docs/hayday/**/storage*.xml
