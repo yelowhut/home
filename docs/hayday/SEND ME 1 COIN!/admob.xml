@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="app_settings_json">{&quot;status&quot;:1,&quot;app_id&quot;:&quot;ca-app-pub-1123764726165104~1375341673&quot;,&quot;auto_collect_location&quot;:false,&quot;cache_ttl_sec&quot;:259200,&quot;publisher_permissions&quot;:[{&quot;platform&quot;:&quot;ADMOB&quot;,&quot;eoid_enabled&quot;:true},{&quot;platform&quot;:&quot;AD_MANAGER&quot;,&quot;eoid_enabled&quot;:true}],&quot;common_settings&quot;:{&quot;loeid&quot;:[44766145],&quot;app_id&quot;:&quot;ca-app-pub-1123764726165104~1375341673&quot;},&quot;initializer_settings&quot;:{&quot;config&quot;:{}}}</string>
+    <long name="app_settings_last_update_ms" value="1704314471849" />
+    <int name="request_in_session_count" value="4" />
+    <boolean name="gad_idless" value="false" />
+    <long name="sd_app_measure_npa_ts" value="1704314471231" />
+    <long name="first_ad_req_time_ms" value="1704314473574" />
+    <long name="app_last_background_time_ms" value="1704314662725" />
+</map>

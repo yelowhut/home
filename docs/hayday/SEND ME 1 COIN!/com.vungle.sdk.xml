@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <set name="cache_paths">
+        <string>/data/user/0/com.supercell.hayday/cache</string>
+        <string>/storage/emulated/0/Android/data/com.supercell.hayday/no_backup/vungle_cache</string>
+    </set>
+</map>

@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="enable_inapp_notificaiton" value="true" />
+    <string name="notificationChannelId"></string>
+    <string name="language">en</string>
+    <string name="active_user_data">{&quot;push_token_synced&quot;:false}</string>
+    <int name="notificationIcon" value="2131230923" />
+    <long name="last_helpcenter_cache_eviction_time" value="1704313735977" />
+    <int name="notificationLargeIcon" value="0" />
+    <string name="failed_analytics_events">[]</string>
+    <string name="active_user">{&quot;userAuthToken&quot;:&quot;pgSC9w+DY6NTjZDOT5cF+9nEc7lgkq58XH5JBGYoEdQ=&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userName&quot;:&quot;&quot;,&quot;userId&quot;:&quot;25-37608379&quot;}</string>
+    <int name="screenOrientation" value="-1" />
+    <long name="last_unread_count_api_access" value="1704313736003" />
+    <string name="current_push_token">fkE4HbK8S-WnePem4ZmL-T:APA91bF1gczojbtBj1qHIT6RXNfaOt26Esjcq4ZKAhS-c1BYH-l-DlXzEuHdnCyoKc8pejfsypT3KlOf3ZPP9gsdqxNpyh0TRaDZDj3c4u3373gdf6E-GG7D2eUZub_QE9tOCuh-27M2</string>
+    <string name="domain">supercell</string>
+    <string name="host">helpshift.com</string>
+    <string name="platform_id">supercell_platform_20140724073743924-aec8ddfc8a4b58d</string>
+    <int name="notificationSoundId" value="0" />
+    <string name="anon_user_id_map">{&quot;userId&quot;:&quot;hsft_anon_1704313735986-7e2ce038df82426&quot;}</string>
+</map>

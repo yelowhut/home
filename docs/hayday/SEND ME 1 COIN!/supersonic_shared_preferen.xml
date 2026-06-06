@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="auid">48527b3f-8115-4ef7-b994-f7e7d24ccc60</string>
+    <string name="search_keys">{&quot;success&quot;:&quot;&quot;,&quot;fail&quot;:&quot;&quot;,&quot;searchKeys&quot;:[&quot;market://&quot;,&quot;play.google.com&quot;],&quot;acknowledgeWith&quot;:&quot;acknowledgeMessage&quot;,&quot;declineWith&quot;:&quot;errorTest&quot;}</string>
+    <string name="ssaGlobalAppData">{&quot;controllerVersion&quot;:&quot;3.1.265&quot;,&quot;adPlayerVersion&quot;:&quot;0.1.4727&quot;}</string>
+    <string name="version">7.4.0</string>
+</map>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <long name="first_open_time" value="1704313729845" />
+    <string name="gmp_app_id">1:1063482338717:android:8de9df73e7546853</string>
+    <string name="app_instance_id">0fcead3f43935d610c2b121cd023c9f1</string>
+    <boolean name="has_been_opened" value="true" />
+    <boolean name="app_backgrounded" value="true" />
+    <boolean name="allow_remote_dynamite" value="true" />
+    <boolean name="use_service" value="true" />
+    <long name="last_pause_time" value="1704314662225" />
+    <boolean name="start_new_session" value="true" />
+    <boolean name="deferred_analytics_collection" value="true" />
+</map>
