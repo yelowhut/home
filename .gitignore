@@ -37,4 +37,5 @@ androguard.db-wal
 
 # HayDay shared_prefs dumps contain live account tokens — never commit
 docs/hayday/SEND ME 1 COIN!/
+docs/hayday/SEND ME 1 COIN!.zip
 docs/hayday/**/storage*.xml
