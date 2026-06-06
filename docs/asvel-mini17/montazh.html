@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Жироуловитель ASVEL mini 17 — монтаж и обслуживание</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#fff; --ink:#1d2733; --muted:#5b6b7b;
+    --pipe:#c9d2da; --pipe-stroke:#8b97a4; --water:#9ad0f5; --grease:#f4d35e;
+    --accent:#2e7d5b; --warn:#c0392b; --new:#e67e22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);padding:24px}
+  h1{font-size:22px;margin:0 0 4px}
+  h2{font-size:17px;margin:28px 0 10px;border-left:4px solid var(--accent);padding-left:10px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .card{background:var(--card);border-radius:14px;padding:20px;
+        box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border-bottom:1px solid #e4e9ee;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef3f7;font-weight:600}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff}
+  .t-new{background:var(--new)}.t-old{background:#7f8c9b}.t-warn{background:var(--warn)}
+  ul{margin:6px 0 0;padding-left:20px}
+  li{margin:4px 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px;margin-right:18px;font-size:13px}
+  .sw{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid #0002}
+  .note{background:#fff8e1;border:1px solid #f0d97a;border-radius:8px;padding:10px 12px;font-size:13px;margin-top:10px}
+  .danger{background:#fdecea;border:1px solid #f5b7b1}
+  code{background:#eef3f7;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Жироуловитель ASVEL mini 17 — схема монтажа</h1>
+  <p class="sub">Габариты бокса: <b>350 × 240 × 270 мм</b> · пиковый сброс 17 л · 0,2 м³/ч · вес 4 кг · оба патрубка <b>Ø50 мм</b> (вход и выход) · ставится на пол.</p>
+
+  <!-- ============ СХЕМА ПОДКЛЮЧЕНИЯ ============ -->
+  <div class="card">
+    <h2 style="margin-top:0">1. Схема подключения (вид сбоку, под мойкой)</h2>
+    <div class="legend" style="margin-bottom:12px">
+      <span><i class="sw" style="background:#7f8c9b"></i> существующее</span>
+      <span><i class="sw" style="background:#e67e22"></i> докупить</span>
+      <span><i class="sw" style="background:#9ad0f5"></i> вода</span>
+      <span><i class="sw" style="background:#f4d35e"></i> жир (всплывает)</span>
+    </div>
+
+    <svg viewBox="0 0 1000 540" width="100%" style="background:#fbfcfd;border:1px solid #e4e9ee;border-radius:10px">
+      <!-- floor & wall -->
+      <rect x="0" y="500" width="1000" height="40" fill="#e7dcc8"/>
+      <rect x="0" y="0" width="40" height="540" fill="#efe6d4"/>
+      <text x="500" y="528" text-anchor="middle" font-size="12" fill="#9a8b6e">ПОЛ</text>
+
+      <!-- ===== SINK + SIPHON (existing) ===== -->
+      <text x="150" y="24" text-anchor="middle" font-size="13" fill="#5b6b7b">мойка</text>
+      <rect x="80" y="30" width="140" height="22" rx="4" fill="#dfe6ec" stroke="#8b97a4"/>
+      <!-- siphon body -->
+      <rect x="120" y="52" width="60" height="120" rx="10" fill="#c9d2da" stroke="#8b97a4"/>
+      <text x="150" y="120" text-anchor="middle" font-size="12" fill="#5b6b7b" transform="rotate(-90 150 120)">сифон (оставляем)</text>
+      <!-- siphon horizontal outlet -->
+      <rect x="180" y="150" width="120" height="26" rx="6" fill="#c9d2da" stroke="#8b97a4"/>
+      <text x="240" y="143" text-anchor="middle" font-size="11" fill="#7f8c9b">выход сифона ~Ø40</text>
+
+      <!-- adapter 1 -->
+      <rect x="300" y="148" width="30" height="30" rx="4" fill="#e67e22"/>
+      <text x="315" y="135" text-anchor="middle" font-size="11" fill="#e67e22">①манжета</text>
+
+      <!-- гофра 1 (siphon -> trap inlet) -->
+      <path d="M330 163 q60 0 80 60 q15 45 10 95" fill="none" stroke="#e67e22" stroke-width="14" stroke-linecap="round" stroke-dasharray="3 7"/>
+      <text x="470" y="230" font-size="11" fill="#e67e22">② гофра 40/50</text>
+
+      <!-- arrow downhill -->
+      <text x="360" y="200" font-size="16" fill="#2e7d5b">↓</text>
+
+      <!-- ===== GREASE TRAP BOX (new, on floor) ===== -->
+      <!-- box sits on floor: top at y=270, bottom at y=500 => 230px ~ 270mm -->
+      <rect x="380" y="270" width="240" height="230" rx="10" fill="#eef4f8" stroke="#2e7d5b" stroke-width="2.5"/>
+      <rect x="380" y="270" width="240" height="22" rx="10" fill="#d7e6ef" stroke="#2e7d5b" stroke-width="2.5"/>
+      <text x="500" y="286" text-anchor="middle" font-size="12" fill="#2e7d5b">съёмная крышка</text>
+      <text x="500" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#2e7d5b">ASVEL mini 17</text>
+
+      <!-- water inside -->
+      <rect x="392" y="360" width="216" height="128" rx="4" fill="#9ad0f5"/>
+      <!-- grease layer floating -->
+      <rect x="392" y="345" width="216" height="18" fill="#f4d35e"/>
+      <text x="500" y="358" text-anchor="middle" font-size="11" fill="#7a5e00">слой жира всплывает</text>
+
+      <!-- inlet port (top-left of box) -->
+      <rect x="360" y="300" width="40" height="22" rx="4" fill="#c9d2da" stroke="#2e7d5b"/>
+      <text x="345" y="296" text-anchor="end" font-size="11" fill="#2e7d5b">ВХОД Ø50</text>
+      <!-- inlet baffle dropping down -->
+      <rect x="410" y="322" width="14" height="120" fill="#c9d2da" stroke="#8b97a4"/>
+      <text x="417" y="470" text-anchor="middle" font-size="10" fill="#5b6b7b" transform="rotate(-90 417 470)">приёмная камера</text>
+
+      <!-- outlet riser (clean water from bottom) -->
+      <rect x="576" y="380" width="14" height="100" fill="#c9d2da" stroke="#8b97a4"/>
+      <rect x="600" y="322" width="40" height="22" rx="4" fill="#c9d2da" stroke="#2e7d5b"/>
+      <text x="655" y="318" font-size="11" fill="#2e7d5b">ВЫХОД Ø50</text>
+      <path d="M583 480 q0 -60 0 -110 q0 -20 -7 -26" fill="none" stroke="#2e7d5b" stroke-width="2" stroke-dasharray="4 4"/>
+      <text x="500" y="450" text-anchor="middle" font-size="10" fill="#2e7d5b">чистая вода забирается снизу →</text>
+
+      <!-- adapter 2 -->
+      <rect x="640" y="320" width="28" height="28" rx="4" fill="#e67e22"/>
+      <text x="654" y="365" text-anchor="middle" font-size="11" fill="#e67e22">③манжета</text>
+
+      <!-- гофра 2 (trap outlet -> floor drain), continuous downhill -->
+      <path d="M668 334 q80 6 110 70 q20 40 22 92" fill="none" stroke="#e67e22" stroke-width="14" stroke-linecap="round" stroke-dasharray="3 7"/>
+      <text x="760" y="420" font-size="11" fill="#e67e22">④ гофра 40/50</text>
+      <text x="720" y="400" font-size="16" fill="#2e7d5b">↘</text>
+
+      <!-- floor drain (existing) -->
+      <ellipse cx="800" cy="500" rx="34" ry="12" fill="#3a3a3a"/>
+      <rect x="780" y="470" width="40" height="34" rx="6" fill="#4a4a4a" stroke="#222"/>
+      <text x="800" y="492" text-anchor="middle" font-size="10" fill="#fff">слив</text>
+      <text x="800" y="463" text-anchor="middle" font-size="11" fill="#5b6b7b">трап в полу (оставляем)</text>
+
+      <!-- height check note -->
+      <line x1="60" y1="163" x2="60" y2="311" stroke="#2e7d5b" stroke-dasharray="3 3"/>
+      <text x="68" y="245" font-size="11" fill="#2e7d5b">выход сифона должен</text>
+      <text x="68" y="260" font-size="11" fill="#2e7d5b">быть ВЫШЕ входа</text>
+      <text x="68" y="275" font-size="11" fill="#2e7d5b">бака (≈24 см)</text>
+    </svg>
+
+    <div class="note">
+      <b>Поток:</b> мойка → сифон → <b>①②</b> гофра вниз → <b>ВХОД</b> жироуловителя → вода отстаивается, жир всплывает →
+      чистая вода забирается снизу → <b>ВЫХОД</b> → <b>③④</b> гофра под уклоном вниз → трап в полу.
+    </div>
+    <div class="note danger">
+      <b>Гофра на выходе НЕ должна провисать петлёй.</b> В провисе застаивается вода и осадок → запах и засор.
+      Делайте короткий непрерывный спуск вниз; если позволяет геометрия — лучше жёсткая труба Ø50 с уклоном.
+    </div>
+  </div>
+
+  <!-- ============ РАСХОДНИКИ ============ -->
+  <div class="card">
+    <h2 style="margin-top:0">2. Что докупить (расходники и переходники)</h2>
+    <p class="sub" style="margin-bottom:10px"><b>Ваша конфигурация подтверждена:</b> выход сифона Ø40 · патрубки бака Ø50 · в полу резиновая манжета Ø50. Точный комплект:</p>
+    <table>
+      <tr><th>№</th><th>Позиция</th><th>Назначение</th><th>Кол-во</th></tr>
+      <tr><td>①</td><td>Гофра сливная <b>40/50 мм</b> (армированная), ~0,5–1 м</td><td>Выход сифона (40) → ВХОД бака. Конец Ø40 — на сифон, конец Ø50 — в патрубок бака</td><td>1</td></tr>
+      <tr><td>②</td><td>Манжета-уплотнитель резиновая <b>в патрубок Ø50</b> (под трубу 40)</td><td>Чтобы конец гофры 40 герметично сел во ВХОД Ø50</td><td>1</td></tr>
+      <tr><td>③</td><td>Труба ПВХ <b>Ø50</b> (короткая) + колено 50, <b>либо</b> гофра 50/50</td><td>ВЫХОД бака (50) → манжета в полу (50). Диаметры совпадают — соединение прямое</td><td>1</td></tr>
+      <tr><td>④</td><td>Уплотнит. кольцо/манжета <b>Ø50</b> на выходной патрубок</td><td>Герметизация трубы выхода в патрубке бака</td><td>1</td></tr>
+      <tr><td>⑤</td><td>Хомуты червячные 40–60 мм</td><td>Фиксация гофры на патрубках</td><td>2–3</td></tr>
+      <tr><td>⑥</td><td>Силикон санитарный (нейтральный)</td><td>Подстраховка стыков</td><td>1 туба</td></tr>
+      <tr><td>⑦</td><td>Поддон / доска-подставка под бак</td><td>Ровно поставить + <b>выдвигать бак для чистки</b> (см. ниже)</td><td>1</td></tr>
+    </table>
+    <div class="note">
+      <b>Выход проще входа:</b> бак 50 и манжета в полу 50 — берите жёсткую трубу Ø50 с уклоном, она не провиснет (в отличие от гофры).
+      На вход к сифону 40 — наоборот, гибкая гофра 40/50 удобнее: компенсирует разницу высоты.
+    </div>
+    <div class="note danger">
+      <b>Место «впритык» — решение: ставьте бак на поддон/доску и соединяйте ОБА конца гибкой гофрой (с запасом 25–30 см).</b>
+      Тогда для чистки бак <u>выдвигается</u> из-под мойки на пол, крышка открывается на свободе, потом задвигается обратно —
+      не нужно поднимать крышку в тесноте. Это снимает проблему низкого потолка над баком. При этом выходную линию всё равно держите под уклоном вниз.
+    </div>
+  </div>
+
+  <!-- ============ ОБСЛУЖИВАНИЕ ============ -->
+  <div class="card">
+    <h2 style="margin-top:0">3. Мониторинг и обслуживание</h2>
+    <div class="grid">
+      <div>
+        <b>Как проверять (мониторинг)</b>
+        <ul>
+          <li>Снять крышку, посмотреть толщину жёлтого слоя жира сверху.</li>
+          <li>Чистить, когда жир/осадок занимает ~⅓ объёма — для кухни это обычно <b>раз в 1–2 недели</b>.</li>
+          <li>Признаки «пора чистить»: запах, медленный слив, бульканье.</li>
+        </ul>
+      </div>
+      <div>
+        <b>Как чистить</b>
+        <ul>
+          <li>Перекрыть пользование мойкой, снять крышку.</li>
+          <li>Снять верхний слой жира лопаткой в пакет (<b>не</b> смывать в слив!).</li>
+          <li>Вынуть съёмную камеру, промыть, поставить назад.</li>
+          <li>Проверить уплотнение крышки, закрыть.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note danger">
+      <b>Главное предупреждение по месту установки:</b> бак 27 см высотой стоит на полу, и крышку нужно открывать каждые 1–2 недели.
+      Если над баком нет свободной высоты, чтобы поднять крышку и вынуть камеру — чистить не будете, и забитый жироуловитель станет хуже, чем его отсутствие
+      (запах + засор). Проверьте свободное место <b>до</b> покупки.
+    </div>
+  </div>
+</div>
+</body>
+</html>
