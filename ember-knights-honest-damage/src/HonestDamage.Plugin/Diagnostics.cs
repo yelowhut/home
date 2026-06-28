@@ -30,8 +30,9 @@ namespace HonestDamage.Plugin
             Plugin.Guard("Diagnostics.DumpNow", () =>
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("=== HONEST DAMAGE DIAG ===");
+                sb.AppendLine("==================== HONEST DAMAGE DIAG ====================");
                 sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine($"Top canvas (likely current screen): {TopCanvasName()}");
                 sb.AppendLine();
 
                 var cmp = PlayerLocator.GetLocalAttribs();
@@ -76,9 +77,29 @@ namespace HonestDamage.Plugin
                 Plugin.Guard("DumpNow.UITree", () => DumpUITree(sb));
                 sb.AppendLine();
 
-                File.WriteAllText(LogPath, sb.ToString());
-                Plugin.Log.LogInfo($"[Diagnostics] Dumped to {LogPath}");
+                File.AppendAllText(LogPath, sb.ToString());
+                Plugin.Log.LogInfo($"[Diagnostics] Appended dump to {LogPath}");
             });
+        }
+
+        // Returns the enabled Canvas with the highest sortingOrder — usually the
+        // top-most/active screen (helps label each appended F9 dump by screen).
+        private static string TopCanvasName()
+        {
+            string best = "(none)";
+            int bestOrder = int.MinValue;
+            Plugin.Guard("TopCanvasName", () =>
+            {
+                foreach (var c in GameObject.FindObjectsOfType<Canvas>())
+                {
+                    if (c != null && c.enabled && c.sortingOrder >= bestOrder)
+                    {
+                        bestOrder = c.sortingOrder;
+                        best = $"{c.gameObject.name} (sortOrder={c.sortingOrder})";
+                    }
+                }
+            });
+            return best;
         }
 
         // ------------------------------------------------------------------ UI-TREE dump
