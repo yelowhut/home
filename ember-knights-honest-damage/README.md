@@ -21,9 +21,14 @@
    После копирования там появятся `winhttp.dll`, `doorstop_config.ini`,
    `dotnet\`, `BepInEx\`. Плагин уже лежит в
    `BepInEx\plugins\` (`HonestDamage.Plugin.dll` + `HonestDamage.Core.dll`).
-3. Запусти игру один раз. BepInEx развернётся и создаст `BepInEx\LogOutput.log`.
-   В нём должна быть строка `Honest Damage loaded` и проверка соответствия
-   статов (`Attrib ordinal check`).
+3. Запусти игру. **Первый запуск будет долгим (~1–2 мин)** — BepInEx
+   один раз генерирует IL2CPP-interop своим v31-совместимым Cpp2IL (окно может
+   «висеть» — это нормально, дождись меню). Последующие запуски быстрые.
+   В `BepInEx\LogOutput.log` должны появиться строки `Honest Damage loaded` и
+   `[AttribSanityCheck] OK`.
+
+> Требуется **BepInEx 6.0.0-be.735** (он в пакете). Более старый be.697 НЕ
+> работает с этой игрой (metadata v31): старый Cpp2IL + падение bootstrap.
 
 ## Что делать сейчас (сбор калибровочных данных)
 
