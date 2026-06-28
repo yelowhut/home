@@ -57,8 +57,21 @@ $out     = Join-Path $root "lib\interop"
 $hostDir = Join-Path $PSScriptRoot "gen-interop-host"
 $hostOut = Join-Path $PSScriptRoot "work\gen-interop-host-bin"
 
-$gameDll     = "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights\GameAssembly.dll"
-$metaData    = "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights\EmberKnights_64_Data\il2cpp_data\Metadata\global-metadata.dat"
+# Game root: override with env var EMBERKNIGHTS_DIR, else probe known Steam library paths.
+# (Steam libraries differ per machine: Program Files on the original PC, C:\games\steam here.)
+$gameRoot = $env:EMBERKNIGHTS_DIR
+if (-not $gameRoot) {
+    foreach ($cand in @(
+        "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights",
+        "C:\games\steam\steamapps\common\EmberKnights")) {
+        if (Test-Path (Join-Path $cand "GameAssembly.dll")) { $gameRoot = $cand; break }
+    }
+}
+if (-not $gameRoot) { Write-Error "EmberKnights install not found. Set `$env:EMBERKNIGHTS_DIR." }
+Write-Host "Game root: $gameRoot" -ForegroundColor DarkCyan
+
+$gameDll     = Join-Path $gameRoot "GameAssembly.dll"
+$metaData    = Join-Path $gameRoot "EmberKnights_64_Data\il2cpp_data\Metadata\global-metadata.dat"
 $unityLibs   = Join-Path $tools "unity-libs\2022.3.62"
 $cpp2il      = Join-Path $tools "cpp2il.exe"
 # be.735 bundles a v31-capable Cpp2IL/LibCpp2IL (pre-release.19). be.697's plain

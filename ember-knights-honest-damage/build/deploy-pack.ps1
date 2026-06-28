@@ -16,10 +16,13 @@
 
     This script (re)assembles a target BepInEx install:
       - Lays down the be.735 pack (core/, patchers/, dotnet/, doorstop loader)
-      - Preserves UpdateInteropAssemblies=false (pre-placed interop, no runtime self-gen)
+      - Forces UpdateInteropAssemblies=true + EMPTY BepInEx/interop (runtime self-gen, §3)
       - Copies the freshly-built plugin (HonestDamage.*.dll) into BepInEx/plugins
-      - Copies the freshly-generated interop (lib/interop/*.dll) into BepInEx/interop
       - Deletes any stale BepInEx/interop/*.dll and LogOutput.log first (clean log)
+
+    NOTE (handoff §3, hard-won): our lib/interop assemblies are COMPILE-TIME proxies only.
+    They must NOT be pre-placed at runtime — BepInEx be.735 must regenerate interop with
+    its own toolchain (first launch ~1-2 min), or the IL2CPP bootstrap crashes.
 
 .PARAMETER Target
     'dist'  -> dist/BepInEx-pack/  (the deliverable)
@@ -45,7 +48,16 @@ $be735     = Join-Path $root "build\tools\BepInEx-be735"
 $interop   = Join-Path $root "lib\interop"
 $pluginBin = Join-Path $root "build\work\plugin-bin"
 
-$gameRoot  = "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights"
+# Game root: override with env var EMBERKNIGHTS_DIR, else probe known Steam library paths.
+$gameRoot = $env:EMBERKNIGHTS_DIR
+if (-not $gameRoot) {
+    foreach ($cand in @(
+        "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights",
+        "C:\games\steam\steamapps\common\EmberKnights")) {
+        if (Test-Path (Join-Path $cand "GameAssembly.dll")) { $gameRoot = $cand; break }
+    }
+}
+if (-not $gameRoot) { Write-Error "EmberKnights install not found. Set `$env:EMBERKNIGHTS_DIR." }
 
 if ($Target -eq 'dist') {
     $packRoot = Join-Path $root "dist\BepInEx-pack"
@@ -64,7 +76,7 @@ if (-not (Get-ChildItem $interop -Filter "Assembly-CSharp.dll" -ErrorAction Sile
 $bepinexDir = Join-Path $packRoot "BepInEx"
 $configFile = Join-Path $bepinexDir "config\BepInEx.cfg"
 
-# --- Preserve existing config (UpdateInteropAssemblies=false + our plugin settings) ---
+# --- Preserve existing config (plugin settings); the critical interop flag is forced below ---
 $savedConfig = $null
 if (Test-Path $configFile) {
     $savedConfig = Get-Content $configFile -Raw
@@ -92,35 +104,34 @@ foreach ($sub in @("core", "patchers")) {
     if (Test-Path $src) { Copy-Item $src $bepinexDir -Recurse -Force }
 }
 
-# --- Restore preserved config (keeps UpdateInteropAssemblies=false), else seed from be.735 ---
+# --- Config: force runtime interop self-generation (handoff §3, "выстрадано") ---
+# CRITICAL: BepInEx be.735 must SELF-GENERATE interop at runtime with its own toolchain.
+#   UpdateInteropAssemblies = true  +  EMPTY BepInEx/interop/.
+# Do NOT pre-place our lib/interop here: those are COMPILE-TIME proxies and are
+# incompatible with BepInEx's own runtime code (bootstrap BadImageFormatException).
+# First launch then takes ~1-2 min while BepInEx regenerates interop itself.
+# Existing config is preserved (plugin settings) — only the interop flag is forced.
 New-Item -ItemType Directory -Force -Path (Join-Path $bepinexDir "config") | Out-Null
 if ($savedConfig) {
     Set-Content -Path $configFile -Value $savedConfig -NoNewline
-    Write-Host "[*] Restored preserved BepInEx.cfg"
 } else {
     $be735Cfg = Join-Path $be735Bep "config\BepInEx.cfg"
     if (Test-Path $be735Cfg) { Copy-Item $be735Cfg $configFile -Force }
-    # Force the critical setting
-    if (Test-Path $configFile) {
-        (Get-Content $configFile -Raw) -replace 'UpdateInteropAssemblies\s*=\s*true', 'UpdateInteropAssemblies = false' |
-            Set-Content -Path $configFile -NoNewline
-        Write-Host "[*] Seeded config from be.735 and set UpdateInteropAssemblies=false"
+}
+if (Test-Path $configFile) {
+    $cfg = Get-Content $configFile -Raw
+    if ($cfg -match 'UpdateInteropAssemblies\s*=') {
+        $cfg = $cfg -replace 'UpdateInteropAssemblies\s*=\s*\w+', 'UpdateInteropAssemblies = true'
     }
+    Set-Content -Path $configFile -Value $cfg -NoNewline
+    Write-Host "[*] BepInEx.cfg: UpdateInteropAssemblies = true (runtime self-gen)"
 }
 
-# --- Fresh interop: delete stale, copy fresh ---
-# IMPORTANT: lib/interop also contains Il2CppInterop.Runtime.dll + Il2CppInterop.Common.dll
-# (kept there only so the plugin can COMPILE against them). At runtime those two live in
-# BepInEx/core/ ONLY. Copying them into BepInEx/interop/ would duplicate Il2CppInterop.Runtime
-# in two load paths -- the exact assembly whose DelegateSupport/Il2CppSystem.String..cctor is
-# in the original crash. So exclude them; interop/ must contain ONLY game proxy assemblies.
+# --- Interop: leave EMPTY (handoff §3 — BepInEx populates it itself on first launch) ---
 $interopDst = Join-Path $bepinexDir "interop"
-$interopExclude = @("Il2CppInterop.Runtime.dll", "Il2CppInterop.Common.dll")
 New-Item -ItemType Directory -Force -Path $interopDst | Out-Null
 Get-ChildItem $interopDst -Filter "*.dll" -ErrorAction SilentlyContinue | Remove-Item -Force
-Get-ChildItem $interop -Filter "*.dll" | Where-Object { $interopExclude -notcontains $_.Name } |
-    ForEach-Object { Copy-Item $_.FullName $interopDst -Force }
-Write-Host "[*] Copied $((Get-ChildItem $interopDst -Filter '*.dll' | Measure-Object).Count) interop DLLs (excluding Il2CppInterop.Runtime/Common)"
+Write-Host "[*] Emptied BepInEx/interop (runtime self-gen will populate it on first launch)"
 
 # --- Fresh plugin ---
 $pluginDst = Join-Path $bepinexDir "plugins"
