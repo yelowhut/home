@@ -112,12 +112,18 @@ namespace HonestDamage.Plugin
         /// <summary>
         /// Appends a [WEAPON-ATTACKS] section to <paramref name="sb"/>.
         /// Called by DumpNow (F9) and by InventoryInjector on its first tick.
-        /// Uses GameCode.Defs.weaponDefs for AttackDefs, CreateAttackDp for honest values.
+        ///
+        /// For each attack prints:
+        ///   Id, DamageMul, DamageMulMax, base honest, crit honest,
+        ///   whether it is a BASE or MOD attack (and which mod).
+        /// EquippedMods are printed so the log can verify build-aware selection.
         /// </summary>
-        internal static void DumpWeaponAttacks(StringBuilder sb)
+        internal static void DumpWeaponAttacks(StringBuilder sb,
+                                               GameCode.XEntity? entity = null,
+                                               GameCode.XAttribsCMP? attribs = null)
         {
-            var entity  = PlayerLocator.GetLocalEntity();
-            var attribs = PlayerLocator.GetLocalAttribs();
+            if (entity  == null) entity  = PlayerLocator.GetLocalEntity();
+            if (attribs == null) attribs = PlayerLocator.GetLocalAttribs();
 
             if (entity == null || attribs == null)
             {
@@ -139,25 +145,58 @@ namespace HonestDamage.Plugin
 
             sb.AppendLine($"  WeaponType={weaponDef.WeaponType}  AttackBase={weaponDef.AttackBase:F2}");
 
-            var attackDefs = Injectors.InventoryInjector.GetRelevantAttackDefs(weaponDef);
-            if (attackDefs == null || attackDefs.Length == 0)
+            // Print EquippedMods so the log can verify build-aware selection.
+            Plugin.Guard("DumpWeaponAttacks.EquippedMods", () =>
+            {
+                var inv = entity?.GetInventory();
+                var mods = inv?.Weapon?.EquippedMods;
+                if (mods == null)
+                {
+                    sb.AppendLine("  EquippedMods: (null — base+charge only)");
+                }
+                else if (mods.Count == 0)
+                {
+                    sb.AppendLine("  EquippedMods: (none equipped)");
+                }
+                else
+                {
+                    var modList = new System.Text.StringBuilder();
+                    foreach (var m in mods) { modList.Append(m); modList.Append(", "); }
+                    sb.AppendLine($"  EquippedMods: {modList}");
+                }
+            });
+
+            // Crit multiplier for display.
+            float critMul = 1f;
+            Plugin.Guard("DumpWeaponAttacks.CritMul", () =>
+            {
+                critMul = 1f + attribs.Get(eAttrib.CritDmgMUL);
+            });
+            sb.AppendLine($"  CritMul = 1 + CritDmgMUL({attribs.Get(eAttrib.CritDmgMUL):F3}) = {critMul:F3}");
+
+            var labeled = Injectors.InventoryInjector.GetRelevantAttackDefs(weaponDef, entity);
+            if (labeled == null || labeled.Count == 0)
             {
                 float atk = attribs.Get(eAttrib.ATK);
                 sb.AppendLine($"  No AttackDefs found — ATK fallback: {atk:F1}");
                 return;
             }
 
-            foreach (var def in attackDefs)
+            foreach (var la in labeled)
             {
+                var def = la.Def;
                 if (def == null) continue;
                 Plugin.Guard($"DumpWeaponAttacks.Def[{def.Id}]", () =>
                 {
-                    string kind = def.IsChargeAtk ? "CHARGE" : "COMBO";
+                    string kind    = def.IsChargeAtk ? "CHARGE" : "COMBO";
+                    string srcMod  = la.SourceMod == eWeaponModType.None ? "BASE" : $"MOD({la.SourceMod})";
                     // ATK * DamageMul (CreateAttackDp returns DamageAmount=0 at creation — see InventoryInjector).
-                    float atk = attribs.Get(eAttrib.ATK);
-                    float min = atk * def.DamageMul;
-                    float max = atk * def.DamageMulMax;
-                    sb.AppendLine($"  [{kind}] Id={def.Id,-4} DamageMul={def.DamageMul:F3}  DamageMulMax={def.DamageMulMax:F3}  honest≈{min:F1}" + (max > min + 0.05f ? $"–{max:F1}" : ""));
+                    float atk    = attribs.Get(eAttrib.ATK);
+                    float baseDmg = atk * (def.IsChargeAtk ? def.DamageMulMax : def.DamageMul);
+                    float critDmg = baseDmg * critMul;
+                    sb.AppendLine($"  [{kind}][{srcMod}] Id={def.Id,-4} " +
+                                  $"DamageMul={def.DamageMul:F3}  DamageMulMax={def.DamageMulMax:F3}  " +
+                                  $"base≈{baseDmg:F1}  crit≈{critDmg:F1}");
                 });
             }
         }

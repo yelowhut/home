@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -11,11 +12,20 @@ namespace HonestDamage.Plugin.Injectors
     /// Shows stat-scaled ("honest") damage as additive cyan labels near the inventory
     /// weapon and ability panels.  Never modifies original game text.
     ///
-    /// Weapon attacks: uses GameCode.XPlayerSYS.CreateAttackDp for exact values; falls
-    /// back to ATK × DamageMul if the interop call fails.
+    /// Weapon attacks: ATK × DamageMul (charge: DamageMulMax).
+    ///   CreateAttackDp returns DamageAmount=0 at creation time — value is resolved
+    ///   per-hit against a target, so it is not useful here.
     /// Ability damage:  XAbilityDef.Effects[0].TapValue × SpellDamageModifier.
     ///                  [calibrate] — provisional; confirm vs damage log once abilities
     ///                  are testable.
+    ///
+    /// Crit display (Change 2): each attack shown as "KIND:base (crit X)".
+    ///   critMul = 1f + attribs.Get(eAttrib.CritDmgMUL).
+    ///
+    /// Mod-aware attack selection (Change 1):
+    ///   Base combo (first 3 non-charge non-skillshot non-roll) + first charge: ALWAYS.
+    ///   Special/mod attacks: shown only if the corresponding mod is in EquippedMods.
+    ///   Bow and Sword have explicit mod→attack-Id/index tables; others: base+charge only.
     ///
     /// UI anchor strategy:
     ///   - Find the active "UIInventoryV2" Canvas via FindObjectsOfType.
@@ -26,13 +36,21 @@ namespace HonestDamage.Plugin.Injectors
     /// Polling: called from TickComponent.Update() every InjectorTickInterval frames.
     ///
     /// Type notes (confirmed from dump.cs):
-    ///   GameCode.XPlayerSYS.CreateAttackDp(XEntity, XAttribsCMP, XBaseAttackDef, XWeaponDef, float)
+    ///   GameCode.XInventoryCMP.Weapon → GameCode.XWeaponInst
+    ///   GameCode.XWeaponInst.EquippedMods → List<eWeaponModType>
+    ///   GameCode.XWeaponInst.HasMod(eWeaponModType) → bool
     ///   GameCode.PlayerUtils.GetWeaponDef(XEntity) → XWeaponDef
     ///   XWeaponDef.WeaponType (eWeaponType), AttackBase
     ///   GameCode.Defs.weaponDefs (WeaponDataFile) — global static DefManager singleton
-    ///   WeaponDataFile.SwordSettings/BowSettings/… (per-type XWeaponSettings subclass)
-    ///   XBaseAttackDef: IsChargeAtk, IsSkillShot, IsRollAtk, IsLastVariantAtk, DamageMul, DamageMulMax
-    ///   XAbilityDef.Effects[]: TapValue, ChargeValue
+    ///   WeaponDataFile.SwordSettings (XSwordSettings) / BowSettings (XBowSettings) / …
+    ///   XBaseAttackDef: IsChargeAtk, IsSkillShot, IsRollAtk, IsLastVariantAtk, DamageMul, DamageMulMax, Id
+    ///   XBowSettings: NormalAttackId, ChargeAttackId, ThirdAttackId,
+    ///                 RapidshotAttackId, SpreadshotAttackId, MarkedshotAttackId,
+    ///                 VolleyChargeAttackId, BombChargeAttackId
+    ///   XSwordSettings: NormalAttack1/2/3, LungeModAttackIndex, WhirlwindModAttackIndex,
+    ///                   Mod56_MultiStabAttackIndex, Mod56_FinalStabAttackIndex,
+    ///                   Mod59Ultimate_ThirdAttackIndex, AttackDefs[]
+    ///   eAttrib.CritDmgMUL = 7 (crit bonus multiplier; 1f + value = full crit multiplier)
     ///   eAttrib.SpellDamageModifier for ability scaling
     /// </summary>
     public static class InventoryInjector
@@ -47,6 +65,25 @@ namespace HonestDamage.Plugin.Injectors
 
         // Throttle timer for the Verbose ability-slot diagnostic log.
         private static float _lastAbilityLog = -999f;
+
+        // ---- Labeled attack result -------------------------------------------
+
+        /// <summary>
+        /// A single attack def together with the mod it belongs to (None = base attack).
+        /// Public so Diagnostics.DumpWeaponAttacks can use it.
+        /// </summary>
+        public struct LabeledAttack
+        {
+            public XBaseAttackDef Def;
+            /// <summary>eWeaponModType.None for base combo/charge; otherwise the mod that unlocks it.</summary>
+            public eWeaponModType SourceMod;
+
+            public LabeledAttack(XBaseAttackDef def, eWeaponModType sourceMod)
+            {
+                Def       = def;
+                SourceMod = sourceMod;
+            }
+        }
 
         // ---- State -----------------------------------------------------------
 
@@ -83,7 +120,7 @@ namespace HonestDamage.Plugin.Injectors
                     {
                         var sb = new StringBuilder();
                         sb.AppendLine("==================== WEAPON-ATTACKS (first inventory tick) ====================");
-                        Diagnostics.DumpWeaponAttacks(sb);
+                        Diagnostics.DumpWeaponAttacks(sb, entity, attribs);
                         var logPath = System.IO.Path.Combine(BepInEx.Paths.BepInExRootPath, "honest-damage-diag.log");
                         System.IO.File.AppendAllText(logPath, sb.ToString());
                         Plugin.Log.LogInfo("[InventoryInjector] Weapon-attacks diag appended to honest-damage-diag.log");
@@ -198,15 +235,16 @@ namespace HonestDamage.Plugin.Injectors
         // ---- Damage computation helpers ------------------------------------
 
         /// <summary>
-        /// Builds the weapon damage display string showing honest damage for combo and
-        /// charged attacks.  Tries CreateAttackDp; falls back to ATK × DamageMul.
+        /// Builds the weapon damage display string showing honest damage (with crit) for
+        /// the player's actual build (base combo + only equipped mod attacks).
+        /// Format: ≈ HIT:22 (crit 32)  HIT:26 (crit 39)  CHG:56 (crit 84)
         /// </summary>
         private static string BuildWeaponDamageText(GameCode.XEntity entity,
                                                     GameCode.XAttribsCMP attribs,
                                                     XWeaponDef weaponDef)
         {
-            var defs = GetRelevantAttackDefs(weaponDef);
-            if (defs == null || defs.Length == 0)
+            var defs = GetRelevantAttackDefs(weaponDef, entity);
+            if (defs == null || defs.Count == 0)
             {
                 // Ultimate fallback: just show ATK.
                 float atkOnly = 0f;
@@ -215,18 +253,26 @@ namespace HonestDamage.Plugin.Injectors
                 return $"≈ ATK {atkOnly:F0} (no attacks found)";
             }
 
+            // Compute crit multiplier: 1 + CritDmgMUL (e.g. 0.5 → ×1.5 on crit).
+            float critMul = 1f;
+            Plugin.Guard("InventoryInjector.CritMul", () =>
+            {
+                critMul = 1f + attribs.Get(eAttrib.CritDmgMUL);
+            });
+
             var sb = new StringBuilder("≈ ");
             bool first = true;
 
-            foreach (var def in defs)
+            foreach (var la in defs)
             {
-                if (def == null) continue;
+                if (la.Def == null) continue;
 
-                float amount = ComputeAttackDamage(entity, attribs, def, weaponDef);
-                string kind  = def.IsChargeAtk ? "CHG" : "HIT";
+                float baseAmt = ComputeAttackDamage(entity, attribs, la.Def, weaponDef);
+                float critAmt = baseAmt * critMul;
+                string kind   = la.Def.IsChargeAtk ? "CHG" : "HIT";
 
                 if (!first) sb.Append("  ");
-                sb.Append($"{kind}:{amount:F0}");
+                sb.Append($"{kind}:{baseAmt:F0} (crit {critAmt:F0})");
                 first = false;
             }
 
@@ -235,17 +281,14 @@ namespace HonestDamage.Plugin.Injectors
 
         /// <summary>
         /// Computes honest damage for one attack def.
-        /// Preferred: CreateAttackDp.  Fallback: ATK × DamageMul.
+        /// Damage = ATK * DamageMul (charge: DamageMulMax).
+        /// CreateAttackDp is NOT used — it returns DamageAmount=0 at creation time.
         /// </summary>
         private static float ComputeAttackDamage(GameCode.XEntity entity,
                                                  GameCode.XAttribsCMP attribs,
                                                  XBaseAttackDef def,
                                                  XWeaponDef weaponDef)
         {
-            // Damage = ATK * DamageMul (verified against the TakeDamage log: a basic hit
-            // with DamageMul=1.0 deals exactly ATK). CreateAttackDp is NOT used for the
-            // value — it builds a damage *template* and returns DamageAmount=0 at creation
-            // time (the final amount is resolved per-hit against a target).
             float result = 0f;
             Plugin.Guard("InventoryInjector.ComputeAttackDamage", () =>
             {
@@ -282,16 +325,19 @@ namespace HonestDamage.Plugin.Injectors
         // ---- AttackDef selection — shared with Diagnostics ------------------
 
         /// <summary>
-        /// Returns the relevant combo + charged AttackDef objects for the given weapon.
-        /// Uses flag-based selection (IsChargeAtk) across all weapon types — uniform
-        /// and robust against per-weapon index naming differences.
+        /// Returns labeled (def, sourceMod) pairs for the given weapon reflecting the
+        /// player's CURRENT BUILD:
+        ///   - Base combo (first 3 non-charge/non-skillshot/non-roll) + first charge: always.
+        ///   - Special/mod attacks: only if that mod is in the player's EquippedMods.
+        ///   - De-duplicated by attack Id.
+        ///   - Falls back to base+charge if weaponInst is null/unreadable (Guard).
         ///
-        /// Skips: IsRollAtk, IsSkillShot (not primary user-facing attacks).
         /// Public so Diagnostics.DumpWeaponAttacks can reuse it.
         /// </summary>
-        public static XBaseAttackDef[]? GetRelevantAttackDefs(XWeaponDef weaponDef)
+        public static List<LabeledAttack>? GetRelevantAttackDefs(XWeaponDef weaponDef,
+                                                                  GameCode.XEntity? entity)
         {
-            XBaseAttackDef[]? result = null;
+            List<LabeledAttack>? result = null;
 
             Plugin.Guard("InventoryInjector.GetRelevantAttackDefs", () =>
             {
@@ -302,35 +348,206 @@ namespace HonestDamage.Plugin.Injectors
                 });
                 if (wdf == null) return;
 
-                // Get the raw array for this weapon type.
+                // --- Step 1: read the raw array for this weapon type.
                 XBaseAttackDef[]? allDefs = GetAttackDefArray(wdf, weaponDef.WeaponType);
                 if (allDefs == null) return;
 
-                // Show only the BASE combo (first few normal hits) + the primary charge.
-                // AttackDefs[] also contains mod/special attacks (Spreadshot, Volley, Bomb,
-                // RapidShot, ...) the player may not have unlocked — showing them all was the
-                // "junk". We skip them here. (Proper per-mod gating via HasMod(player, mod) is
-                // a future refinement so equipped mod-attacks can be shown too.)
+                // --- Step 2: get the player's weapon instance for HasMod() queries.
+                // XWeaponInst.HasMod(eWeaponModType) is the canonical check (dump.cs line 87208).
+                // EquippedMods is Il2CppSystem.Collections.Generic.List, not .NET List —
+                // use HasMod() instead of list iteration for mod membership tests.
+                GameCode.XWeaponInst? weaponInst = null;
+                if (entity != null)
+                {
+                    Plugin.Guard("InventoryInjector.GetWeaponInst", () =>
+                    {
+                        weaponInst = entity.GetInventory()?.Weapon;
+                    });
+                }
+
+                // --- Step 3: base combo (first 3 non-charge non-skillshot non-roll) + first charge.
+                // This is a separate pass from mod-attack selection — mod attacks bypass
+                // these filters intentionally (they would otherwise be dropped).
                 const int MaxCombo = 3;
-                var combo = new System.Collections.Generic.List<XBaseAttackDef>();
-                XBaseAttackDef? charge = null;
+                var labeled   = new List<LabeledAttack>();
+                var seenIds   = new HashSet<int>();
+                XBaseAttackDef? chargeBase = null;
+
                 foreach (var d in allDefs)
                 {
                     if (d == null) continue;
                     if (d.IsSkillShot || d.IsRollAtk) continue;
                     if (d.IsChargeAtk)
                     {
-                        if (charge == null) charge = d;   // keep only the first/primary charge
+                        if (chargeBase == null) chargeBase = d; // keep only first/primary charge
                         continue;
                     }
-                    if (combo.Count < MaxCombo) combo.Add(d);
+                    if (labeled.Count < MaxCombo)
+                    {
+                        labeled.Add(new LabeledAttack(d, eWeaponModType.None));
+                        seenIds.Add(d.Id);
+                    }
                 }
-                if (charge != null) combo.Add(charge);
+                if (chargeBase != null && !seenIds.Contains(chargeBase.Id))
+                {
+                    labeled.Add(new LabeledAttack(chargeBase, eWeaponModType.None));
+                    seenIds.Add(chargeBase.Id);
+                }
 
-                result = combo.ToArray();
+                // --- Step 4: mod-specific attacks for equipped mods.
+                // These are resolved directly by Id/index — NOT filtered through the
+                // IsSkillShot / single-charge / MaxCombo gates above.
+                // weaponInst == null means no inventory yet — safe fallback: base+charge only.
+                if (weaponInst != null)
+                {
+                    AppendModAttacks(labeled, seenIds, allDefs, wdf, weaponDef.WeaponType, weaponInst);
+                }
+
+                result = labeled;
             });
 
             return result;
+        }
+
+        /// <summary>
+        /// Appends mod-specific attack defs to <paramref name="labeled"/>, skipping any
+        /// attack Id already in <paramref name="seenIds"/>.
+        /// Uses <see cref="GameCode.XWeaponInst.HasMod"/> for mod-membership queries
+        /// (EquippedMods is Il2CppSystem.Collections.Generic.List — not a .NET List).
+        /// </summary>
+        private static void AppendModAttacks(List<LabeledAttack>          labeled,
+                                             HashSet<int>                  seenIds,
+                                             XBaseAttackDef[]              allDefs,
+                                             WeaponDataFile                wdf,
+                                             eWeaponType                   weaponType,
+                                             GameCode.XWeaponInst          weaponInst)
+        {
+            Plugin.Guard("InventoryInjector.AppendModAttacks", () =>
+            {
+                switch (weaponType)
+                {
+                    // ---------------------------------------------------------------- BOW
+                    // Bow attack fields are Ids — match by iterating AttackDefs and
+                    // comparing def.Id to the settings field value.
+                    case eWeaponType.Bow:
+                    {
+                        var s = wdf.BowSettings;
+                        if (s == null) break;
+
+                        // mod → (attackId, label) pairs for every mod that adds an attack.
+                        // Volley/Bomb are IsChargeAtk and would normally be dropped by the
+                        // single-charge gate — resolve them directly here.
+                        var bowModMap = new (eWeaponModType Mod, int AttackId)[]
+                        {
+                            (eWeaponModType.Bow_RapidShot_13,  s.RapidshotAttackId),
+                            (eWeaponModType.Bow_SpreadShot_14, s.SpreadshotAttackId),
+                            (eWeaponModType.Bow_MarkedShot_15, s.MarkedshotAttackId),
+                            (eWeaponModType.Bow_Volley_17,     s.VolleyChargeAttackId),
+                            (eWeaponModType.Bow_BombArrow_18,  s.BombChargeAttackId),
+                        };
+
+                        foreach (var entry in bowModMap)
+                        {
+                            if (entry.AttackId == 0) continue; // id=0 means unset
+                            // XWeaponInst.HasMod() is the canonical check (Il2Cpp list, not .NET list).
+                            bool hasMod = false;
+                            Plugin.Guard($"InventoryInjector.HasMod[{entry.Mod}]", () =>
+                                hasMod = weaponInst.HasMod(entry.Mod));
+                            if (!hasMod) continue;
+
+                            // Find by Id in the full array (Bow uses Ids, not indices).
+                            foreach (var d in allDefs)
+                            {
+                                if (d == null) continue;
+                                if (d.Id != entry.AttackId) continue;
+                                if (!seenIds.Contains(d.Id))
+                                {
+                                    labeled.Add(new LabeledAttack(d, entry.Mod));
+                                    seenIds.Add(d.Id);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                    // --------------------------------------------------------------- SWORD
+                    // Sword attack fields are array INDICES — use AttackDefs[index] with
+                    // bounds check.
+                    //
+                    // Confirmed mappings (from dump.cs XSwordSettings + eWeaponModType):
+                    //   LungeModAttackIndex      → eWeaponModType.Sword_Lunge_6
+                    //   WhirlwindModAttackIndex  → eWeaponModType.Sword_Whirlwind_7
+                    //   Mod56_* fields           → eWeaponModType.Sword_Flurry_56
+                    //   Mod59Ultimate_*          → eWeaponModType.Sword_SpinAttack_Ultimate_59
+                    // NOTE: Mod56 = Sword_Flurry_56, NOT Slice_5 (spec typo — Slice is passive).
+                    case eWeaponType.Sword:
+                    {
+                        var s = wdf.SwordSettings;
+                        if (s?.AttackDefs == null) break;
+
+                        // Lunge (mod 6)
+                        AddSwordModAtk(labeled, seenIds, s.AttackDefs,
+                                       s.LungeModAttackIndex,
+                                       eWeaponModType.Sword_Lunge_6, weaponInst);
+
+                        // Whirlwind (mod 7)
+                        AddSwordModAtk(labeled, seenIds, s.AttackDefs,
+                                       s.WhirlwindModAttackIndex,
+                                       eWeaponModType.Sword_Whirlwind_7, weaponInst);
+
+                        // Flurry (mod 56): two attack defs (MultiStab + FinalStab).
+                        // Show FinalStab (the finishing hit) as the representative damage.
+                        // TODO verify: field confirmed by dump name "Mod56_*"; mod confirmed
+                        //   as Sword_Flurry_56=56 (NOT Slice_5 which is a passive).
+                        AddSwordModAtk(labeled, seenIds, s.AttackDefs,
+                                       s.Mod56_FinalStabAttackIndex,
+                                       eWeaponModType.Sword_Flurry_56, weaponInst);
+
+                        // SpinAttack Ultimate (mod 59): third-attack variant index.
+                        // TODO verify: field confirmed by dump name "Mod59Ultimate_*"; mod=59.
+                        AddSwordModAtk(labeled, seenIds, s.AttackDefs,
+                                       s.Mod59Ultimate_ThirdAttackIndex,
+                                       eWeaponModType.Sword_SpinAttack_Ultimate_59, weaponInst);
+
+                        break;
+                    }
+
+                    // --------------------------------------------------------------- OTHER WEAPON TYPES
+                    // Staff, Hammer, Star, Reaper, DarkCap, Fists, Gun:
+                    // Base combo + charge only — no mod-attack mapping yet.
+                    // TODO mod-map: add explicit mod→attackId/index tables here once the
+                    //   attack defs for each mod are identified in the dump.
+                    default:
+                        break;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Helper: adds sword mod attack by array index if the mod is equipped and the index
+        /// is valid and not already shown.
+        /// Uses XWeaponInst.HasMod() (Il2Cpp) for the membership test.
+        /// </summary>
+        private static void AddSwordModAtk(List<LabeledAttack>       labeled,
+                                           HashSet<int>               seenIds,
+                                           XSwordAttackDef[]          defs,
+                                           int                        index,
+                                           eWeaponModType             mod,
+                                           GameCode.XWeaponInst       weaponInst)
+        {
+            if (index < 0 || index >= defs.Length) return;
+            bool hasMod = false;
+            Plugin.Guard($"InventoryInjector.SwordHasMod[{mod}]", () =>
+                hasMod = weaponInst.HasMod(mod));
+            if (!hasMod) return;
+            var d = defs[index];
+            if (d == null) return;
+            if (!seenIds.Contains(d.Id))
+            {
+                labeled.Add(new LabeledAttack(d, mod));
+                seenIds.Add(d.Id);
+            }
         }
 
         /// <summary>
