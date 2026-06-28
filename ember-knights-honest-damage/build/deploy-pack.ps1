@@ -95,13 +95,21 @@ foreach ($f in @("winhttp.dll", ".doorstop_version", "doorstop_config.ini", "cha
 $dotnetDst = Join-Path $packRoot "dotnet"
 if (Test-Path $dotnetDst) { Remove-Item $dotnetDst -Recurse -Force }
 Copy-Item (Join-Path $be735 "dotnet") $packRoot -Recurse -Force
-# BepInEx core + patchers (replace wholesale)
+# BepInEx core + patchers (replace wholesale).
+# NOTE: pre-create $bepinexDir and copy CONTENTS into an explicit destination subfolder.
+# On a CLEAN target $bepinexDir doesn't exist yet, and `Copy-Item .\core $bepinexDir -Recurse`
+# would then rename core -> BepInEx (flattening core's DLLs straight into BepInEx/). Copying
+# "$src\*" into a pre-created $dst is deterministic regardless of pre-existing state.
 $be735Bep = Join-Path $be735 "BepInEx"
+New-Item -ItemType Directory -Force -Path $bepinexDir | Out-Null
 foreach ($sub in @("core", "patchers")) {
     $dst = Join-Path $bepinexDir $sub
     if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
     $src = Join-Path $be735Bep $sub
-    if (Test-Path $src) { Copy-Item $src $bepinexDir -Recurse -Force }
+    if (Test-Path $src) {
+        New-Item -ItemType Directory -Force -Path $dst | Out-Null
+        Copy-Item (Join-Path $src '*') $dst -Recurse -Force
+    }
 }
 
 # --- Config: force runtime interop self-generation (handoff §3, "выстрадано") ---
@@ -112,20 +120,24 @@ foreach ($sub in @("core", "patchers")) {
 # First launch then takes ~1-2 min while BepInEx regenerates interop itself.
 # Existing config is preserved (plugin settings) — only the interop flag is forced.
 New-Item -ItemType Directory -Force -Path (Join-Path $bepinexDir "config") | Out-Null
+# Seed config from saved (re-deploy) or the be.735 template (if the bundle ships one).
+# The be.735 zip does NOT include a BepInEx.cfg — BepInEx writes a full one on first run —
+# so on a clean target we author a minimal [IL2CPP] section; BepInEx fills the rest.
+$cfg = ""
 if ($savedConfig) {
-    Set-Content -Path $configFile -Value $savedConfig -NoNewline
+    $cfg = $savedConfig
 } else {
     $be735Cfg = Join-Path $be735Bep "config\BepInEx.cfg"
-    if (Test-Path $be735Cfg) { Copy-Item $be735Cfg $configFile -Force }
+    if (Test-Path $be735Cfg) { $cfg = Get-Content $be735Cfg -Raw }
 }
-if (Test-Path $configFile) {
-    $cfg = Get-Content $configFile -Raw
-    if ($cfg -match 'UpdateInteropAssemblies\s*=') {
-        $cfg = $cfg -replace 'UpdateInteropAssemblies\s*=\s*\w+', 'UpdateInteropAssemblies = true'
-    }
-    Set-Content -Path $configFile -Value $cfg -NoNewline
-    Write-Host "[*] BepInEx.cfg: UpdateInteropAssemblies = true (runtime self-gen)"
+if ($cfg -match 'UpdateInteropAssemblies\s*=') {
+    $cfg = $cfg -replace 'UpdateInteropAssemblies\s*=\s*\w+', 'UpdateInteropAssemblies = true'
+} else {
+    if ($cfg.Length -gt 0 -and -not $cfg.EndsWith("`n")) { $cfg += "`r`n" }
+    $cfg += "`r`n[IL2CPP]`r`nUpdateInteropAssemblies = true`r`n"
 }
+Set-Content -Path $configFile -Value $cfg -NoNewline
+Write-Host "[*] BepInEx.cfg: UpdateInteropAssemblies = true (runtime self-gen)"
 
 # --- Interop: leave EMPTY (handoff §3 — BepInEx populates it itself on first launch) ---
 $interopDst = Join-Path $bepinexDir "interop"
