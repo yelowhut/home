@@ -118,11 +118,10 @@ namespace HonestDamage.Plugin.Injectors
             string weaponText = BuildWeaponDamageText(entity, attribs, weaponDef);
             if (string.IsNullOrEmpty(weaponText)) return;
 
-            // Inject or update sibling label.
-            Transform? anchorParent = anchor.gameObject.transform.parent;
-            if (anchorParent == null) return;
-
-            AttachOrUpdateLabel(anchor.gameObject, anchorParent, weaponText);
+            // Append into the WeaponDetails text itself (flows in the existing description
+            // layout) rather than a floating sibling label — a separate clone overlapped the
+            // in-game price text in the shop. Idempotent: re-applied with current stats each tick.
+            AppendHonestToText(anchor, weaponText);
         }
 
         // ---- Ability labels logic --------------------------------------------
@@ -493,6 +492,27 @@ namespace HonestDamage.Plugin.Injectors
         }
 
         // ---- Label injection (mirrors SelectionInjector pattern) ------------
+
+        // Marker that begins our appended line inside a game TMP text block. Used to
+        // strip the previously-appended line so re-applying with new stats is idempotent.
+        private const string HonestMark = "\n<color=#00E5FF>";
+
+        /// <summary>
+        /// Appends our honest-damage line to the END of the anchor's own TMP text, so it
+        /// flows within the existing description layout (no floating label that can overlap
+        /// other UI such as the shop price). Idempotent across ticks.
+        /// </summary>
+        private static void AppendHonestToText(TextMeshProUGUI tmp, string payload)
+        {
+            Plugin.Guard("InventoryInjector.AppendHonestToText", () =>
+            {
+                if (tmp == null) return;
+                string t = tmp.text ?? "";
+                int idx = t.IndexOf(HonestMark);     // strip any prior appended line
+                if (idx >= 0) t = t.Substring(0, idx);
+                tmp.text = t + HonestMark + payload + "</color>";
+            });
+        }
 
         private static void AttachOrUpdateLabel(GameObject anchor, Transform parent, string text)
         {
