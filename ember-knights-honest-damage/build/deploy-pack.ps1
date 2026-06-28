@@ -79,7 +79,9 @@ foreach ($f in @("winhttp.dll", ".doorstop_version", "doorstop_config.ini", "cha
     $src = Join-Path $be735 $f
     if (Test-Path $src) { Copy-Item $src (Join-Path $packRoot $f) -Force }
 }
-# dotnet runtime
+# dotnet runtime (replace wholesale to avoid leaving be.697-only files behind)
+$dotnetDst = Join-Path $packRoot "dotnet"
+if (Test-Path $dotnetDst) { Remove-Item $dotnetDst -Recurse -Force }
 Copy-Item (Join-Path $be735 "dotnet") $packRoot -Recurse -Force
 # BepInEx core + patchers (replace wholesale)
 $be735Bep = Join-Path $be735 "BepInEx"
@@ -107,11 +109,18 @@ if ($savedConfig) {
 }
 
 # --- Fresh interop: delete stale, copy fresh ---
+# IMPORTANT: lib/interop also contains Il2CppInterop.Runtime.dll + Il2CppInterop.Common.dll
+# (kept there only so the plugin can COMPILE against them). At runtime those two live in
+# BepInEx/core/ ONLY. Copying them into BepInEx/interop/ would duplicate Il2CppInterop.Runtime
+# in two load paths -- the exact assembly whose DelegateSupport/Il2CppSystem.String..cctor is
+# in the original crash. So exclude them; interop/ must contain ONLY game proxy assemblies.
 $interopDst = Join-Path $bepinexDir "interop"
+$interopExclude = @("Il2CppInterop.Runtime.dll", "Il2CppInterop.Common.dll")
 New-Item -ItemType Directory -Force -Path $interopDst | Out-Null
 Get-ChildItem $interopDst -Filter "*.dll" -ErrorAction SilentlyContinue | Remove-Item -Force
-Copy-Item (Join-Path $interop "*.dll") $interopDst -Force
-Write-Host "[*] Copied $((Get-ChildItem $interopDst -Filter '*.dll' | Measure-Object).Count) interop DLLs"
+Get-ChildItem $interop -Filter "*.dll" | Where-Object { $interopExclude -notcontains $_.Name } |
+    ForEach-Object { Copy-Item $_.FullName $interopDst -Force }
+Write-Host "[*] Copied $((Get-ChildItem $interopDst -Filter '*.dll' | Measure-Object).Count) interop DLLs (excluding Il2CppInterop.Runtime/Common)"
 
 # --- Fresh plugin ---
 $pluginDst = Join-Path $bepinexDir "plugins"
