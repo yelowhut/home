@@ -40,12 +40,9 @@ namespace HonestDamage.Plugin
         /// </summary>
         public static GameCode.XAttribsCMP? GetLocalAttribs()
         {
-            if (_cached != null)
-                return _cached;
-
-            Plugin.Log.LogWarning("[PlayerLocator] XAttribsCMP not yet cached. " +
-                "Take a hit in-game first, then press F9 to dump diagnostics.");
-            return null;
+            // Returns null silently if not yet cached — injectors poll this every tick,
+            // so logging here would flood the log. The diag dump notes the null case once.
+            return _cached;
         }
 
         /// <summary>

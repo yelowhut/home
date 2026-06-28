@@ -308,5 +308,38 @@ namespace HonestDamage.Plugin
                 });
             }
         }
+
+        // ------------------------------------------------------------------ CreateAttackDp seed (proactive)
+
+        /// <summary>
+        /// Read-only postfix on XPlayerSYS.CreateAttackDp. The game calls this with the
+        /// attacking PLAYER's XEntity + XAttribsCMP on every player attack (fires constantly
+        /// in combat), so the player cache is populated from the ATTACKER side — labels appear
+        /// without the player needing to TAKE a hit first. No game state is mutated.
+        /// </summary>
+        [HarmonyPatch]
+        private static class CreateAttackDpSeedPostfix
+        {
+            static MethodBase? TargetMethod()
+            {
+                var m = AccessTools.Method(
+                    typeof(GameCode.XPlayerSYS),
+                    "CreateAttackDp",
+                    new[] { typeof(GameCode.XEntity), typeof(GameCode.XAttribsCMP),
+                            typeof(XBaseAttackDef), typeof(XWeaponDef), typeof(float) });
+                if (m == null)
+                    Plugin.Log.LogWarning("[Diagnostics] CreateAttackDp not found via AccessTools — proactive player seed skipped.");
+                return m;
+            }
+
+            static void Postfix(GameCode.XEntity __0, GameCode.XAttribsCMP __1)
+            {
+                Plugin.Guard("CreateAttackDp.SeedLocator", () =>
+                {
+                    if (__0 != null && __1 != null)
+                        PlayerLocator.Seed(__0, __1);
+                });
+            }
+        }
     }
 }
