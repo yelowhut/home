@@ -5,16 +5,17 @@ namespace HonestDamage.Plugin
     /// <summary>
     /// Locates the local player's XAttribsCMP at runtime.
     ///
-    /// Strategy (runtime-confirm): XAttribsCMP is not a MonoBehaviour so
-    /// FindObjectsOfType cannot be used. Instead we rely on a two-phase approach:
+    /// Strategy: XAttribsCMP is not a MonoBehaviour so FindObjectsOfType cannot be used.
+    /// The TakeDamage postfix hook (Diagnostics.cs) populates _cached whenever it observes
+    /// a player entity taking damage.  Player discrimination uses XPlayerCMP: only player
+    /// entities carry this component; enemies do not.  This is confirmed in both the
+    /// dump.cs decompile and the interop Assembly-CSharp.dll proxy.
     ///
-    ///   1. The TakeDamage postfix hook (Diagnostics.cs) populates _cached
-    ///      whenever it observes player attribs. On first F9 press before any
-    ///      combat, cache will be null — the log will warn and the user can
-    ///      press F9 again mid-fight.
+    /// On first F9 press before the player has taken any damage, _cached will be null;
+    /// the log warns and the user can press F9 again after taking a hit.
     ///
-    ///   2. Future refinement via XWorld.GetCMPGroup once the runtime API
-    ///      surface is confirmed from the diagnostic dump.
+    /// Remaining concern: in co-op, multiple players may hit the cache sequentially —
+    /// the last player hit wins.  In solo play this is always the local player.
     /// </summary>
     public static class PlayerLocator
     {

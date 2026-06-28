@@ -165,17 +165,40 @@ namespace HonestDamage.Plugin
                 return m;
             }
 
+            // Last time a per-hit damage line was logged (Time.realtimeSinceStartup).
+            private static float _lastDamageLogTime = -999f;
+            private const float DamageLogCooldown = 1f; // at most 1 line/second
+
             static void Postfix(GameCode.XEntity __instance, DamageParams __0, bool __1)
             {
                 Plugin.Guard("TakeDamage.Postfix", () =>
                 {
-                    if (!Plugin.VerboseDiag.Value) return;
+                    // I1: Seed the player cache FIRST, unconditionally — VerboseDiag must not gate this.
+                    // I2: Only seed from a player entity (one that carries XPlayerCMP), not enemies.
+                    Plugin.Guard("TakeDamage.SeedLocator", () =>
+                    {
+                        if (__instance == null) return;
+                        // XPlayerCMP is the canonical player-marker component (confirmed in interop proxy).
+                        // Enemies never carry it, so this discriminates player from enemy reliably.
+                        var playerCmp = __instance.GetCMP<GameCode.XPlayerCMP>();
+                        if (playerCmp == null) return;
+
+                        var attribs = __instance.GetCMP<GameCode.XAttribsCMP>();
+                        if (attribs != null)
+                            PlayerLocator.Seed(attribs);
+                    });
+
+                    // I3: Per-hit log gated by VerboseDiag (default false) AND a 1-second throttle.
+                    if (!(Plugin.VerboseDiag?.Value ?? false)) return;
+
+                    float now = UnityEngine.Time.realtimeSinceStartup;
+                    if (now - _lastDamageLogTime < DamageLogCooldown) return;
+                    _lastDamageLogTime = now;
 
                     // Log the damage event for calibration
                     string entityName = "<unknown>";
                     Plugin.Guard("TakeDamage.GetName", () =>
                     {
-                        // Try to get a name from the entity's Unity gameobject if accessible
                         entityName = __instance?.ToString() ?? "<null>";
                     });
 
@@ -191,16 +214,6 @@ namespace HonestDamage.Plugin
                         $"IgnoreUpgrades={__0.IgnoreUpgrades} " +
                         $"ReleaseType={__0.ReleaseType} " +
                         $"IgnoreOnlineCheck={__1}");
-
-                    // Seed the player locator if this entity has XAttribsCMP
-                    // (we use it to get XAttribsCMP for the local player)
-                    Plugin.Guard("TakeDamage.SeedLocator", () =>
-                    {
-                        if (__instance == null) return;
-                        var attribs = __instance.GetCMP<GameCode.XAttribsCMP>();
-                        if (attribs != null)
-                            PlayerLocator.Seed(attribs);
-                    });
                 });
             }
         }

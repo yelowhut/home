@@ -30,20 +30,26 @@ namespace HonestDamage.Plugin
 
         public override void Load()
         {
-            Log = base.Log;
+            Log = base.Log;  // Log must be set before Guard is usable
 
-            ToggleKeyName   = Config.Bind("General", "ToggleKey",   "F8",  "Unity KeyCode name for overlay toggle");
-            DiagDumpKeyName = Config.Bind("General", "DiagDumpKey", "F9",  "Unity KeyCode name for diagnostic dump");
-            EnableWeaponInfo = Config.Bind("Surfaces", "WeaponInfo", true, "Weapon info overlay");
-            EnableInventory  = Config.Bind("Surfaces", "Inventory",  true, "Inventory/pause overlay");
-            EnableRewards    = Config.Bind("Surfaces", "Rewards",    true, "Reward selection overlay");
-            VerboseDiag      = Config.Bind("Diagnostics", "Verbose", true, "Verbose calibration log");
+            // M1: Config.Bind wrapped in Guard so a bind failure degrades gracefully.
+            // Fields have safe defaults (declared at class level) so a bind failure is non-fatal.
+            Guard("Config.Bind", () =>
+            {
+                ToggleKeyName   = Config.Bind("General", "ToggleKey",   "F8",  "Unity KeyCode name for overlay toggle");
+                DiagDumpKeyName = Config.Bind("General", "DiagDumpKey", "F9",  "Unity KeyCode name for diagnostic dump");
+                EnableWeaponInfo = Config.Bind("Surfaces", "WeaponInfo", true, "Weapon info overlay");
+                EnableInventory  = Config.Bind("Surfaces", "Inventory",  true, "Inventory/pause overlay");
+                EnableRewards    = Config.Bind("Surfaces", "Rewards",    true, "Reward selection overlay");
+                // I3: VerboseDiag defaults to false to avoid flooding LogOutput.log on first run.
+                VerboseDiag      = Config.Bind("Diagnostics", "Verbose", false, "Verbose calibration log (throttled to ~1 line/sec)");
+            });
 
             // Parse KeyCode names (safe fallback to F8/F9 on parse failure)
             Guard("ParseKeys", () =>
             {
-                if (System.Enum.TryParse<KeyCode>(ToggleKeyName.Value,   true, out var tk))  ToggleKey   = tk;
-                if (System.Enum.TryParse<KeyCode>(DiagDumpKeyName.Value, true, out var dk))  DiagDumpKey = dk;
+                if (ToggleKeyName != null && System.Enum.TryParse<KeyCode>(ToggleKeyName.Value,   true, out var tk))  ToggleKey   = tk;
+                if (DiagDumpKeyName != null && System.Enum.TryParse<KeyCode>(DiagDumpKeyName.Value, true, out var dk))  DiagDumpKey = dk;
             });
 
             // CORRECTION 2: eAttrib ordinal sanity check at load time.
