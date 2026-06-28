@@ -1,0 +1,208 @@
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using BepInEx;
+using HarmonyLib;
+using HonestDamage.Core;
+using UnityEngine;
+
+namespace HonestDamage.Plugin
+{
+    /// <summary>
+    /// Diagnostics: writes a calibration log on F9 and provides a read-only
+    /// Harmony postfix on XEntity.TakeDamage for damage pair logging.
+    ///
+    /// DumpNow() sections:
+    ///   [ATTRIBS]   — game.Get(eAttrib) | GetRaw | AttribResolver.Resolve(raw, mods, attrib)
+    ///   [MODIFIERS] — flat modifier list (Attrib, Op, Value, Source, SourceDefId)
+    ///   [UI-TREE]   — Canvas hierarchy dump for later injection-point discovery
+    /// </summary>
+    public static class Diagnostics
+    {
+        private static string LogPath =>
+            Path.Combine(Paths.BepInExRootPath, "honest-damage-diag.log");
+
+        // ------------------------------------------------------------------ DumpNow
+
+        public static void DumpNow()
+        {
+            Plugin.Guard("Diagnostics.DumpNow", () =>
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("=== HONEST DAMAGE DIAG ===");
+                sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine();
+
+                var cmp = PlayerLocator.GetLocalAttribs();
+                if (cmp == null)
+                {
+                    sb.AppendLine("[ATTRIBS] (no player attribs — take a hit first, then press F9)");
+                    sb.AppendLine("[MODIFIERS] (no player attribs)");
+                }
+                else
+                {
+                    // [ATTRIBS]
+                    sb.AppendLine("[ATTRIBS]  (attrib = game.Get | raw = GetRaw | resolved = AttribResolver.Resolve(raw, mods, attrib))");
+                    var mods   = GameDataAdapter.CurrentModifiers(cmp);
+                    var rawArr = GameDataAdapter.RawSnapshot(cmp);
+
+                    for (int i = 0; i < (int)Attrib.Count; i++)
+                    {
+                        Attrib a = (Attrib)i;
+                        float gameVal     = 0f;
+                        float rawVal      = rawArr[i];
+                        float resolvedVal = 0f;
+
+                        Plugin.Guard($"DumpNow.Attrib[{i}]", () =>
+                        {
+                            gameVal     = cmp.Get((eAttrib)i);
+                            resolvedVal = AttribResolver.Resolve(rawVal, mods, a);
+                        });
+
+                        sb.AppendLine($"  {a,-40} game={gameVal,10:F4}  raw={rawVal,10:F4}  resolved={resolvedVal,10:F4}");
+                    }
+                    sb.AppendLine();
+
+                    // [MODIFIERS]
+                    sb.AppendLine("[MODIFIERS]");
+                    foreach (var m in mods)
+                        sb.AppendLine($"  {m.Attrib,-40} {m.Op,-4} {m.Value,10:F4}");
+                    sb.AppendLine();
+                }
+
+                // [UI-TREE] — canvas hierarchy dump (CORRECTION 4)
+                sb.AppendLine("[UI-TREE]");
+                Plugin.Guard("DumpNow.UITree", () => DumpUITree(sb));
+                sb.AppendLine();
+
+                File.WriteAllText(LogPath, sb.ToString());
+                Plugin.Log.LogInfo($"[Diagnostics] Dumped to {LogPath}");
+            });
+        }
+
+        // ------------------------------------------------------------------ UI-TREE dump
+
+        private static void DumpUITree(StringBuilder sb)
+        {
+            Canvas[] canvases = GameObject.FindObjectsOfType<Canvas>();
+            sb.AppendLine($"  Active canvases: {canvases.Length}");
+
+            foreach (var canvas in canvases)
+            {
+                if (canvas == null || canvas.gameObject == null) continue;
+                sb.AppendLine($"  Canvas: {canvas.gameObject.name} (enabled={canvas.enabled}, sortOrder={canvas.sortingOrder})");
+                Plugin.Guard($"DumpUITree.Canvas[{canvas.gameObject.name}]", () =>
+                {
+                    DumpGameObject(sb, canvas.gameObject, 2);
+                });
+            }
+        }
+
+        private static void DumpGameObject(StringBuilder sb, GameObject go, int depth)
+        {
+            if (go == null) return;
+
+            string indent = new string(' ', depth * 2);
+
+            // Collect component type names
+            Component[] comps = go.GetComponents<Component>();
+            var compNames = new StringBuilder();
+            foreach (var c in comps)
+            {
+                if (c == null) continue;
+                compNames.Append(c.GetIl2CppType().FullName);
+                compNames.Append(", ");
+            }
+
+            // Check for text components (for value logging)
+            string textValue = "";
+            Plugin.Guard($"DumpGameObject.TextCheck[{go.name}]", () =>
+            {
+                var tmp = go.GetComponent<TMPro.TextMeshProUGUI>();
+                if (tmp != null) textValue = $" [TMPro: \"{tmp.text}\"]";
+                else
+                {
+                    var uit = go.GetComponent<UnityEngine.UI.Text>();
+                    if (uit != null) textValue = $" [UIText: \"{uit.text}\"]";
+                }
+            });
+
+            sb.AppendLine($"{indent}{go.name} (active={go.activeSelf})  {compNames}{textValue}");
+
+            // Recurse into children (cap depth to avoid infinite loops / huge logs)
+            if (depth < 10)
+            {
+                for (int i = 0; i < go.transform.childCount; i++)
+                {
+                    var child = go.transform.GetChild(i)?.gameObject;
+                    if (child != null)
+                        DumpGameObject(sb, child, depth + 1);
+                }
+            }
+        }
+
+        // ------------------------------------------------------------------ TakeDamage postfix hook
+
+        [HarmonyPatch]
+        private static class TakeDamagePostfix
+        {
+            /// <summary>
+            /// Resolves the patch target defensively using AccessTools.
+            /// If the method is not found, logs WARN and skips (no throw).
+            /// </summary>
+            static MethodBase? TargetMethod()
+            {
+                var m = AccessTools.Method(
+                    typeof(GameCode.XEntity),
+                    "TakeDamage",
+                    new[] { typeof(DamageParams), typeof(bool) });
+
+                if (m == null)
+                {
+                    Plugin.Log.LogWarning("[Diagnostics] TakeDamage method not found via AccessTools — damage hook skipped.");
+                }
+                return m;
+            }
+
+            static void Postfix(GameCode.XEntity __instance, DamageParams __0, bool __1)
+            {
+                Plugin.Guard("TakeDamage.Postfix", () =>
+                {
+                    if (!Plugin.VerboseDiag.Value) return;
+
+                    // Log the damage event for calibration
+                    string entityName = "<unknown>";
+                    Plugin.Guard("TakeDamage.GetName", () =>
+                    {
+                        // Try to get a name from the entity's Unity gameobject if accessible
+                        entityName = __instance?.ToString() ?? "<null>";
+                    });
+
+                    Plugin.Log.LogInfo(
+                        $"[TakeDamage] victim={entityName} " +
+                        $"DamageAmount={__0.DamageAmount:F3} " +
+                        $"DamageRate={__0.DamageRate:F3} " +
+                        $"DamageType={__0.DamageType} " +
+                        $"ExtraAbilityNumHits={__0.ExtraAbilityNumHits} " +
+                        $"OverrideDisplayValue={__0.OverrideDisplayValue:F3} " +
+                        $"CritChance={__0.CritChance:F3} " +
+                        $"AbilityDefId={__0.AbilityDefId} " +
+                        $"IgnoreUpgrades={__0.IgnoreUpgrades} " +
+                        $"ReleaseType={__0.ReleaseType} " +
+                        $"IgnoreOnlineCheck={__1}");
+
+                    // Seed the player locator if this entity has XAttribsCMP
+                    // (we use it to get XAttribsCMP for the local player)
+                    Plugin.Guard("TakeDamage.SeedLocator", () =>
+                    {
+                        if (__instance == null) return;
+                        var attribs = __instance.GetCMP<GameCode.XAttribsCMP>();
+                        if (attribs != null)
+                            PlayerLocator.Seed(attribs);
+                    });
+                });
+            }
+        }
+    }
+}
