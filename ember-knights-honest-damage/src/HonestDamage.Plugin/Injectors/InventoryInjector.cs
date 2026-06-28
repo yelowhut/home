@@ -334,6 +334,19 @@ namespace HonestDamage.Plugin.Injectors
         ///
         /// Public so Diagnostics.DumpWeaponAttacks can reuse it.
         /// </summary>
+        /// <summary>Diagnostic: full raw AttackDefs array for the weapon type (all Ids/muls).</summary>
+        public static XBaseAttackDef[]? GetAllAttackDefsForDiag(XWeaponDef weaponDef)
+        {
+            XBaseAttackDef[]? result = null;
+            Plugin.Guard("InventoryInjector.GetAllAttackDefsForDiag", () =>
+            {
+                var wdf = GameCode.Defs?.weaponDefs;
+                if (wdf == null) return;
+                result = GetAttackDefArray(wdf, weaponDef.WeaponType);
+            });
+            return result;
+        }
+
         public static List<LabeledAttack>? GetRelevantAttackDefs(XWeaponDef weaponDef,
                                                                   GameCode.XEntity? entity)
         {

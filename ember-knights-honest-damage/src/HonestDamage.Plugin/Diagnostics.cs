@@ -174,6 +174,48 @@ namespace HonestDamage.Plugin
             });
             sb.AppendLine($"  CritMul = 1 + CritDmgMUL({attribs.Get(eAttrib.CritDmgMUL):F3}) = {critMul:F3}");
 
+            // [NAMED] — which attack Id each settings field points to. Array order != combo
+            // order, so this reveals the TRUE combo/charge/special structure for fixing selection.
+            Plugin.Guard("DumpWeaponAttacks.NamedIndices", () =>
+            {
+                var wdf2 = GameCode.Defs?.weaponDefs;
+                if (wdf2 == null) return;
+                switch (weaponDef.WeaponType)
+                {
+                    case eWeaponType.Bow:
+                    {
+                        var s = wdf2.BowSettings;
+                        if (s == null) break;
+                        sb.AppendLine($"  [NAMED] Normal={s.NormalAttackId} Third={s.ThirdAttackId} Charge={s.ChargeAttackId} " +
+                                      $"Rapid={s.RapidshotAttackId} Spread={s.SpreadshotAttackId} Marked={s.MarkedshotAttackId} " +
+                                      $"VolleyChg={s.VolleyChargeAttackId} BombChg={s.BombChargeAttackId}");
+                        break;
+                    }
+                    case eWeaponType.Sword:
+                    {
+                        var s = wdf2.SwordSettings;
+                        if (s == null) break;
+                        sb.AppendLine($"  [NAMED] N1={s.NormalAttack1} N2={s.NormalAttack2} N3={s.NormalAttack3} " +
+                                      $"Combo={s.ComboAttacks} Lunge={s.LungeModAttackIndex} Whirl={s.WhirlwindModAttackIndex} " +
+                                      $"Mod56Multi={s.Mod56_MultiStabAttackIndex} Mod56Final={s.Mod56_FinalStabAttackIndex} Mod59={s.Mod59Ultimate_ThirdAttackIndex}");
+                        break;
+                    }
+                }
+            });
+
+            // Full attack-def list (all Ids + muls) for cross-reference with [NAMED].
+            Plugin.Guard("DumpWeaponAttacks.AllDefs", () =>
+            {
+                var all = Injectors.InventoryInjector.GetAllAttackDefsForDiag(weaponDef);
+                if (all == null) return;
+                foreach (var d in all)
+                {
+                    if (d == null) continue;
+                    sb.AppendLine($"  [ALL] Id={d.Id,-4} Mul={d.DamageMul:F3} MulMax={d.DamageMulMax:F3} " +
+                                  $"Charge={d.IsChargeAtk} Skillshot={d.IsSkillShot} Roll={d.IsRollAtk} LastVariant={d.IsLastVariantAtk}");
+                }
+            });
+
             var labeled = Injectors.InventoryInjector.GetRelevantAttackDefs(weaponDef, entity);
             if (labeled == null || labeled.Count == 0)
             {
