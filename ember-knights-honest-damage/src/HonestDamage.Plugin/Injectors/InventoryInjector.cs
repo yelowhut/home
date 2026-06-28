@@ -438,6 +438,11 @@ namespace HonestDamage.Plugin.Injectors
             }
 
             // Hit 3: Third, or Spreadshot if the SpreadShot mod replaces it.
+            // TODO mod-replace: RapidShot (13) and MarkedShot (15) almost certainly replace
+            //   the 3rd hit too (same REPLACE model, §6). Generalize to pick the first
+            //   equipped 3rd-slot mod (Spread/Rapid/Marked) → its Id once the in-game data
+            //   confirms the hypothesis. Until then AppendModAttacks still ADDs Rapid/Marked
+            //   as extra entries (the known pre-fix behavior for those two mods).
             bool hasSpread = false;
             if (weaponInst != null)
             {
