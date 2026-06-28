@@ -1,0 +1,93 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- net6.0 matches what BepInEx 6 pre.2 targets; the generator runs fine under net8 too -->
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Don't emit bin/ in the repo; build script uses -o to direct output -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!--
+    All references come from build/tools/BepInEx-6/BepInEx/core/
+    which is gitignored. Run gen-interop.ps1 to download the tools first.
+    HintPaths are relative to the .csproj file location (build/gen-interop-host/).
+
+    We copy the entire BepInEx core dir to output so that assembly resolution
+    works at runtime (Pass16 loads Iced/LibCpp2IL/etc. dynamically).
+  -->
+  <ItemGroup>
+    <!-- Primary references we link against at compile time -->
+    <Reference Include="Il2CppInterop.Generator">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Il2CppInterop.Generator.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Il2CppInterop.Common.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Mono.Cecil.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Mono.Cecil.Rocks.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AsmResolver">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AsmResolver.DotNet">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.DotNet.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AsmResolver.PE">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.PE.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AsmResolver.PE.File">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.PE.File.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AssetRipper.Primitives">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AssetRipper.Primitives.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AssetRipper.CIL">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\AssetRipper.CIL.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="StableNameDotNet">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\StableNameDotNet.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- Required at runtime by Pass16ScanMethodRefs (xref scanning via LibCpp2IL + Iced) -->
+    <Reference Include="LibCpp2IL">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\LibCpp2IL.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Iced">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Iced.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Disarm">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Disarm.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Gee.External.Capstone">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\Gee.External.Capstone.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WasmDisassembler">
+      <HintPath>..\tools\BepInEx-6\BepInEx\core\WasmDisassembler.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- Required by Il2CppInterop.Generator.Il2CppInteropGenerator.Start() -->
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>..\tools\BepInEx-6\dotnet\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
