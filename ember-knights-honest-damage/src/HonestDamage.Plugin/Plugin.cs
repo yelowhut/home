@@ -130,6 +130,7 @@ namespace HonestDamage.Plugin
                 {
                     _frameCounter = 0;
                     Injectors.SelectionInjector.Tick();
+                    Injectors.InventoryInjector.Tick();
                 }
             });
         }

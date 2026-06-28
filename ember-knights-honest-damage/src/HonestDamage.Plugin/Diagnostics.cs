@@ -72,6 +72,11 @@ namespace HonestDamage.Plugin
                     sb.AppendLine();
                 }
 
+                // [WEAPON-ATTACKS] — per-attack honest damage for equipped weapon
+                sb.AppendLine("[WEAPON-ATTACKS]");
+                Plugin.Guard("DumpNow.WeaponAttacks", () => DumpWeaponAttacks(sb));
+                sb.AppendLine();
+
                 // [UI-TREE] — canvas hierarchy dump (CORRECTION 4)
                 sb.AppendLine("[UI-TREE]");
                 Plugin.Guard("DumpNow.UITree", () => DumpUITree(sb));
@@ -100,6 +105,71 @@ namespace HonestDamage.Plugin
                 }
             });
             return best;
+        }
+
+        // ------------------------------------------------------------------ WEAPON-ATTACKS dump
+
+        /// <summary>
+        /// Appends a [WEAPON-ATTACKS] section to <paramref name="sb"/>.
+        /// Called by DumpNow (F9) and by InventoryInjector on its first tick.
+        /// Uses GameCode.Defs.weaponDefs for AttackDefs, CreateAttackDp for honest values.
+        /// </summary>
+        internal static void DumpWeaponAttacks(StringBuilder sb)
+        {
+            var entity  = PlayerLocator.GetLocalEntity();
+            var attribs = PlayerLocator.GetLocalAttribs();
+
+            if (entity == null || attribs == null)
+            {
+                sb.AppendLine("  (no player entity cached — take a hit first)");
+                return;
+            }
+
+            XWeaponDef? weaponDef = null;
+            Plugin.Guard("DumpWeaponAttacks.GetWeaponDef", () =>
+            {
+                weaponDef = GameCode.PlayerUtils.GetWeaponDef(entity);
+            });
+
+            if (weaponDef == null)
+            {
+                sb.AppendLine("  (GetWeaponDef returned null)");
+                return;
+            }
+
+            sb.AppendLine($"  WeaponType={weaponDef.WeaponType}  AttackBase={weaponDef.AttackBase:F2}");
+
+            var attackDefs = Injectors.InventoryInjector.GetRelevantAttackDefs(weaponDef);
+            if (attackDefs == null || attackDefs.Length == 0)
+            {
+                float atk = attribs.Get(eAttrib.ATK);
+                sb.AppendLine($"  No AttackDefs found — ATK fallback: {atk:F1}");
+                return;
+            }
+
+            foreach (var def in attackDefs)
+            {
+                if (def == null) continue;
+                Plugin.Guard($"DumpWeaponAttacks.Def[{def.Id}]", () =>
+                {
+                    string kind = def.IsChargeAtk ? "CHARGE" : "COMBO";
+                    float amount = 0f;
+                    bool usedCreateAttackDp = false;
+                    Plugin.Guard($"DumpWeaponAttacks.CreateAttackDp[{def.Id}]", () =>
+                    {
+                        var dp = GameCode.XPlayerSYS.CreateAttackDp(entity, attribs, def, weaponDef, -1f);
+                        amount = dp.DamageAmount;
+                        usedCreateAttackDp = true;
+                    });
+                    if (!usedCreateAttackDp)
+                    {
+                        float atk = attribs.Get(eAttrib.ATK);
+                        float mul = def.IsChargeAtk ? def.DamageMulMax : def.DamageMul;
+                        amount = atk * mul;
+                    }
+                    sb.AppendLine($"  [{kind}] Id={def.Id,-4} DamageMul={def.DamageMul:F3}  DamageMulMax={def.DamageMulMax:F3}  honest≈{amount:F1}  via={( usedCreateAttackDp ? "CreateAttackDp" : "ATK*mul")}");
+                });
+            }
         }
 
         // ------------------------------------------------------------------ UI-TREE dump
@@ -206,7 +276,7 @@ namespace HonestDamage.Plugin
 
                         var attribs = __instance.GetCMP<GameCode.XAttribsCMP>();
                         if (attribs != null)
-                            PlayerLocator.Seed(attribs);
+                            PlayerLocator.Seed(__instance, attribs);
                     });
 
                     // I3: Per-hit log gated by VerboseDiag (default false) AND a 1-second throttle.
