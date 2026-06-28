@@ -229,26 +229,17 @@ namespace HonestDamage.Plugin.Injectors
                                                  XBaseAttackDef def,
                                                  XWeaponDef weaponDef)
         {
+            // Damage = ATK * DamageMul (verified against the TakeDamage log: a basic hit
+            // with DamageMul=1.0 deals exactly ATK). CreateAttackDp is NOT used for the
+            // value — it builds a damage *template* and returns DamageAmount=0 at creation
+            // time (the final amount is resolved per-hit against a target).
             float result = 0f;
-            bool  ok     = false;
-
-            Plugin.Guard("InventoryInjector.CreateAttackDp", () =>
+            Plugin.Guard("InventoryInjector.ComputeAttackDamage", () =>
             {
-                var dp = GameCode.XPlayerSYS.CreateAttackDp(entity, attribs, def, weaponDef, -1f);
-                result = dp.DamageAmount;
-                ok     = true;
+                float atk = attribs.Get(eAttrib.ATK);
+                float mul = def.IsChargeAtk ? def.DamageMulMax : def.DamageMul;
+                result    = atk * mul;
             });
-
-            if (!ok)
-            {
-                Plugin.Guard("InventoryInjector.ATKMulFallback", () =>
-                {
-                    float atk = attribs.Get(eAttrib.ATK);
-                    float mul = def.IsChargeAtk ? def.DamageMulMax : def.DamageMul;
-                    result    = atk * mul;
-                });
-            }
-
             return result;
         }
 

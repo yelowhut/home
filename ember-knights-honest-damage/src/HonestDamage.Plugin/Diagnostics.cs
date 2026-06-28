@@ -153,21 +153,11 @@ namespace HonestDamage.Plugin
                 Plugin.Guard($"DumpWeaponAttacks.Def[{def.Id}]", () =>
                 {
                     string kind = def.IsChargeAtk ? "CHARGE" : "COMBO";
-                    float amount = 0f;
-                    bool usedCreateAttackDp = false;
-                    Plugin.Guard($"DumpWeaponAttacks.CreateAttackDp[{def.Id}]", () =>
-                    {
-                        var dp = GameCode.XPlayerSYS.CreateAttackDp(entity, attribs, def, weaponDef, -1f);
-                        amount = dp.DamageAmount;
-                        usedCreateAttackDp = true;
-                    });
-                    if (!usedCreateAttackDp)
-                    {
-                        float atk = attribs.Get(eAttrib.ATK);
-                        float mul = def.IsChargeAtk ? def.DamageMulMax : def.DamageMul;
-                        amount = atk * mul;
-                    }
-                    sb.AppendLine($"  [{kind}] Id={def.Id,-4} DamageMul={def.DamageMul:F3}  DamageMulMax={def.DamageMulMax:F3}  honest≈{amount:F1}  via={( usedCreateAttackDp ? "CreateAttackDp" : "ATK*mul")}");
+                    // ATK * DamageMul (CreateAttackDp returns DamageAmount=0 at creation — see InventoryInjector).
+                    float atk = attribs.Get(eAttrib.ATK);
+                    float min = atk * def.DamageMul;
+                    float max = atk * def.DamageMulMax;
+                    sb.AppendLine($"  [{kind}] Id={def.Id,-4} DamageMul={def.DamageMul:F3}  DamageMulMax={def.DamageMulMax:F3}  honest≈{min:F1}" + (max > min + 0.05f ? $"–{max:F1}" : ""));
                 });
             }
         }
