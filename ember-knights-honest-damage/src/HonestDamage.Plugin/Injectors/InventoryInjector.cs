@@ -250,7 +250,7 @@ namespace HonestDamage.Plugin.Injectors
                 float atkOnly = 0f;
                 Plugin.Guard("InventoryInjector.ATKFallback", () =>
                     atkOnly = attribs.Get(eAttrib.ATK));
-                return $"≈ ATK {atkOnly:F0} (no attacks found)";
+                return $"≈ ATK {FmtDmg(atkOnly)} (no attacks found)";
             }
 
             // Compute crit multiplier: 1 + CritDmgMUL (e.g. 0.5 → ×1.5 on crit).
@@ -272,12 +272,24 @@ namespace HonestDamage.Plugin.Injectors
                 string kind   = la.Def.IsChargeAtk ? "CHG" : "HIT";
 
                 if (!first) sb.Append("  ");
-                sb.Append($"{kind}:{baseAmt:F0} (crit {critAmt:F0})");
+                // The game TRUNCATES displayed/applied damage (floor), it does not round —
+                // see FmtDmg. critAmt is floored independently (the real crit hit is one
+                // floored number; crit-then-floor matches the observed combat text).
+                sb.Append($"{kind}:{FmtDmg(baseAmt)} (crit {FmtDmg(critAmt)})");
                 first = false;
             }
 
             return first ? "" : sb.ToString();
         }
+
+        /// <summary>
+        /// Formats a damage value the way the game's combat numbers / tooltips do: it
+        /// TRUNCATES the fractional part (floor toward zero), it does NOT round.
+        /// Confirmed in-game (2026-06-29): formatting with round-to-nearest (".F0") made
+        /// every attack whose ATK×mul had a fractional part ≥0.5 read exactly 1 higher than
+        /// the real hit on a target. Damage is always ≥0, so an int cast == floor.
+        /// </summary>
+        private static string FmtDmg(float dmg) => ((int)dmg).ToString();
 
         /// <summary>
         /// Computes honest damage for one attack def.
@@ -321,9 +333,9 @@ namespace HonestDamage.Plugin.Injectors
             if (tap <= 0f && charge <= 0f) return "";
 
             if (charge > 0f && Math.Abs(charge - tap) > 0.5f)
-                return $"≈ {tap:F0} / CHG:{charge:F0}";
+                return $"≈ {FmtDmg(tap)} / CHG:{FmtDmg(charge)}";
 
-            return $"≈ {tap:F0}";
+            return $"≈ {FmtDmg(tap)}";
         }
 
         // ---- AttackDef selection — shared with Diagnostics ------------------

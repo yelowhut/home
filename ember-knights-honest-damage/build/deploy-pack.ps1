@@ -139,11 +139,20 @@ if ($cfg -match 'UpdateInteropAssemblies\s*=') {
 Set-Content -Path $configFile -Value $cfg -NoNewline
 Write-Host "[*] BepInEx.cfg: UpdateInteropAssemblies = true (runtime self-gen)"
 
-# --- Interop: leave EMPTY (handoff §3 — BepInEx populates it itself on first launch) ---
+# --- Interop: ensure the dir exists but PRESERVE BepInEx's self-generated assemblies ---
+# §3: we must never PRE-PLACE our compile-time interop here (this script never does).
+# But interop that BepInEx generated itself at runtime is valid and game-version-specific —
+# KEEP it across plugin-only redeploys so launches stay fast. Wiping it forces a 1-2 min
+# regeneration (and needs the unity-libs server up) on every deploy for no reason.
+# A truly fresh install has an empty dir anyway; BepInEx fills it on first launch.
 $interopDst = Join-Path $bepinexDir "interop"
 New-Item -ItemType Directory -Force -Path $interopDst | Out-Null
-Get-ChildItem $interopDst -Filter "*.dll" -ErrorAction SilentlyContinue | Remove-Item -Force
-Write-Host "[*] Emptied BepInEx/interop (runtime self-gen will populate it on first launch)"
+$interopCount = (Get-ChildItem $interopDst -Filter "*.dll" -ErrorAction SilentlyContinue | Measure-Object).Count
+if ($interopCount -gt 0) {
+    Write-Host "[*] Kept $interopCount existing (self-generated) interop DLLs — no regen needed"
+} else {
+    Write-Host "[*] BepInEx/interop empty — BepInEx will self-generate on first launch (~1-2 min)"
+}
 
 # --- Fresh plugin ---
 $pluginDst = Join-Path $bepinexDir "plugins"
