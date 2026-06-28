@@ -109,6 +109,11 @@ namespace HonestDamage.Plugin
     {
         public TickComponent(IntPtr ptr) : base(ptr) { }
 
+        // Frame counter for throttling heavy scans (FindObjectsOfType).
+        // SelectionInjector.Tick() runs at most once every 12 frames (~5×/sec at 60 fps).
+        private int _frameCounter = 0;
+        private const int InjectorTickInterval = 12;
+
         private void Update()
         {
             Plugin.Guard("TickComponent.Update", () =>
@@ -118,6 +123,14 @@ namespace HonestDamage.Plugin
 
                 if (Input.GetKeyDown(Plugin.DiagDumpKey))
                     Diagnostics.DumpNow();
+
+                // Throttled selection-screen injector.
+                _frameCounter++;
+                if (_frameCounter >= InjectorTickInterval)
+                {
+                    _frameCounter = 0;
+                    Injectors.SelectionInjector.Tick();
+                }
             });
         }
     }
