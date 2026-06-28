@@ -45,6 +45,9 @@ namespace HonestDamage.Plugin.Injectors
         // Cyan colour for injected labels
         private static readonly Color HonestColor = new Color(0f, 1f, 1f, 1f);
 
+        // Throttle timer for the Verbose ability-slot diagnostic log.
+        private static float _lastAbilityLog = -999f;
+
         // ---- State -----------------------------------------------------------
 
         // Tracks whether we've already written the [WEAPON-ATTACKS] diag section.
@@ -167,10 +170,21 @@ namespace HonestDamage.Plugin.Injectors
 
                     // Build ability damage text.
                     string abilityText = BuildAbilityDamageText(abDef, spellMul);
-                    if (string.IsNullOrEmpty(abilityText)) return;
 
                     // Find the UI anchor for this ability slot.
                     TextMeshProUGUI? anchor = FindAbilityAnchorTMP(invCanvas.gameObject, slotIndex);
+
+                    // Throttled diagnostic (Verbose): reveals why a slot shows nothing —
+                    // empty text (no damage effect in def) vs anchor not found.
+                    if ((Plugin.VerboseDiag?.Value ?? false) &&
+                        UnityEngine.Time.realtimeSinceStartup - _lastAbilityLog > 2f)
+                    {
+                        _lastAbilityLog = UnityEngine.Time.realtimeSinceStartup;
+                        Plugin.Log.LogInfo($"[AbilityDiag] slot={slotIndex} def={abDef} " +
+                            $"text=\"{abilityText}\" anchorFound={(anchor != null)}");
+                    }
+
+                    if (string.IsNullOrEmpty(abilityText)) return;
                     if (anchor == null) return;
 
                     Transform? anchorParent = anchor.gameObject.transform.parent;
