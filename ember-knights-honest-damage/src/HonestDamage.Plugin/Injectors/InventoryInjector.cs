@@ -272,9 +272,9 @@ namespace HonestDamage.Plugin.Injectors
                 string kind   = la.Def.IsChargeAtk ? "CHG" : "HIT";
 
                 if (!first) sb.Append("  ");
-                // The game TRUNCATES displayed/applied damage (floor), it does not round —
-                // see FmtDmg. critAmt is floored independently (the real crit hit is one
-                // floored number; crit-then-floor matches the observed combat text).
+                // The game rounds displayed/applied damage UP (ceiling) — see FmtDmg.
+                // critAmt = raw base × critMul, then ceiled (matches the observed crit text:
+                // 22.5×1.5=33.75 → 34 in-game; ceil of the float, not ceil(ceil(base))×mul).
                 sb.Append($"{kind}:{FmtDmg(baseAmt)} (crit {FmtDmg(critAmt)})");
                 first = false;
             }
@@ -283,13 +283,14 @@ namespace HonestDamage.Plugin.Injectors
         }
 
         /// <summary>
-        /// Formats a damage value the way the game's combat numbers / tooltips do: it
-        /// TRUNCATES the fractional part (floor toward zero), it does NOT round.
-        /// Confirmed in-game (2026-06-29): formatting with round-to-nearest (".F0") made
-        /// every attack whose ATK×mul had a fractional part ≥0.5 read exactly 1 higher than
-        /// the real hit on a target. Damage is always ≥0, so an int cast == floor.
+        /// Formats a damage value the way the game's combat numbers do: it rounds UP
+        /// (ceiling) to the next integer. Any fractional part bumps the shown value up by 1.
+        /// Proven by F9 diag vs real hits (2026-06-29, sword ATK=18): raw ATK×mul values
+        /// 18.0/16.2/22.5 and crit 33.75 hit for 18/17/23 and 34 in-game — only ceiling maps
+        /// 16.2→17 (floor/round both give 16). The small epsilon guards against float noise
+        /// turning an intended-integer value (e.g. 20.0 stored as 20.0000001) into +1.
         /// </summary>
-        private static string FmtDmg(float dmg) => ((int)dmg).ToString();
+        private static string FmtDmg(float dmg) => ((int)Math.Ceiling(dmg - 1e-4f)).ToString();
 
         /// <summary>
         /// Computes honest damage for one attack def.
