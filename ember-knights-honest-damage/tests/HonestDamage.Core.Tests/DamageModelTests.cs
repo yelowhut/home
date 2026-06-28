@@ -33,4 +33,12 @@ public class DamageModelTests
         // base 80 * 1.5 = 120
         Assert.Equal(120f, DamageModel.Compute(DamageKind.Spell, 80f, stats));
     }
+
+    [Fact]
+    public void Compute_Spell_AppliesFinalPlayerDamageMultiplier()
+    {
+        var stats = Stats((Attrib.SpellDamageModifier, 2f), (Attrib.FinalPlayerDamageMultiplier, 1.5f));
+        // base 80 * 2 * 1.5 = 240
+        Assert.Equal(240f, DamageModel.Compute(DamageKind.Spell, 80f, stats));
+    }
 }
