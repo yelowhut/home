@@ -22,32 +22,32 @@
   -->
   <ItemGroup>
     <Reference Include="BepInEx.Core">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\BepInEx.Core.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\BepInEx.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx.Unity.IL2CPP">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx.Unity.Common">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <!-- Il2CppInterop.Runtime from BepInEx core (NOT from lib/interop to avoid duplicate) -->
     <Reference Include="Il2CppInterop.Runtime">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\MonoMod.RuntimeDetour.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\build\tools\BepInEx-6\BepInEx\core\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\..\build\tools\BepInEx-be735\BepInEx\core\MonoMod.Utils.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

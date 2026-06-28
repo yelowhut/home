@@ -27,7 +27,7 @@ Directory.CreateDirectory(outputDir);
 var inputPaths = Directory.GetFiles(dummyDllsDir, "*.dll").ToList();
 var unityPaths = Directory.GetFiles(unityLibsDir, "*.dll").ToList();
 
-Console.WriteLine("[GenInteropHost] Generator : Il2CppInterop.Generator 1.4.6 (BepInEx 6 pre.2 bundled)");
+Console.WriteLine("[GenInteropHost] Generator : Il2CppInterop.Generator 1.4.6 + v31-capable LibCpp2IL (BepInEx be.735 bundle)");
 Console.WriteLine($"[GenInteropHost] Input DLLs: {inputPaths.Count} from {dummyDllsDir}");
 Console.WriteLine($"[GenInteropHost] Unity libs: {unityPaths.Count} from {unityLibsDir}");
 Console.WriteLine($"[GenInteropHost] Output    : {outputDir}");

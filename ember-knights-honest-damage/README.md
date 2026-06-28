@@ -71,10 +71,14 @@
   - локальные interop-сборки `lib/interop/` — генерируются скриптом
     `build/gen-interop.ps1` из `GameAssembly.dll` + `global-metadata.dat`
     (офлайн, без запуска игры);
-  - core-сборки BepInEx 6.0.0-pre.2 из `build/tools/BepInEx-6/BepInEx/core/`.
-- Важно: interop сгенерирован под Il2CppInterop 1.4.6 из BepInEx 6.0.0-pre.2 —
-  версия рантайма в поставляемом пакете должна совпадать.
-- Готовый пакет собирается в `dist/BepInEx-pack/` (gitignored).
+  - core-сборки BepInEx 6.0.0-be.735 из `build/tools/BepInEx-be735/BepInEx/core/`.
+- Важно: игра использует IL2CPP metadata v31 (Unity 2022.3.62f3). BepInEx be.697
+  НЕ поддерживает v31 (его Cpp2IL слишком старый, и его IL2CPP-bootstrap падает с
+  BadImageFormatException). Используется be.735: v31-совместимый Cpp2IL +
+  обновлённый bootstrap. Il2CppInterop (1.4.6-ci.426) побайтово идентичен между
+  be.697 и be.735, поэтому ABI плагина не меняется.
+- Готовый пакет собирается в `dist/BepInEx-pack/` (gitignored) скриптом
+  `build/deploy-pack.ps1 -Target dist|live`.
 
 ## Дорожная карта (этап 2, по твоему логу)
 

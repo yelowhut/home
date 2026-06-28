@@ -6,38 +6,46 @@
 .DESCRIPTION
     Generates Il2CppInterop proxy assemblies in lib/interop/ without launching the game.
     Required outputs: Assembly-CSharp.dll (game), Il2Cppmscorlib.dll, UnityEngine.*.dll,
-    Il2CppInterop.Runtime.dll, Il2CppInterop.Common.dll (from BepInEx 6 pre.2 core).
+    Il2CppInterop.Runtime.dll, Il2CppInterop.Common.dll (from BepInEx be.735 core).
 
-    Generator version: Il2CppInterop.Generator 1.4.6, which is EXACTLY what BepInEx 6 pre.2
-    bundles and uses at game start to generate its own interop. This ensures compile-time
-    proxy surface matches the runtime proxy surface.
+    Generator version: Il2CppInterop.Generator 1.4.6, which is EXACTLY what BepInEx be.735
+    bundles and uses at game start. This ensures the compile-time proxy surface matches
+    the runtime proxy surface. The generator's Pass16 xref scan uses the be.735-bundled
+    LibCpp2IL (Cpp2IL 2022.1.0-pre-release.19), which supports IL2CPP metadata v31.
+
+    WHY be.735 (not be.697): Ember Knights is metadata v31. be.697 bundles a Cpp2IL
+    (2022.1.0.0) that CANNOT read v31, and its BepInEx.Unity.IL2CPP bootstrap crashed
+    at game start (BadImageFormatException in Il2CppSystem.String..cctor during delegate
+    bridging). be.735 bundles v31-capable Cpp2IL + a revised bootstrap. Il2CppInterop
+    (Generator/Runtime/Common) is byte-identical between be.697 and be.735 (both 1.4.6-ci.426),
+    so the plugin's interop ABI is unchanged.
 
 .PREREQUISITES
     Download these into build/tools/ before running:
       1. Cpp2IL-2022.1.0-pre-release.21-Windows.exe  -> rename to cpp2il.exe
          https://github.com/SamboyCoding/Cpp2IL/releases/tag/2022.1.0-pre-release.21
-      2. BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip (extract to build/tools/BepInEx-6/)
-         https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.2
+         (used to produce the dummy assemblies; v31-capable)
+      2. BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735+5fef357.zip -> extract to build/tools/BepInEx-be735/
+         https://builds.bepinex.dev/projects/bepinex_be/735/
       3. Unity base libs 2022.3.62.zip -> extract to build/tools/unity-libs/2022.3.62/
          https://unity.bepinex.dev/libraries/2022.3.62.zip
 
-    NOTE: Il2CppInterop.CLI 1.5.3 is no longer needed. The generator is taken directly
-    from the BepInEx 6 pre.2 bundle (core/Il2CppInterop.Generator.dll v1.4.6).
+    NOTE: Il2CppInterop.CLI is NOT used. The generator is taken directly from the
+    BepInEx be.735 bundle (core/Il2CppInterop.Generator.dll v1.4.6) via build/gen-interop-host/.
 
 .NOTES
     Tool versions used:
-      Cpp2IL:            2022.1.0-pre-release.21 (SamboyCoding/Cpp2IL)
-      Il2CppInterop:     1.4.6-ci.426 (from BepInEx 6 pre.2 bundle -- both generator and runtime)
-      BepInEx:           6.0.0-pre.2
+      Cpp2IL (dummies):  2022.1.0-pre-release.21 (SamboyCoding/Cpp2IL, v31-capable)
+      LibCpp2IL (Pass16): 2022.1.0-pre-release.19 (from be.735 bundle, v31-capable)
+      Il2CppInterop:     1.4.6-ci.426 (from be.735 bundle -- both generator and runtime)
+      BepInEx:           6.0.0-be.735
       Unity base libs:   2022.3.62 (from unity.bepinex.dev)
       Metadata version:  31 (Unity 2022.3.62f3)
 
     Version alignment: both the generator (step 2) and the runtime DLLs copied to lib/interop/
-    (step 3) come from the same BepInEx 6 pre.2 bundle. This ensures the proxy DLL surface
-    exactly matches what BepInEx generates at game start.
+    (step 3) come from the same BepInEx be.735 bundle.
 
-    IMPORTANT: The Il2CppInterop.CLI exe in the zip is a Linux ELF binary.
-    This script does NOT use that CLI; it uses build/gen-interop-host/ instead.
+    To deploy: after this script, build the plugin and run build/deploy-pack.ps1 -Target dist|live.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -53,7 +61,10 @@ $gameDll     = "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights\GameA
 $metaData    = "C:\Program Files (x86)\Steam\steamapps\common\EmberKnights\EmberKnights_64_Data\il2cpp_data\Metadata\global-metadata.dat"
 $unityLibs   = Join-Path $tools "unity-libs\2022.3.62"
 $cpp2il      = Join-Path $tools "cpp2il.exe"
-$bepinexCore = Join-Path $tools "BepInEx-6\BepInEx\core"
+# be.735 bundles a v31-capable Cpp2IL/LibCpp2IL (pre-release.19). be.697's plain
+# Cpp2IL 2022.1.0.0 does NOT support metadata v31. The GenInteropHost project
+# references this bundle's core for the generator + LibCpp2IL (see its .csproj).
+$bepinexCore = Join-Path $tools "BepInEx-be735\BepInEx\core"
 
 # dotnet SDK (use the SDK dotnet, NOT the runtime-only one in Program Files)
 $dotnet = "C:\Users\$env:USERNAME\.dotnet\dotnet.exe"
@@ -116,10 +127,10 @@ if ($proc.ExitCode -ne 0) {
 }
 Write-Host "  Done. Proxy DLLs: $(Get-ChildItem $out -Filter '*.dll' | Measure-Object | Select-Object -Expand Count)"
 
-# --- Step 3: Copy BepInEx 6 runtime DLLs ---
-# These must match what BepInEx loads at game time (v1.4.6-ci.426 from BepInEx 6 pre.2).
+# --- Step 3: Copy BepInEx runtime DLLs ---
+# These must match what BepInEx loads at game time (v1.4.6-ci.426 from BepInEx be.735).
 # The generator (step 2) uses the same 1.4.6 version, ensuring full surface alignment.
-Write-Host "[3/3] Copying Il2CppInterop runtime DLLs from BepInEx 6 pre.2 core..." -ForegroundColor Cyan
+Write-Host "[3/3] Copying Il2CppInterop runtime DLLs from BepInEx be.735 core..." -ForegroundColor Cyan
 foreach ($dll in @("Il2CppInterop.Runtime.dll", "Il2CppInterop.Common.dll")) {
     $src = Join-Path $bepinexCore $dll
     Copy-Item $src $out -Force

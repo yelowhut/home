@@ -7,10 +7,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- Don't emit bin/ in the repo; build script uses -o to direct output -->
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      Which BepInEx bundle to source the generator + Cpp2IL/LibCpp2IL from.
+      MUST point at a build whose bundled Cpp2IL/LibCpp2IL support the game's
+      metadata version. be.697's plain Cpp2IL 2022.1.0.0 does NOT support v31;
+      be.735's Cpp2IL 2022.1.0-pre-release.19 DOES. Override with:
+        dotnet build -p:BepInExBundle=BepInEx-6   (for the old v23-29 build)
+      Default targets be.735 (v31-capable).
+    -->
+    <BepInExBundle Condition="'$(BepInExBundle)' == ''">BepInEx-be735</BepInExBundle>
+    <BepInExCore>..\tools\$(BepInExBundle)\BepInEx\core</BepInExCore>
+    <BepInExDotnet>..\tools\$(BepInExBundle)\dotnet</BepInExDotnet>
   </PropertyGroup>
 
   <!--
-    All references come from build/tools/BepInEx-6/BepInEx/core/
+    All references come from build/tools/$(BepInExBundle)/BepInEx/core/
     which is gitignored. Run gen-interop.ps1 to download the tools first.
     HintPaths are relative to the .csproj file location (build/gen-interop-host/).
 
@@ -20,73 +31,73 @@
   <ItemGroup>
     <!-- Primary references we link against at compile time -->
     <Reference Include="Il2CppInterop.Generator">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Il2CppInterop.Generator.dll</HintPath>
+      <HintPath>$(BepInExCore)\Il2CppInterop.Generator.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Il2CppInterop.Common">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Il2CppInterop.Common.dll</HintPath>
+      <HintPath>$(BepInExCore)\Il2CppInterop.Common.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Mono.Cecil.dll</HintPath>
+      <HintPath>$(BepInExCore)\Mono.Cecil.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Mono.Cecil.Rocks.dll</HintPath>
+      <HintPath>$(BepInExCore)\Mono.Cecil.Rocks.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AsmResolver">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.dll</HintPath>
+      <HintPath>$(BepInExCore)\AsmResolver.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AsmResolver.DotNet">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.DotNet.dll</HintPath>
+      <HintPath>$(BepInExCore)\AsmResolver.DotNet.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AsmResolver.PE">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.PE.dll</HintPath>
+      <HintPath>$(BepInExCore)\AsmResolver.PE.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AsmResolver.PE.File">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AsmResolver.PE.File.dll</HintPath>
+      <HintPath>$(BepInExCore)\AsmResolver.PE.File.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AssetRipper.Primitives">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AssetRipper.Primitives.dll</HintPath>
+      <HintPath>$(BepInExCore)\AssetRipper.Primitives.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="AssetRipper.CIL">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\AssetRipper.CIL.dll</HintPath>
+      <HintPath>$(BepInExCore)\AssetRipper.CIL.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="StableNameDotNet">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\StableNameDotNet.dll</HintPath>
+      <HintPath>$(BepInExCore)\StableNameDotNet.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <!-- Required at runtime by Pass16ScanMethodRefs (xref scanning via LibCpp2IL + Iced) -->
     <Reference Include="LibCpp2IL">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\LibCpp2IL.dll</HintPath>
+      <HintPath>$(BepInExCore)\LibCpp2IL.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Iced">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Iced.dll</HintPath>
+      <HintPath>$(BepInExCore)\Iced.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Disarm">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Disarm.dll</HintPath>
+      <HintPath>$(BepInExCore)\Disarm.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="Gee.External.Capstone">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\Gee.External.Capstone.dll</HintPath>
+      <HintPath>$(BepInExCore)\Gee.External.Capstone.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="WasmDisassembler">
-      <HintPath>..\tools\BepInEx-6\BepInEx\core\WasmDisassembler.dll</HintPath>
+      <HintPath>$(BepInExCore)\WasmDisassembler.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <!-- Required by Il2CppInterop.Generator.Il2CppInteropGenerator.Start() -->
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-      <HintPath>..\tools\BepInEx-6\dotnet\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <HintPath>$(BepInExDotnet)\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
