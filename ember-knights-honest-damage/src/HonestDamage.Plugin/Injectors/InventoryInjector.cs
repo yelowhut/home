@@ -293,6 +293,10 @@ namespace HonestDamage.Plugin.Injectors
             Plugin.Guard("InventoryInjector.ComputeAttackDamage", () =>
             {
                 float atk = attribs.Get(eAttrib.ATK);
+                // TODO charge-value: DamageMulMax appears to overstate a full charge.
+                //   Bow observed: full charge = 20 for ATK 9.6 (≈ ×2.08), but DamageMulMax=2.6
+                //   gives 25 and DamageMul=1.4 gives ~13 — neither matches. Using DamageMulMax
+                //   as a provisional upper bound; recalibrate against the in-game charge number.
                 float mul = def.IsChargeAtk ? def.DamageMulMax : def.DamageMul;
                 result    = atk * mul;
             });
@@ -378,33 +382,23 @@ namespace HonestDamage.Plugin.Injectors
                     });
                 }
 
-                // --- Step 3: base combo (first 3 non-charge non-skillshot non-roll) + first charge.
-                // This is a separate pass from mod-attack selection — mod attacks bypass
-                // these filters intentionally (they would otherwise be dropped).
-                const int MaxCombo = 3;
+                // --- Step 3: base combo + primary charge, selected per weapon type.
+                // Bow: combo follows NAMED indices (Normal, Normal, Third) — NOT array order.
+                //   Observed in-game (ATK 9.6): hit1=10, hit2=10 (both ×1.0 = NormalAttackId),
+                //   hit3=Third (×1.2) — and Third is REPLACED by Spreadshot when that mod is
+                //   equipped (mods replace, not add). See handoff §6/§7.
+                // Other weapons: fall back to first-3-by-array-order until their named
+                //   indices are confirmed in-game (TODO named-combo).
                 var labeled   = new List<LabeledAttack>();
                 var seenIds   = new HashSet<int>();
-                XBaseAttackDef? chargeBase = null;
 
-                foreach (var d in allDefs)
+                if (weaponDef.WeaponType == eWeaponType.Bow && wdf.BowSettings != null)
                 {
-                    if (d == null) continue;
-                    if (d.IsSkillShot || d.IsRollAtk) continue;
-                    if (d.IsChargeAtk)
-                    {
-                        if (chargeBase == null) chargeBase = d; // keep only first/primary charge
-                        continue;
-                    }
-                    if (labeled.Count < MaxCombo)
-                    {
-                        labeled.Add(new LabeledAttack(d, eWeaponModType.None));
-                        seenIds.Add(d.Id);
-                    }
+                    BuildBowCombo(labeled, seenIds, allDefs, wdf.BowSettings, weaponInst);
                 }
-                if (chargeBase != null && !seenIds.Contains(chargeBase.Id))
+                else
                 {
-                    labeled.Add(new LabeledAttack(chargeBase, eWeaponModType.None));
-                    seenIds.Add(chargeBase.Id);
+                    BuildOrderedCombo(labeled, seenIds, allDefs);
                 }
 
                 // --- Step 4: mod-specific attacks for equipped mods.
@@ -420,6 +414,98 @@ namespace HonestDamage.Plugin.Injectors
             });
 
             return result;
+        }
+
+        /// <summary>
+        /// Bow base combo by NAMED indices: Normal, Normal, Third (+ primary charge).
+        /// The two opening shots both use NormalAttackId (observed 10/10 in-game for ATK 9.6).
+        /// The third hit is REPLACED by Spreadshot when the SpreadShot mod is equipped —
+        /// bow mods swap the variant rather than adding a 4th hit (handoff §6).
+        /// </summary>
+        private static void BuildBowCombo(List<LabeledAttack>      labeled,
+                                          HashSet<int>              seenIds,
+                                          XBaseAttackDef[]          allDefs,
+                                          XBowSettings              s,
+                                          GameCode.XWeaponInst?     weaponInst)
+        {
+            // Hits 1 & 2: NormalAttackId (intentional repeat — the combo opens with two normals).
+            var normal = FindAttackById(allDefs, s.NormalAttackId);
+            if (normal != null)
+            {
+                labeled.Add(new LabeledAttack(normal, eWeaponModType.None)); // hit 1
+                labeled.Add(new LabeledAttack(normal, eWeaponModType.None)); // hit 2 (same def)
+                seenIds.Add(normal.Id);
+            }
+
+            // Hit 3: Third, or Spreadshot if the SpreadShot mod replaces it.
+            bool hasSpread = false;
+            if (weaponInst != null)
+            {
+                Plugin.Guard("InventoryInjector.BowHasSpread", () =>
+                    hasSpread = weaponInst.HasMod(eWeaponModType.Bow_SpreadShot_14));
+            }
+            int thirdId = (hasSpread && s.SpreadshotAttackId != 0) ? s.SpreadshotAttackId
+                                                                   : s.ThirdAttackId;
+            var third = FindAttackById(allDefs, thirdId);
+            if (third != null && !seenIds.Contains(third.Id))
+            {
+                labeled.Add(new LabeledAttack(third,
+                    hasSpread ? eWeaponModType.Bow_SpreadShot_14 : eWeaponModType.None));
+                seenIds.Add(third.Id);
+            }
+
+            // Primary charge.
+            var charge = FindAttackById(allDefs, s.ChargeAttackId);
+            if (charge != null && !seenIds.Contains(charge.Id))
+            {
+                labeled.Add(new LabeledAttack(charge, eWeaponModType.None));
+                seenIds.Add(charge.Id);
+            }
+        }
+
+        /// <summary>
+        /// Fallback base combo for weapons whose named indices aren't yet confirmed in-game:
+        /// first 3 non-charge/non-skillshot/non-roll attacks (array order) + first charge.
+        /// TODO named-combo: replace per weapon type once [NAMED] diag confirms the real chain.
+        /// </summary>
+        private static void BuildOrderedCombo(List<LabeledAttack> labeled,
+                                              HashSet<int>         seenIds,
+                                              XBaseAttackDef[]     allDefs)
+        {
+            const int MaxCombo = 3;
+            XBaseAttackDef? chargeBase = null;
+
+            foreach (var d in allDefs)
+            {
+                if (d == null) continue;
+                if (d.IsSkillShot || d.IsRollAtk) continue;
+                if (d.IsChargeAtk)
+                {
+                    if (chargeBase == null) chargeBase = d; // keep only first/primary charge
+                    continue;
+                }
+                if (labeled.Count < MaxCombo)
+                {
+                    labeled.Add(new LabeledAttack(d, eWeaponModType.None));
+                    seenIds.Add(d.Id);
+                }
+            }
+            if (chargeBase != null && !seenIds.Contains(chargeBase.Id))
+            {
+                labeled.Add(new LabeledAttack(chargeBase, eWeaponModType.None));
+                seenIds.Add(chargeBase.Id);
+            }
+        }
+
+        /// <summary>Returns the first attack def whose Id equals <paramref name="id"/> (0 = unset → null).</summary>
+        private static XBaseAttackDef? FindAttackById(XBaseAttackDef[] allDefs, int id)
+        {
+            if (id == 0) return null;
+            foreach (var d in allDefs)
+            {
+                if (d != null && d.Id == id) return d;
+            }
+            return null;
         }
 
         /// <summary>
