@@ -292,16 +292,28 @@ namespace HonestDamage.Plugin.Injectors
                 XBaseAttackDef[]? allDefs = GetAttackDefArray(wdf, weaponDef.WeaponType);
                 if (allDefs == null) return;
 
-                // Select combo (not charge/roll/skillshot) and charged attacks only.
-                var selected = new System.Collections.Generic.List<XBaseAttackDef>();
+                // Show only the BASE combo (first few normal hits) + the primary charge.
+                // AttackDefs[] also contains mod/special attacks (Spreadshot, Volley, Bomb,
+                // RapidShot, ...) the player may not have unlocked — showing them all was the
+                // "junk". We skip them here. (Proper per-mod gating via HasMod(player, mod) is
+                // a future refinement so equipped mod-attacks can be shown too.)
+                const int MaxCombo = 3;
+                var combo = new System.Collections.Generic.List<XBaseAttackDef>();
+                XBaseAttackDef? charge = null;
                 foreach (var d in allDefs)
                 {
                     if (d == null) continue;
                     if (d.IsSkillShot || d.IsRollAtk) continue;
-                    selected.Add(d);
+                    if (d.IsChargeAtk)
+                    {
+                        if (charge == null) charge = d;   // keep only the first/primary charge
+                        continue;
+                    }
+                    if (combo.Count < MaxCombo) combo.Add(d);
                 }
+                if (charge != null) combo.Add(charge);
 
-                result = selected.ToArray();
+                result = combo.ToArray();
             });
 
             return result;
