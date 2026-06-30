@@ -1,0 +1,6 @@
+{
+  "name": "persona",
+  "version": "0.1.0",
+  "description": "Review any document from the perspective of hostile, external personas. /persona:review produces per-persona feedback plus a synthesized, pipeline-ready report.",
+  "author": { "name": "Primo RPA" }
+}
