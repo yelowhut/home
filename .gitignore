@@ -39,3 +39,8 @@ androguard.db-wal
 docs/hayday/SEND ME 1 COIN!/
 docs/hayday/SEND ME 1 COIN!.zip
 docs/hayday/**/storage*.xml
+
+# Scratch dir and large media captures (not source)
+tmp/
+/third_september.gif
+/third_september_540.gif
