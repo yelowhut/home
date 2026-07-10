@@ -1,0 +1,442 @@
+<title>Phantom Brigade — Community Meta Builds by Role</title>
+<style>
+  :root {
+    --ground: #10161d;
+    --panel: #171f28;
+    --panel-edge: #26313d;
+    --snow: #dde6ee;
+    --dim: #8fa0b0;
+    --faint: #5c6c7c;
+    --scan: #63b8cc;       /* tactical cyan — the game's HUD hue */
+    --scan-dim: #3a7484;
+    --amber: #d9a45b;      /* version warnings, medium confidence */
+    --red: #c4705f;        /* refuted */
+    --ok: #7dbb8a;         /* confirmed */
+    --mono: "Cascadia Code", Consolas, "Courier New", monospace;
+  }
+  html { background: var(--ground); }
+  body {
+    background: var(--ground);
+    color: var(--snow);
+    font-family: "Segoe UI", -apple-system, sans-serif;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  h1, h2, h3 { font-family: Bahnschrift, "Segoe UI Semibold", "Arial Narrow", sans-serif; text-wrap: balance; }
+
+  /* ── masthead ── */
+  header { padding: 56px 0 8px; border-bottom: 1px solid var(--panel-edge); }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--scan); margin: 0 0 14px;
+  }
+  h1 { font-size: 40px; font-weight: 600; letter-spacing: 0.01em; margin: 0 0 10px; line-height: 1.1; }
+  .sub { color: var(--dim); max-width: 62ch; margin: 0 0 28px; font-size: 15.5px; }
+
+  .patchbar {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #1d1a13; border: 1px solid #4d3f26; border-left: 3px solid var(--amber);
+    padding: 12px 16px; margin: 0 0 34px; border-radius: 3px;
+    font-size: 14px; color: #cdbb9c;
+  }
+  .patchbar b { color: var(--amber); }
+
+  /* ── section panels ── */
+  section { margin: 44px 0; }
+  .role {
+    background: var(--panel); border: 1px solid var(--panel-edge);
+    border-radius: 4px; overflow: hidden;
+  }
+  .role-head {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 18px 22px 14px; border-bottom: 1px solid var(--panel-edge);
+  }
+  .role-head h2 { font-size: 24px; font-weight: 600; margin: 0; }
+  .role-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--scan);
+    border: 1px solid var(--scan-dim); padding: 3px 9px; border-radius: 2px;
+  }
+  .verdict { padding: 14px 22px 4px; color: var(--dim); font-size: 14.5px; max-width: 72ch; }
+  .verdict strong { color: var(--snow); }
+
+  /* spec rows */
+  .specs { display: grid; grid-template-columns: 130px 1fr; gap: 0; padding: 12px 22px 20px; }
+  .specs dt {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--faint); padding: 12px 12px 12px 0;
+    border-top: 1px solid #1f2933;
+  }
+  .specs dd { margin: 0; padding: 11px 0; border-top: 1px solid #1f2933; font-size: 14.5px; color: #c3ceda; }
+  .specs dd:first-of-type, .specs dt:first-of-type { border-top: none; }
+  .specs code, .k {
+    font-family: var(--mono); font-size: 13px; color: var(--scan);
+    background: #12202a; padding: 1px 6px; border-radius: 2px; white-space: nowrap;
+  }
+  @media (max-width: 620px) {
+    .specs { grid-template-columns: 1fr; }
+    .specs dt { border-top: 1px solid #1f2933; padding-bottom: 0; }
+    .specs dd { border-top: none; padding-top: 4px; }
+  }
+
+  /* confidence chips */
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; border-radius: 2px;
+    padding: 2px 7px; vertical-align: 1px; margin-left: 6px; white-space: nowrap;
+  }
+  .chip.hi  { color: var(--ok);    border: 1px solid #2e4a36; background: #14201a; }
+  .chip.med { color: var(--amber); border: 1px solid #4d3f26; background: #1d1a13; }
+  .chip.un  { color: var(--dim);   border: 1px solid #33404d; background: #141b22; }
+  .chip.no  { color: var(--red);   border: 1px solid #4a2d27; background: #1d1412; }
+
+  .srcline { padding: 0 22px 18px; font-size: 12.5px; color: var(--faint); }
+  .srcline a { color: var(--scan-dim); }
+  a { color: var(--scan); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; color: #8fd2e2; }
+  a:focus-visible { outline: 2px solid var(--scan); outline-offset: 2px; }
+
+  /* mechanics primer */
+  .primer h2, .plain h2 { font-size: 22px; margin: 0 0 6px; color: var(--snow); }
+  .primer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 18px; }
+  .mech-card {
+    background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .mech-card h3 { font-size: 15px; margin: 0 0 8px; color: var(--scan); font-weight: 600; letter-spacing: 0.03em; }
+  .mech-card p { margin: 0; font-size: 13.5px; color: var(--dim); }
+  .mech-card p + p { margin-top: 8px; }
+
+  /* guides table */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--panel-edge); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 640px; }
+  th {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--faint); text-align: left; padding: 10px 14px; background: #131a22;
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid #1f2933; color: #c3ceda; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; }
+
+  /* refuted list */
+  .refuted-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; }
+  .refuted-list li {
+    background: #171413; border: 1px solid #3a2a26; border-left: 3px solid var(--red);
+    border-radius: 3px; padding: 12px 16px; font-size: 14px; color: #c9b4ad;
+  }
+  .refuted-list .vote { font-family: var(--mono); font-size: 11px; color: var(--red); margin-right: 8px; }
+
+  .plain p { color: var(--dim); font-size: 14.5px; max-width: 72ch; }
+  footer { margin-top: 60px; border-top: 1px solid var(--panel-edge); padding-top: 18px;
+    font-size: 12.5px; color: var(--faint); }
+  footer a { color: var(--scan-dim); }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Phantom Brigade · Community Field Manual</p>
+  <h1>Meta Builds by Mech Role</h1>
+  <p class="sub">Community-consensus loadouts distilled from the Steam guides hub, Steam discussion threads, the official Brace Yourself Games wiki, and dev patch notes — every claim below was adversarially fact-checked against its source (18 confirmed, 7 refuted out of 25 verified).</p>
+  <div class="patchbar">
+    <div><b>Version note — read first.</b> This is the <b>1.x-era meta</b> (most guides: Feb–Mar 2023 launch window; Comprehensive FAQ covers v1.2.1; patch 1.3.0 of May 2024 changed weight class, heat, and sniper balance). The game received a <b>2.0 update on Nov 19, 2025</b> with a stability rework and "comprehensive weapon balancing" — no quality community guide covering 2.0 meta surfaced yet, so treat exact numbers as directional and mechanics as mostly intact.</div>
+  </div>
+</header>
+
+<!-- ═══════════ MECHANICS PRIMER ═══════════ -->
+<section class="primer">
+  <h2>Before the builds: the three tradeoffs that define every role</h2>
+  <p class="sub" style="margin-top:6px">The community meta is less about rigid loadouts and more about how you balance these systems. All three are confirmed against the official wiki and 1.3.0 patch notes. <span class="chip hi">verified 3–0</span></p>
+  <div class="primer-grid">
+    <div class="mech-card">
+      <h3>Weight class = body parts only</h3>
+      <p>Since patch 1.3.0, weight class (stability &amp; collision behavior) is determined <em>only</em> by equipped body parts — not held weapons. A light mech hauling an ultra-heavy weapon no longer gets heavy-armor stability. Pick your chassis for the role, not the gun.</p>
+    </div>
+    <div class="mech-card">
+      <h3>Dash &amp; speed are power vs. mass</h3>
+      <p>Dash distance = thruster power counteracting total mass. Run speed = reactor power counteracting mass. You buy mobility two ways: stronger thruster/reactor, or shedding mass (Light Plate / Hydraulics mods).</p>
+    </div>
+    <div class="mech-card">
+      <h3>Heat: dissipation is king</h3>
+      <p>Heat dissipation sets your sustainable rate of fire; overheat threshold sets how long you can fire before pausing. 1.3.0 added a reactor-dependent <em>heat buffer</em> (heat caps at threshold + buffer) and a <em>Burning</em> status from sustained overheating — reactor choice and heatsink stacking are central to any high-heat build.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ MELEE ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Melee / Blade</h2>
+      <span class="role-tag">Knockdown</span>
+    </div>
+    <p class="verdict"><strong>The community pick is the concussion axe, not the sword.</strong> Axes are the only melee weapon with concussion damage — swords cut parts off but don't knock anyone down. Multiple posters converge on this: <em>"sword is very unreliable as it cuts things but doesnt knock down. Axe can knock down enemies"</em>; <em>"concussion axe with concussion mod. 1 tap most mechs."</em> One poster who mains a sword build concedes concussive axes <em>"make things too easy."</em> <span class="chip med">verified 3–0 · forum consensus</span></p>
+    <dl class="specs">
+      <dt>Weapon</dt>
+      <dd>Concussion axe + <code>Concussion mod</code> — knocks down / knocks out pilots rather than shaving armor. (Sword alternative if you want style over efficiency: <code>XL Razor</code>.)</dd>
+      <dt>Armor</dt>
+      <dd>Documented sword-duelist build: full <code>Helge</code> set + <code>Stance</code> shield. Light armor mods in shield &amp; arms, <code>Generator MkIII</code> mods in legs &amp; torso → roughly <strong>14 speed / 34 dash</strong> — a fencer that closes fast behind a regenerating barrier. <span class="chip med">verified 3–0 · single poster</span><br>
+      Heavy alternative: <code>Vidar</code> — heaviest set in the game <em>and</em> the best heat dissipation of all heavies (8.8), which is why the community keeps naming it for melee: <em>"Vidar has the best dissipation of all the heavy sets."</em> <span class="chip med">stat-verified</span></dd>
+      <dt>Heat</dt>
+      <dd>A widely-repeated claim that melee attacks generate no thruster heat was <strong>refuted 0–3</strong> — don't build around it. Budget dissipation like any other mech.</dd>
+      <dt>Caveat</dt>
+      <dd>The often-cited endgame axe build (full Vidar, Hotrod reactor, 60–70 dissipation) <strong>failed verification 1–2</strong> — treat it as rumor until re-sourced. <span class="chip no">refuted</span></dd>
+    </dl>
+    <p class="srcline">Sources: <a href="https://steamcommunity.com/app/553540/discussions/0/3820781363205155365/">Steam: melee build thread (Mar 2023)</a> · <a href="https://steamcommunity.com/app/553540/discussions/0/3787002282772397967/">Steam: "Understanding Melee"</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ TANK / SHIELD ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Tank / Shield</h2>
+      <span class="role-tag">Protector</span>
+    </div>
+    <p class="verdict"><strong>Shields are mobile cover, not face-tank tools — and a readied shield raises your effective weight class for collisions, enabling ramming.</strong> Three vanilla S-series shields with clean tradeoffs, plus the community-favorite Ajax. <span class="chip med">verified 2–1</span></p>
+    <dl class="specs">
+      <dt>Shields</dt>
+      <dd>
+        <code>S-01 Firewall</code> — heaviest, pure Integrity (raw HP wall).<br>
+        <code>S-02 Stance</code> — trades Integrity for a regenerating Barrier, slightly lighter.<br>
+        <code>S-03 Tower</code> — lightweight skirmisher shield, least durable; preferred by some for shield-bashing.<br>
+        <code>Ajax</code> — the "Protector" guide's pick for its low mass: <em>"personally the best of the shields… I wouldn't use it to tank but rather provide cover during maneuvers."</em>
+      </dd>
+      <dt>The build</dt>
+      <dd><strong>"Protector" mid-game build</strong> (ABYSS's Steam guide, updated Mar 2024): <code>AR2 Burst</code> rifle + <code>Ajax</code> shield on <strong>full Elbrus</strong> body parts. Elbrus chassis is the common element across multiple community shield builds. <span class="chip med">verified 3–0 · single-author guide</span></dd>
+      <dt>Internals</dt>
+      <dd><code>R6 Reactor</code> (weapon buffs — cuts scatter while moving) · <code>T4 Atlas</code> thruster · <strong>2× Heatsink</strong> in the arms to hold dissipation above 40 · <code>Capacitor</code> (heat capacity) + <code>Generator</code> (speed) in the lower body.</dd>
+      <dt>Weight</dt>
+      <dd><code>Light Plate</code> + <code>Hydraulics</code> mods to cut mass — this is a shield-bearing <em>flanker</em>, not a damage sponge. High-heat weapons (LMGs) need build adjustments.</dd>
+      <dt>Tactics</dt>
+      <dd>Dash between cover with the shield raised toward fire; use the raised weight class to shove lighter mechs; apply pressure from the flank while your line holds attention.</dd>
+    </dl>
+    <p class="srcline">Sources: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2943410961">Steam guide: "Protector" Mid-game Build and Flanking (ABYSS)</a> · <a href="https://wiki.braceyourselfgames.com/en/PhantomBrigade/MechWeapons">BYG wiki: Mech Weapons</a> · <a href="https://steamcommunity.com/app/553540/discussions/0/3782499316875581861/">Steam: "Your Best Builds" thread</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ ASSAULT ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Assault / Brawler</h2>
+      <span class="role-tag">Fire on the move</span>
+    </div>
+    <p class="verdict"><strong>Assault rifles, SMGs, and shotguns (all except the SG1 Auto) have zero scatter penalty while moving</strong> — the defining mechanic of the role. They're <em>"invaluable for flankers who can fire without having to stop."</em> <span class="chip hi">verified 3–0</span></p>
+    <dl class="specs">
+      <dt>Weapons</dt>
+      <dd>Any <code>AR</code> / <code>SMG</code> / shotgun <em>except</em> <code>SG1 Auto</code> (the one exception with a move penalty). The AR2 Burst doubles as the Protector build's primary for the same reason.</dd>
+      <dt>Armor</dt>
+      <dd>No manufacturer consensus per role — instead the Comprehensive FAQ points at perks: <strong>Improved Cooling</strong> and <strong>Composite</strong> are the most generally useful body-part perks. Pick a medium chassis with those and full mod slots (blue quality).</dd>
+      <dt>Mobility</dt>
+      <dd>This role lives on dash economy: medium weight, strong thruster, enough reactor to keep run speed up. Since weight class is body-parts-only, you can carry a heavy gun without losing your footing.</dd>
+      <dt>Tactics</dt>
+      <dd>Never stand still — you pay no accuracy tax for moving, the enemy does. Circle to rear/flank arcs and force stationary builds to keep re-facing.</dd>
+    </dl>
+    <p class="srcline">Sources: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2942917777">Steam guide: Comprehensive FAQ &amp; Guide (whythecynic, v1.2.1, upd. Feb 2024)</a> · <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2944030179">Steam guide: Weapons, variants and damage types</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ SNIPER ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Sniper / Marksman</h2>
+      <span class="role-tag">Stand still</span>
+    </div>
+    <p class="verdict"><strong>Patch 1.3.0 made the SR3 Dice the standout rifle</strong> — per-hit kinetic damage <strong>120 → 200</strong>, range 84–132m → <strong>93–145m</strong>, scatter 2–20 → <strong>2–15</strong>, concussion 5.1 → <strong>9</strong>. Meanwhile the SR1 Midway was nerfed (125 → 110 kinetic). Every number confirmed against official dev patch notes. <span class="chip hi">verified 3–0</span></p>
+    <dl class="specs">
+      <dt>Weapon</dt>
+      <dd><code>SR3 Dice</code> — big single hits plus meaningful concussion (pilot pressure). Marksman rifles carry <strong>heavy movement-scatter penalties</strong>: plant your feet, then fire.</dd>
+      <dt>Dissent</dt>
+      <dd>The Comprehensive FAQ's author calls sniper rifles <em>"a trap"</em> — ~90m minimum range is restrictive on many maps — and favors the <code>MR2</code> marksman rifle for the mid-range sweet spot. Worth trying both. <span class="chip un">attributed opinion</span></dd>
+      <dt>Alternative</dt>
+      <dd>From the "Your Best Builds" thread: <code>RA2 Lancer</code> railgun (Supercharge + Liquid Cooling) on a <code>Tsubasa</code> torso with <code>R2 Hotrod</code> reactor (~71 dissipation) — railguns shoot <em>through cover</em>. <span class="chip un">community post, not verified</span></dd>
+      <dt>Armor</dt>
+      <dd>No verified manufacturer consensus for sniper chassis; you're stationary when it matters, so bias toward dissipation perks (Improved Cooling) over mobility.</dd>
+      <dt>Tactics</dt>
+      <dd>Movement ruins your scatter — position during the enemy's committed actions, then hold still for the shot window. Pair with an assault flanker to punish anyone who dashes at you.</dd>
+    </dl>
+    <p class="srcline">Sources: <a href="https://braceyourselfgames.com/updates/phantom-brigade/patch-1-3-0-0/">Official patch 1.3.0 notes</a> · <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2942917777">Comprehensive FAQ &amp; Guide</a> · <a href="https://steamcommunity.com/app/553540/discussions/0/3782499316875581861/">"Your Best Builds" thread</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ ROCKETEER ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Rocketeer / Missile Artillery</h2>
+      <span class="role-tag">No confirmed meta</span>
+    </div>
+    <p class="verdict"><strong>Honest result: no missile-build claim survived fact-checking.</strong> The widely-repeated "missiles are top-tier because they splash, arc over cover, and track" was <strong>refuted 1–2</strong> when verifiers went back to the cited guide. That doesn't mean missiles are bad — it means no quality source actually establishes a missile meta. <span class="chip no">refuted 1–2</span></p>
+    <dl class="specs">
+      <dt>What exists</dt>
+      <dd>The weapons guide catalogs <code>ML3</code> / <code>ML6</code> / <code>ML10 Hornet</code> launcher variants (arcs, ranges) — good for picking hardware, silent on "best."</dd>
+      <dt>Defense</dt>
+      <dd>The verified missile knowledge is <em>defensive</em>: counter incoming missiles by breaking line of sight, or dashing just before impact (from the 5-tips video below).</dd>
+      <dt>Open question</dt>
+      <dd>Best MLS launchers, heat handling, and indirect-fire doctrine remain unanswered by good sources — if you find a solid post-1.3 (or 2.0) missile guide, that's the gap.</dd>
+    </dl>
+    <p class="srcline">Sources: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2944030179">Steam guide: Weapons, variants and damage types</a> · <a href="https://www.youtube.com/watch?v=I0odqTXUhFQ">YouTube: How to Win in Phantom Brigade — 5 Top Tips</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ TACTICS ═══════════ -->
+<section>
+  <div class="role">
+    <div class="role-head">
+      <h2>Pilot Tactics — any role</h2>
+      <span class="role-tag">5 tips</span>
+    </div>
+    <p class="verdict">From the community YouTube guide <em>"How to Win in Phantom Brigade – 5 Top Tips!"</em> — pure tactics, no gear required. <span class="chip med">verified 3–0 · single source</span></p>
+    <dl class="specs">
+      <dt>1 · Analyse</dt><dd>Read enemy actions in detail on the prediction timeline before committing your own.</dd>
+      <dt>2 · Missiles</dt><dd>Break line of sight, or dash right before impact.</dd>
+      <dt>3 · Focus fire</dt><dd>Concentrate the squad on one target; a dead mech deals no damage.</dd>
+      <dt>4 · Angles</dt><dd>Attack from rear and flank arcs.</dd>
+      <dt>5 · Stand still</dt><dd>Stationary fire is accurate fire — which is exactly why assault weapons (zero move-scatter) break this rule profitably.</dd>
+    </dl>
+    <p class="srcline">Source: <a href="https://www.youtube.com/watch?v=I0odqTXUhFQ">YouTube — How to Win in Phantom Brigade (chaptered)</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ MANUFACTURERS ═══════════ -->
+<section class="plain">
+  <h2>Manufacturer identities — what the stat tables actually support</h2>
+  <p>There is <strong>no published community tier list ranking manufacturers per role</strong> — a widely-shareable S/A/B/C/F chassis ranking circulating in AI-generated form was checked phrase-by-phrase and matches no Reddit post, Steam guide, video, or wiki. What <em>does</em> exist is real per-manufacturer stat identity, from iceGLider's Body Parts Stats tables, the wikis, and Steam threads. Here is the verified version:</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Manufacturer</th><th>Class</th><th>Verified identity</th><th>Best role fit</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Bein</strong></td><td>Medium</td>
+          <td class="num">Highest dissipation of any part listed (9.9 upper); 36% barrier. Slots are <em>defense/mobility</em> — not offensive: <em>"the Tsubasa and Bein are the best mech parts for heat dissipation and heat capacity."</em></td>
+          <td>Sustained automatic fire — assault / LMG builds that live on cooling</td>
+        </tr>
+        <tr>
+          <td><strong>Tsubasa</strong></td><td>Light</td>
+          <td class="num">Highest barrier by far (65%; next best is 50%), lightest mass (21.0), elite dissipation (9.0), very low integrity — <em>"highly mobile glass cannon."</em></td>
+          <td>Hit-and-run flanker; barrier soaks brief counter-fire between dashes</td>
+        </tr>
+        <tr>
+          <td><strong>Elbrus</strong></td><td>Medium</td>
+          <td class="num">Best medium dissipation after Bein (9.0); the common element across community shield builds.</td>
+          <td>Shield/Protector; all-round medium workhorse</td>
+        </tr>
+        <tr>
+          <td><strong>Vidar</strong></td><td>Heavy</td>
+          <td class="num">Heaviest set (31.1 upper), highest health, <em>and</em> best heavy-class dissipation (8.8) — the "runs hot" reputation is backwards.</td>
+          <td>Melee brawler / heavy anchor — mass for collisions, cooling for swing uptime</td>
+        </tr>
+        <tr>
+          <td><strong>Helge</strong></td><td>Heavy</td>
+          <td class="num">Integrity-leaning heavy (≈4,326 integrity / 14% barrier upper at comparable level); <em>"good balance of Integrity and Barrier."</em> Community-split — one thread literally asks "helge armor just sucks?"</td>
+          <td>Frontline melee (the verified sword-duelist set) / attrition tank</td>
+        </tr>
+        <tr>
+          <td><strong>Asgard</strong></td><td>Heavy</td>
+          <td class="num">Second-heaviest (30.4 upper). Little else verified beyond raw mass.</td>
+          <td>Heavy anchor when Vidar isn't available</td>
+        </tr>
+        <tr>
+          <td><strong>Arrow</strong></td><td>L / M / H</td>
+          <td class="num">Weak cooling (7.0 L / 6.7 M / 4.6 H — the 3H is among the worst listed), but the light line is loved for value: <em>"Arrow Ls are basically budget Tsubasas… Arrow 1L is a favorite chest because of slots and barrier."</em></td>
+          <td>Budget light barrier builds; avoid for sustained-fire heat</td>
+        </tr>
+        <tr>
+          <td><strong>Hakobu</strong></td><td>Light</td>
+          <td class="num">Added in patch 1.2.0 — <em>"specialized light armor preferred by the logistic corps."</em> Torso = defensive, legs = mobility hardpoints. Claims of native range / projectile-speed / armor-pen bonuses are <strong>fabricated</strong> — no body part in the game grants weapon stats.</td>
+          <td>Defensive/mobility light; role identity still unsettled in the community</td>
+        </tr>
+        <tr>
+          <td><strong>Knox · Blackbird</strong></td><td>—</td>
+          <td class="num">Tabulated in Body Parts Stats but no distinct community-verified identity surfaced.</td>
+          <td>No verified consensus</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:14px">One structural fact holds everywhere: manufacturers differentiate on <strong>dissipation, mass, integrity-vs-barrier ratio, and slot types</strong> (offense/defense/mobility per body location) — never on weapon stats like range or penetration. If a tier list assigns a chassis "armor penetration," it's making it up. <span class="chip hi">verified</span></p>
+  <p class="srcline" style="padding:6px 0 0">Sources: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2941993700">Body Parts Stats (iceGLider)</a> · <a href="https://steamcommunity.com/app/553540/discussions/0/3782499316871982333/">Steam: heat dissipation thread</a> · <a href="https://phantom-brigade.fandom.com/wiki/Mech_Models">Fandom: Mech Models</a> · <a href="https://braceyourselfgames.com/updates/phantom-brigade/patch-1-2-0-2/">Patch 1.2.0 notes (Hakobu)</a> · stat figures are 2023 "level 18" era — directional post-2.0.</p>
+</section>
+
+<!-- ═══════════ GUIDES ═══════════ -->
+<section class="plain">
+  <h2>The guides worth your time</h2>
+  <p>All verified to exist with stated authors, ratings, and content — no SEO content farms (two of those were fetched during research, rated unreliable, and excluded).</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Guide</th><th>Author</th><th>Covers</th><th>Version caveat</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2942917777">Comprehensive FAQ &amp; Guide</a></td>
+          <td>whythecynic</td>
+          <td>Everything — weapon classes, move-scatter, body-part perks</td>
+          <td>v1.2.1, updated Feb 2024 — best all-rounder</td>
+        </tr>
+        <tr>
+          <td><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2943410961">"Protector" Mid-game Build and Flanking</a></td>
+          <td>ABYSS</td>
+          <td>The shield/flanker build above, step by step</td>
+          <td>Updated Mar 2024</td>
+        </tr>
+        <tr>
+          <td><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2941993700">Body Parts Stats</a></td>
+          <td>iceGLider</td>
+          <td>All body parts by manufacturer (Knox, Arrow, Asgard, Vidar, Elbrus, Blackbird, Bein, Helge, Tsubasa) &amp; weight class — barrier %, dissipation, mass at lvl 18</td>
+          <td class="num">Feb–Mar 2023 data; missing newer sets (e.g. Hakobu)</td>
+        </tr>
+        <tr>
+          <td><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2943749119">Heat and you</a></td>
+          <td>MaxwellDanger</td>
+          <td>Heat capacity vs. dissipation, reactor tradeoffs, worked examples</td>
+          <td>Launch-era; core model still holds post-1.3</td>
+        </tr>
+        <tr>
+          <td><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2944030179">Weapons, variants and damage types</a></td>
+          <td>Alberic Strein</td>
+          <td>Every weapon class &amp; variant by damage type</td>
+          <td>Pre-1.1 — damage types since renamed (kinetic→unit, impact→structure, concussion→pilot)</td>
+        </tr>
+        <tr>
+          <td><a href="https://steamcommunity.com/app/553540/discussions/0/3782499316875581861/">"Your Best Builds" discussion</a></td>
+          <td>various</td>
+          <td>Richest raw build-sharing thread (unverified individual posts)</td>
+          <td>Mixed eras</td>
+        </tr>
+        <tr>
+          <td><a href="https://wiki.braceyourselfgames.com/en/PhantomBrigade/MechWeapons">Official BYG wiki</a> &amp; <a href="https://braceyourselfgames.com/updates/phantom-brigade/patch-1-3-0-0/">patch notes</a></td>
+          <td>Brace Yourself Games</td>
+          <td>Ground truth for stats, shields, heat &amp; weight formulas</td>
+          <td>Primary source</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ REFUTED ═══════════ -->
+<section class="plain">
+  <h2>Things you'll read online that didn't survive fact-checking</h2>
+  <p>Each of these appears in guides or forum posts but was refuted when verifiers went back to the cited sources. Don't build around them.</p>
+  <ul class="refuted-list">
+    <li><span class="vote">1–2</span>"Missiles are top-tier/overpowered (splash + arc + tracking)" — the cited guide doesn't actually establish this.</li>
+    <li><span class="vote">0–3</span>"Melee attacks use thrust but generate no thruster heat" — not supported.</li>
+    <li><span class="vote">1–2</span>"Heavier mechs get bonus melee damage per ton" — the damage-from-mass stat claim didn't hold as described.</li>
+    <li><span class="vote">1–2</span>Endgame melee = full Vidar + Hotrod reactor + 60–70 dissipation — unverifiable as stated.</li>
+    <li><span class="vote">0–3</span>"Mass alone determines weight class, speed and dash" — oversimplified; see the primer (power-vs-mass, and body parts set weight class post-1.3).</li>
+    <li><span class="vote">0–3</span>The PM-01M Cut / PM-02H Line saber descriptions circulating as wiki fact — not on the cited wiki page.</li>
+    <li><span class="vote">1–2</span>"SR-03 Dice is the concussion sniper / SR-02 Lock is highest damage" (pre-1.3 framing) — superseded and inaccurate as stated.</li>
+    <li><span class="vote">0–2</span>"Vidar runs hot" — backwards: Vidar has the <em>best</em> dissipation of the heavy sets (8.8), a big part of its melee pedigree.</li>
+    <li><span class="vote">0–2</span>"Hakobu is the definitive sniper frame with native range/projectile-speed/armor-pen buffs" — fabricated; its hardpoints are defensive (torso) and mobility (legs), and no body part grants weapon stats.</li>
+    <li><span class="vote">0–2</span>"Bein has offensive module slots" — its slots are defense (arms, top) and mobility (bottom); Bein's real identity is best-in-game cooling.</li>
+  </ul>
+</section>
+
+<footer>
+  Compiled 2026-07-03 from a fact-checked research pass: 17 sources fetched, 82 claims extracted, 25 adversarially verified (18 confirmed / 7 refuted). Confidence chips reflect verification votes and source breadth — <span class="chip hi">verified</span> = unanimous against primary sources, <span class="chip med">verified · single source</span> = confirmed but thin sourcing, <span class="chip un">attributed</span> = real community opinion, presented as such.
+</footer>
+</div>
