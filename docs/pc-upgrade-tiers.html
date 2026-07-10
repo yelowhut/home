@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Апгрейд ПК — тиры</title>
+<style>
+  :root {
+    --ground: #0F1620;
+    --panel: #18222F;
+    --panel-2: #1E2A38;
+    --line: #2B3A4A;
+    --text: #E8E6E0;
+    --muted: #8B97A5;
+    --accent: #F2A33C;
+    --accent-2: #56C7D6;
+    --mono: 'Cascadia Code', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Consolas', monospace;
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(900px 500px at 80% -5%, rgba(242,163,60,0.06), transparent 60%),
+      radial-gradient(700px 600px at 0% 0%, rgba(86,199,214,0.05), transparent 55%);
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  /* ---- Header ---- */
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 36px 0 22px;
+    margin-bottom: 44px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(34px, 6vw, 60px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+    max-width: 16ch;
+  }
+  .machine-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .machine-strip b { color: var(--text); font-weight: 600; }
+  .machine-strip span { white-space: nowrap; }
+
+  /* ---- Hero / verdict ---- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 40px;
+    align-items: start;
+    margin-bottom: 64px;
+  }
+  .verdict-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  .verdict h2 {
+    font-size: clamp(26px, 3.6vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0 0 18px;
+  }
+  .verdict h2 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .verdict p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 42ch;
+    margin: 0 0 14px;
+  }
+  .verdict p b { color: var(--text); font-weight: 600; }
+
+  /* perf readout */
+  .readout {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 22px 18px;
+  }
+  .readout-head {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .bar-row { margin-bottom: 16px; }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-bottom: 7px;
+  }
+  .bar-label .part { color: var(--text); }
+  .bar-label .part small { color: var(--muted); font-size: 11.5px; }
+  .bar-label .score { color: var(--muted); font-size: 12px; }
+  .track {
+    height: 8px;
+    background: var(--panel-2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .fill { height: 100%; border-radius: 6px; }
+  .fill.ok { background: linear-gradient(90deg, #3f7a6e, var(--accent-2)); }
+  .fill.warn { background: linear-gradient(90deg, #9a5a1e, var(--accent)); }
+  .bar-row.limiter .bar-label .part { color: var(--accent); font-weight: 600; }
+  .flag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ground);
+    background: var(--accent);
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: 1px;
+  }
+
+  /* ---- Section heading ---- */
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 0 0 26px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+  .sec-head h3 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .sec-head .hint {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  /* ---- Tier cards ---- */
+  .tiers { display: flex; flex-direction: column; gap: 18px; }
+
+  .tier {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 24px 26px;
+    display: grid;
+    grid-template-columns: 86px 1fr 168px;
+    gap: 0 26px;
+    align-items: start;
+  }
+  .tier.free { border-left-color: var(--accent-2); }
+
+  .tier-num {
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .tier.free .tier-num { color: var(--accent-2); }
+  .tier-num small {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .tier-body h4 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .tier-body > .sub {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin: 0 0 16px;
+    max-width: 52ch;
+  }
+
+  .parts { list-style: none; margin: 0; padding: 0; }
+  .parts li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+  }
+  .parts li:first-child { border-top: none; }
+  .parts .pname { color: var(--text); }
+  .parts .pname b { color: var(--accent); font-weight: 600; }
+  .parts .pname .tag {
+    color: var(--muted);
+    font-size: 11.5px;
+    display: block;
+    margin-top: 2px;
+  }
+  .parts .pprice { color: var(--muted); white-space: nowrap; text-align: right; }
+  .parts li.alt .pname { color: var(--muted); }
+  .parts li.alt .pname b { color: var(--accent-2); }
+
+  .tier-cost {
+    text-align: right;
+    border-left: 1px solid var(--line);
+    padding-left: 26px;
+    align-self: stretch;
+  }
+  .tier-cost .clabel {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .tier-cost .cval {
+    font-family: var(--mono);
+    font-size: 27px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .tier-cost .cval span { font-size: 14px; color: var(--muted); }
+  .tier.free .tier-cost .cval { color: var(--accent-2); }
+  .tier-cost .cnote {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+
+  /* ---- Footnotes ---- */
+  .notes {
+    margin-top: 56px;
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 36px;
+  }
+  .note h5 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 7px;
+  }
+  .note p { color: var(--muted); font-size: 13.5px; margin: 0; }
+  .note p b { color: var(--text); font-weight: 600; }
+
+  footer {
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ---- Suppliers ---- */
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(86,199,214,0.32); transition: border-color .15s; }
+  a:hover, a:focus-visible { border-bottom-color: var(--accent-2); }
+
+  .suppliers { display: flex; flex-direction: column; gap: 16px; }
+  .supplier {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px 22px;
+  }
+  .supplier-head {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+    padding-bottom: 13px; border-bottom: 1px solid var(--line); margin-bottom: 14px;
+  }
+  .supplier-head h4 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .supplier-head .where { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .base-row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 11px 14px; margin-bottom: 14px;
+    background: rgba(86,199,214,0.07);
+    border: 1px solid rgba(86,199,214,0.25);
+    border-radius: 8px; font-size: 14px;
+  }
+  .base-row + .base-row { margin-top: -6px; }
+  .base-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    color: var(--accent-2); flex: none; align-self: center;
+  }
+  .base-row .bprice {
+    margin-left: auto; font-family: var(--mono); font-weight: 600;
+    color: var(--accent-2); white-space: nowrap;
+  }
+  .ozon-cap { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0 0 8px; }
+  ol.ozon-list { list-style: none; margin: 0; padding: 0; counter-reset: oz; }
+  ol.ozon-list li {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 8px 0; border-top: 1px dashed var(--line); font-size: 14px;
+  }
+  ol.ozon-list li:first-child { border-top: none; }
+  ol.ozon-list li::before {
+    counter-increment: oz; content: counter(oz);
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    width: 14px; flex: none; align-self: center;
+  }
+  ol.ozon-list .pr {
+    margin-left: auto; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); white-space: nowrap;
+  }
+  .lm-warn {
+    margin-top: 14px; font-size: 13px; color: var(--text); line-height: 1.45;
+    background: rgba(242,163,60,0.09); border-left: 3px solid var(--accent);
+    padding: 11px 14px; border-radius: 0 8px 8px 0;
+  }
+  .lm-warn b { color: var(--accent); }
+  .src-note {
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    margin: 0 0 24px; line-height: 1.5; max-width: 80ch;
+  }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; gap: 28px; }
+    .tier { grid-template-columns: 1fr; gap: 16px; }
+    .tier-cost { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 16px; text-align: left; }
+    .notes { grid-template-columns: 1fr; }
+    .supplier-head .where { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Анализ апгрейда · приоритет по факту</p>
+    <h1>Куда вложить деньги в этот ПК</h1>
+    <div class="machine-strip">
+      <span><b>CPU</b> Ryzen 9 7950X</span>
+      <span><b>GPU</b> RTX 3080 Ti 12&nbsp;ГБ</span>
+      <span><b>RAM</b> 64&nbsp;ГБ DDR5 @4800</span>
+      <span><b>Плата</b> MSI PRO X670-P</span>
+      <span><b>БП</b> 1000W+ ATX&nbsp;3.1</span>
+      <span><b>Дисплеи</b> 2×&thinsp;3440×1440</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="verdict">
+      <p class="verdict-tag">Диагноз</p>
+      <h2>Узкое место одно — <em>видеокарта</em>.</h2>
+      <p>Код ты гоняешь в облаке, значит для вычислений GPU не нужен. Остаётся одна нагрузка — <b>игры на 3440×1440</b>, а это разрешение почти всегда упирается в видеокарту. RTX 3080 Ti здесь и тормозит.</p>
+      <p><b>7950X и 64&nbsp;ГБ DDR5</b> для твоих задач более чем достаточны. Накопитель докрутишь бесплатно — уже купленным T705. Любой рубль сверх этого выгоднее всего вложить в GPU; CPU даёт прирост только на верхних тирах и в отдельных играх.</p>
+    </div>
+
+    <div class="readout">
+      <div class="readout-head"><span>Текущее железо</span><span>оценка под твои задачи</span></div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="part">CPU&nbsp; <small>Ryzen 9 7950X · 16C/32T</small></span><span class="score">92 / 100</span></div>
+        <div class="track"><div class="fill ok" style="width:92%"></div></div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="part">RAM&nbsp; <small>64 ГБ DDR5, профиль не включён</small></span><span class="score">74 / 100</span></div>
+        <div class="track"><div class="fill ok" style="width:74%"></div></div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="part">Накопитель&nbsp; <small>RAID0 из 2× Gen3 NVMe · без резерва</small></span><span class="score">66 / 100</span></div>
+        <div class="track"><div class="fill ok" style="width:66%"></div></div>
+      </div>
+
+      <div class="bar-row limiter">
+        <div class="bar-label"><span class="part">GPU&nbsp; <small>RTX 3080 Ti @ 3440×1440</small><span class="flag">ОГРАНИЧИТЕЛЬ</span></span><span class="score">55 / 100</span></div>
+        <div class="track"><div class="fill warn" style="width:55%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sec-head">
+    <h3>Тиры апгрейда</h3>
+    <span class="hint">цены «Регард» на 23.06.2026 · ₽</span>
+  </div>
+
+  <div class="tiers">
+
+    <!-- TIER 00 -->
+    <article class="tier free">
+      <div class="tier-num">00<small>СНАЧАЛА</small></div>
+      <div class="tier-body">
+        <h4>Бесплатные победы</h4>
+        <p class="sub">Стоят только времени. Сделай их до любой покупки — иначе переплатишь за железо, которое не раскрыто.</p>
+        <ul class="parts">
+          <li><span class="pname"><b>Включить EXPO</b> в BIOS<span class="tag">DDR5 4800 → профиль 6000 (реалистично 5600–6000 на 2×32 ГБ). Бесплатный прирост в CPU-зависимых играх</span></span><span class="pprice">0 ₽</span></li>
+          <li><span class="pname"><b>Поставить Crucial T705</b> (уже куплен)<span class="tag">Gen5 NVMe в слот M2_1. Меняет RAID0 из двух Gen3-дисков на один диск: ×2 по линейной скорости и заметно быстрее по 4K. Заодно убирает риск RAID0 — сейчас отказ любого из двух дисков валит систему</span></span><span class="pprice">0 ₽</span></li>
+        </ul>
+      </div>
+      <div class="tier-cost">
+        <p class="clabel">Итого</p>
+        <div class="cval">0&nbsp;<span>₽</span></div>
+        <p class="cnote">Только руки и вечер времени.</p>
+      </div>
+    </article>
+
+    <!-- TIER 01 -->
+    <article class="tier">
+      <div class="tier-num">01<small>SWEET SPOT</small></div>
+      <div class="tier-body">
+        <h4>Видеокарта — лучшее соотношение</h4>
+        <p class="sub">Точка, где деньги работают эффективнее всего. Примерно ×2 к 3080 Ti на 3440×1440, 16 ГБ VRAM и DLSS 4 с генерацией кадров.</p>
+        <ul class="parts">
+          <li><span class="pname"><b>RTX 5070 Ti 16 ГБ</b><span class="tag">Gigabyte WINDFORCE OC V2 — самая дешёвая 5070 Ti в прайсе</span></span><span class="pprice">88 990 ₽</span></li>
+          <li class="alt"><span class="pname"><b>Альтернатива: RX 9070 XT 16 ГБ</b><span class="tag">Gigabyte GAMING — сильный растр, слабее в RT и апскейле. Дешевле на ~20к</span></span><span class="pprice">68 210 ₽</span></li>
+        </ul>
+      </div>
+      <div class="tier-cost">
+        <p class="clabel">Итого</p>
+        <div class="cval">89 000&nbsp;<span>₽</span></div>
+        <p class="cnote">AMD-вариант: ~68 000 ₽.</p>
+      </div>
+    </article>
+
+    <!-- TIER 02 -->
+    <article class="tier">
+      <div class="tier-num">02<small>STRONG</small></div>
+      <div class="tier-body">
+        <h4>Видеокарта с запасом</h4>
+        <p class="sub">Максимальные настройки на 3440×1440 без компромиссов и готовность к 4K. За ~30% доплаты — примерно +15–20% к 5070 Ti, плюс комфорт «на годы вперёд».</p>
+        <ul class="parts">
+          <li><span class="pname"><b>RTX 5080 16 ГБ</b><span class="tag">Palit GamingPro — самая дешёвая 5080 в прайсе</span></span><span class="pprice">116 440 ₽</span></li>
+        </ul>
+      </div>
+      <div class="tier-cost">
+        <p class="clabel">Итого</p>
+        <div class="cval">116 000&nbsp;<span>₽</span></div>
+        <p class="cnote">Чистый апгрейд GPU, остальное не трогаем.</p>
+      </div>
+    </article>
+
+    <!-- TIER 03 -->
+    <article class="tier">
+      <div class="tier-num">03<small>+CPU</small></div>
+      <div class="tier-body">
+        <h4>Сильная видеокарта плюс игровой CPU</h4>
+        <p class="sub">Добавляем 3D V-Cache там, где 3440×1440 всё же упирается в процессор — симуляторы, стратегии, MMO, киберспорт на высоком FPS. 9950X3D сохраняет 16 ядер, так что многопоток для работы не теряешь.</p>
+        <ul class="parts">
+          <li><span class="pname"><b>RTX 5080 16 ГБ</b><span class="tag">Palit GamingPro</span></span><span class="pprice">116 440 ₽</span></li>
+          <li><span class="pname"><b>Ryzen 9 9950X3D</b><span class="tag">16C/32T + 3D V-Cache. Кулер AM5 остаётся — TDP сопоставим с 7950X</span></span><span class="pprice">61 090 ₽</span></li>
+        </ul>
+      </div>
+      <div class="tier-cost">
+        <p class="clabel">Итого</p>
+        <div class="cval">177 500&nbsp;<span>₽</span></div>
+        <p class="cnote">Минус ~25–30к за продажу 7950X.</p>
+      </div>
+    </article>
+
+    <!-- TIER 04 -->
+    <article class="tier">
+      <div class="tier-num">04<small>NO LIMITS</small></div>
+      <div class="tier-body">
+        <h4>Потолок без оглядки на цену</h4>
+        <p class="sub">Для 3440×1440 это избыток — отдача на рубль резко падает. Оправдано, только если впереди 4K/240 Гц, тяжёлый VR или принцип «хочу максимум». БП 1000W+ ATX 3.1 у тебя уже под 5090.</p>
+        <ul class="parts">
+          <li><span class="pname"><b>RTX 5090 32 ГБ</b><span class="tag">Palit GameRock — самая дешёвая 5090 в прайсе</span></span><span class="pprice">399 990 ₽</span></li>
+          <li><span class="pname"><b>Ryzen 9 9950X3D</b><span class="tag">16C/32T + 3D V-Cache</span></span><span class="pprice">61 090 ₽</span></li>
+        </ul>
+      </div>
+      <div class="tier-cost">
+        <p class="clabel">Итого</p>
+        <div class="cval">461 000&nbsp;<span>₽</span></div>
+        <p class="cnote">×4 к цене Tier 01 за прирост, которого на ultrawide почти не увидишь.</p>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="sec-head" style="margin-top:64px;">
+    <h3>Поставщики и цены</h3>
+    <span class="hint">базис — Регард · альтернативы — Озон</span>
+  </div>
+
+  <p class="src-note">Клик по названию открывает карточку товара. Регард — точная цена на дату прайса 23.06.2026 (проверяй на странице, на сайте бывает свежее). Цены Озона вытащить программно нельзя — карточки закрыты антиботом, поэтому по Озону даны прямые ссылки, а цену смотри на самой карточке.</p>
+
+  <div class="suppliers">
+
+    <!-- 5070 Ti -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>RTX 5070 Ti 16&nbsp;ГБ</h4>
+        <span class="where">Tier 01 · sweet spot для 3440×1440</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/761593">Gigabyte WINDFORCE OC V2 16GB</a>
+        <span class="bprice">88 990 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/gigabyte-videokarta-geforce-rtx-5070-ti-windforce-oc-v2-16-gb-gv-n507twf3ocv2-16gd-3138445075/">Gigabyte WINDFORCE OC V2 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/msi-videokarta-geforce-rtx-5070-ti-16-gb-rtx-5070-ti-16g-gaming-trio-oc-plus-1880701016/">MSI GAMING TRIO OC PLUS 16G</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asus-videokarta-geforce-rtx-5070-ti-rog-strix-geforce-rtx-5070-ti-16gb-oc-edition-16-gb-2710566117/">ASUS ROG Strix OC 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/palit-videokarta-geforce-rtx-5070-ti-gamingpro-v1-16-gb-ne7507t019t2-gb2031y-1990476705/">Palit GamingPro 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/gigabyte-videokarta-geforce-rtx-5070-ti-geforce-rtx-5070ti-gaming-oc-16-gb-gv-n507tgamingoc-16gd-1914764235/">Gigabyte GAMING OC 16GB</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- RX 9070 XT -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>Radeon RX 9070 XT 16&nbsp;ГБ</h4>
+        <span class="where">Tier 01 · AMD-альтернатива, дешевле</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/752614">Gigabyte GAMING 16GB</a>
+        <span class="bprice">68 210 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/gigabyte-videokarta-radeon-rx-9070-xt-16-gb-gv-r9070xtgaming-oc-16gd-1912267158/">Gigabyte GAMING OC 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/sapphire-videokarta-radeon-rx-9070-xt-16-gb-sapphire-9070xt-pulse-lhr-2003776828/">Sapphire PULSE 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asus-videokarta-radeon-rx-9070-xt-tuf-gaming-oc-16-gb-tuf-rx9070xt-o16g-gaming-2190747505/">ASUS TUF Gaming OC 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asrock-videokarta-radeon-rx-9070-xt-amd-radeon-rx-9070-xt-steel-legend-dark-16gb-16-gb-rx9070xt-3277200928/">ASRock Steel Legend 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/sapphire-videokarta-radeon-rx-9070-xt-rx-9070-xt-amd-radeon-sapphire-nitro-16g-2124590855/">Sapphire NITRO+ 16GB</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- 5080 -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>RTX 5080 16&nbsp;ГБ</h4>
+        <span class="where">Tier 02 / 03 · с запасом</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/725971">Palit GamingPro 16GB</a>
+        <span class="bprice">116 440 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/palit-videokarta-geforce-rtx-5080-16-gb-geforce-rtx-5080-gamingpro-16gb-ne75080019t2-gb2031a-1867301239/">Palit GamingPro 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/msi-videokarta-geforce-rtx-5080-16-gb-rtx-5080-16g-gaming-trio-oc-1849794674/">MSI GAMING TRIO OC 16G</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asus-videokarta-geforce-rtx-5080-geforce-rtx-5080-16-gb-rog-astral-rtx5080-o16g-gaming-2041922433/">ASUS ROG Astral 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/gigabyte-videokarta-geforce-rtx-5080-gaming-oc-16-gb-gv-n5080gaming-oc-16gd-2016776353/">Gigabyte GAMING OC 16GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/pny-videokarta-geforce-rtx-5080-rtx-5080-oc-triple-fan-16-gb-vcg508016tfxpb1-2589382320/">PNY OC Triple Fan 16GB</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- 5090 -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>RTX 5090 32&nbsp;ГБ</h4>
+        <span class="where">Tier 04 · потолок</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/732202">Palit GameRock 32GB</a>
+        <span class="bprice">399 990 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/palit-videokarta-geforce-rtx-5090-gamerock-32-gb-ne75090019r5-gb2020g-1878172435/">Palit GameRock 32GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/msi-videokarta-nvidia-rtx-5090-ventus-3x-32-gb-nvidia-rtx-5090-2011172084/">MSI VENTUS 3X 32GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asus-videokarta-geforce-rtx-5090-tuf-gaming-32-gb-90yv0ly1-m0aa00-2120682092/">ASUS TUF Gaming 32GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/gigabyte-videokarta-geforce-rtx-5090-gaming-oc-32-gb-gv-n5090gaming-oc-32gd-2080175518/">Gigabyte GAMING OC 32GB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/asus-videokarta-geforce-rtx-5090-asus-5090-32-gb-rtx5090-2319514801/">ASUS ROG Astral 32GB</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- 9950X3D -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>Ryzen 9 9950X3D</h4>
+        <span class="where">Tier 03 / 04 · 16 ядер + 3D V-Cache, сокет AM5</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/736259">AMD Ryzen 9 9950X3D OEM</a>
+        <span class="bprice">61 090 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/protsessor-amd-ryzen-9-9950x3d-oem-2340086192/">Ryzen 9 9950X3D OEM</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/amd-protsessor-ryzen-9-9950x3d-oem-bez-kulera-1994496769/">Ryzen 9 9950X3D OEM (без кулера)</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/amd-protsessor-ryzen-9-9950x3d-oem-bez-kulera-1950522114/">Ryzen 9 9950X3D OEM (др. продавец)</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/amd-protsessor-ryzen-9-9950x3d-box-bez-kulera-3220188261/">Ryzen 9 9950X3D BOX</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/protsessor-amd-ryzen-9-9950x3d-oem-2223261139/">Ryzen 9 9950X3D OEM (др. продавец)</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- AIO 360 -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>Водянка 360&nbsp;мм (AIO)</h4>
+        <span class="where">опция к Tier 03/04 · AM5 · 3 вентилятора, легко в Obsidian 900D</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · РЕГАРД</span>
+        <a href="https://www.regard.ru/product/493721">Arctic Liquid Freezer III Pro 360</a>
+        <span class="bprice">9 320 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек:</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/sistema-vodyanogo-ohlazhdeniya-arctic-liquid-freezer-iii-360-1431294850/">Arctic Liquid Freezer III 360</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/sistema-vodyanogo-ohlazhdeniya-nzxt-kraken-360-rgb-belyy-1289342665/">NZXT Kraken 360 RGB</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/sistema-vodyanogo-ohlazhdeniya-lian-li-galahad-ii-trinity-360-black-1782162880/">Lian Li Galahad II Trinity 360</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/ohladitel-protsessora-msi-mag-coreliquid-e360-belyy-podderzhka-am5-i-lga1700-1294606605/">MSI MAG CoreLiquid E360</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/sistema-vodyanogo-ohlazhdeniya-deepcool-lq360-2400-ob-min-am5-lga-1200-72-04-cfm-3h120mm-chernyy-r-2874152434/">DeepCool LQ360</a><span class="pr">цена на карточке</span></li>
+      </ol>
+    </article>
+
+    <!-- Термоинтерфейс -->
+    <article class="supplier">
+      <div class="supplier-head">
+        <h4>Термоинтерфейс</h4>
+        <span class="where">опция к замене CPU · паста или жидкий металл</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · ПАСТА</span>
+        <a href="https://www.regard.ru/product/470657">Arctic MX-6 (8 г)</a>
+        <span class="bprice">1 070 ₽</span>
+      </div>
+      <div class="base-row">
+        <span class="base-tag">БАЗИС · ЖИД. МЕТАЛЛ</span>
+        <a href="https://www.regard.ru/product/665217">ExeGate EX-LQMTL1 (1 г)</a>
+        <span class="bprice">910 ₽</span>
+      </div>
+      <p class="ozon-cap">Озон — 5 карточек (3 пасты + 2 жидких металла):</p>
+      <ol class="ozon-list">
+        <li><a href="https://www.ozon.ru/product/termopasta-thermal-grizzly-kryonaut-5-5-g-165387147/">Паста: Thermal Grizzly Kryonaut 5.5 г</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/termopasta-arctic-mx-6-4-gramma-836552134/">Паста: Arctic MX-6 (4 г)</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/termopasta-noctua-nt-h2-3-5g-321395210/">Паста: Noctua NT-H2 (3.5 г)</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/zhidkiy-metall-thermal-grizzly-conductonaut-1-g-165419745/">Жид. металл: Thermal Grizzly Conductonaut (1 г)</a><span class="pr">цена на карточке</span></li>
+        <li><a href="https://www.ozon.ru/product/termopasta-thermal-grzzly-conductonaut-extreme-1-g-tg-ce-001-r-1171372717/">Жид. металл: Conductonaut Extreme (1 г)</a><span class="pr">цена на карточке</span></li>
+      </ol>
+      <p class="lm-warn"><b>По жидкому металлу подумай дважды.</b> На 9950X3D он не нужен: хорошей пасты (Kryonaut / MX-6) хватает с запасом, а TDP тот же, что у 7950X. Жидкий металл электропроводен, при растекании коротит плату и со временем разъедает алюминий — оправдан только при наличии опыта и желании выжать последние пару градусов. Для водянки и обычной сборки бери пасту.</p>
+    </article>
+
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <h5>Рекомендация</h5>
+      <p><b>Tier 00 + Tier 01.</b> Бесплатные победы плюс RTX 5070 Ti закрывают узкое место и дают максимум отдачи на рубль. К Tier 02 (5080) переходи, если хочешь явный запас под 4K.</p>
+    </div>
+    <div class="note">
+      <h5>CPU — не торопись</h5>
+      <p>На 3440×1440 7950X почти не ограничивает игры, а для облачного кодинга он уже избыточно быстр. 9950X3D (тиры 03–04) — это «вишенка», а не необходимость.</p>
+    </div>
+    <div class="note">
+      <h5>Оговорка по EXPO</h5>
+      <p>На 2×32 ГБ (двухранговые) контроллер 7950X не всегда держит 6000. Если профиль 6000 нестабилен — ставь 5600, это всё равно ощутимо быстрее текущих 4800.</p>
+    </div>
+    <div class="note">
+      <h5>Что с диском</h5>
+      <p>Система — <b>RAID0 из двух Gen3 NVMe</b> (Samsung 970 EVO Plus + OEM NE-512), данные — RAID0 из двух SATA SSD. RAID0 без резерва: отказ любого диска = потеря всего тома. Один T705 Gen5 и быстрее этой связки, и надёжнее. Освободившийся 970 EVO Plus пусти под игры.</p>
+    </div>
+    <div class="note">
+      <h5>Охлаждение при замене CPU</h5>
+      <p>У 9950X3D <b>тот же TDP 170&nbsp;Вт, что у 7950X</b> — твой текущий кулер, скорее всего, справится. Водянка 360&nbsp;мм нужна, только если хочешь тише и холоднее (или красиво в Obsidian&nbsp;900D). Снимать кулер при замене CPU придётся в любом случае — <b>свежая паста обязательна</b>.</p>
+    </div>
+    <div class="note">
+      <h5>Цены и наличие</h5>
+      <p>Регард — на дату прайса <b>23.06.2026</b>, на сайте бывает иначе. Цены Озона смотри на карточке (клик): на маркетплейсе нередко дешевле, но проверяй продавца, оригинальность и гарантию — это не всегда официальная розница.</p>
+    </div>
+  </div>
+
+  <footer>
+    Источник цен: прайс-лист «Регард» от 23.06.2026 · конфигурация снята с этого ПК · оценки железа субъективны под профиль «облачный кодинг + игры 3440×1440»
+  </footer>
+</div>
+
+</body>
+</html>
