@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steam — совместные игры, чего у нас нет</title>
+<link rel="stylesheet" href="page.css">
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo"><b>Steam</b> co-op <span>· чего у нас нет</span></div>
+  <div class="count" id="count"></div>
+  <div class="lnk" id="lnkmode" title="Куда ведут ссылки на игры">
+    <button data-m="client">Steam-клиент</button>
+    <button data-m="web">Браузер</button>
+  </div>
+  <div class="search"><span class="mag">🔍</span><input id="q" type="search" placeholder="Поиск по названию…" autocomplete="off"></div>
+</header>
+
+<aside>
+  <details id="filters" open>
+  <summary>Фильтры</summary>
+  <div class="fg">
+    <h3>Режим совместной игры</h3>
+    <div id="modes"></div>
+    <p class="hint">Только то, чего нет ни на одном из аккаунтов. Первые три режима —
+      на одном устройстве, онлайн и LAN требуют двух. Remote Play Together не входит.</p>
+  </div>
+
+  <div class="fg">
+    <h3>Цена</h3>
+    <label class="opt" style="display:block">
+      <span class="lbl">Не дороже</span> <span class="sv" id="prv">без ограничений</span>
+      <input class="slider" type="range" id="maxPrice" min="0" max="8" step="1" value="8">
+    </label>
+    <label class="opt"><input type="checkbox" id="f-free"><span class="lbl">Только бесплатные</span><span class="n" id="n-free"></span></label>
+    <p class="hint">Цены — снимок на момент сборки файла, в регионе US. Проверяйте в магазине.</p>
+  </div>
+
+  <div class="fg">
+    <h3>Скрытые</h3>
+    <label class="opt"><input type="checkbox" id="f-hidden"><span class="lbl">Показать скрытые</span><span class="n" id="n-hidden"></span></label>
+    <button class="clearhid" id="unhide-all" hidden>Вернуть все скрытые</button>
+    <button class="clearhid" id="export">Сохранить список в файл</button>
+    <textarea class="exported" id="exported" rows="3" readonly hidden></textarea>
+    <p class="hint">Базовый список едет в <code>hidden_store.js</code>. Правки на этом устройстве
+      лежат в браузере; чтобы они уехали на другие — сохраните список, замените файл
+      и пересоберите бандл.</p>
+  </div>
+
+  <div class="fg">
+    <h3>Дата выхода</h3>
+    <label class="opt"><input type="checkbox" id="f-soon"><span class="lbl">Показать ещё не вышедшие</span><span class="n" id="n-soon"></span></label>
+    <div class="rng">
+      <input type="number" id="y1" step="1">
+      <span>—</span>
+      <input type="number" id="y2" step="1">
+    </div>
+    <div class="presets">
+      <button data-since="0">Все</button>
+      <button data-since="2020">2020+</button>
+      <button data-since="2015">2015+</button>
+      <button data-since="2010">2010+</button>
+      <button data-until="2009">до 2010</button>
+    </div>
+  </div>
+
+  <div class="fg">
+    <h3>Steam Deck</h3>
+    <div id="decks"></div>
+  </div>
+
+  <div class="fg">
+    <h3>Рейтинг Steam</h3>
+    <label class="opt" style="display:block">
+      <span class="lbl">Не ниже</span> <span class="sv" id="pv">0%</span>
+      <input class="slider" type="range" id="minPct" min="0" max="100" step="5" value="0">
+    </label>
+    <label class="opt" style="display:block">
+      <span class="lbl">Отзывов минимум</span> <span class="sv" id="cv">0</span>
+      <input class="slider" type="range" id="minCnt" min="0" max="4" step="1" value="0">
+    </label>
+    <p class="hint">Порог отзывов отсекает игры, где «95%» стоит на десятке оценок.</p>
+  </div>
+
+  <button class="reset" id="reset">Сбросить фильтры</button>
+  </details>
+</aside>
+
+<main>
+  <table>
+    <thead><tr>
+      <th data-k="name"><button>Название <span class="arw">▼</span></button></th>
+      <th data-k="rating"><button>Рейтинг Steam <span class="arw">▼</span></button></th>
+      <th data-k="price"><button>Цена <span class="arw">▼</span></button></th>
+      <th data-k="deck"><button>Steam Deck <span class="arw">▼</span></button></th>
+      <th data-k="release"><button>Выход <span class="arw">▼</span></button></th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <button class="more" id="more" hidden></button>
+  <div class="empty" id="empty" hidden>Ничего не найдено — ослабьте фильтры.</div>
+  <footer id="foot"></footer>
+</main>
+</div>
+
+<script src="store_data.js"></script>
+<script src="hidden_store.js"></script>
+<script src="page.js"></script>
+</body>
+</html>
