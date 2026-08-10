@@ -44,3 +44,6 @@ docs/hayday/**/storage*.xml
 tmp/
 /third_september.gif
 /third_september_540.gif
+
+# Grim Dawn: извлечённые данные игры (пересобираются пайплайном, gd.sqlite ~1 ГБ)
+data/grim-dawn/
