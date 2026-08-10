@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Защищённый канал с Заказчиком — сетевые схемы</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --fg:#111827; --muted:#5b6675; --card:#ffffff; --line:#d3dae2;
+    --ic-fill:#ffffff; --box-stroke:#3f4b5b; --accent:#1d4ed8; --cust:#b45309;
+    --tunnel:#7c3aed; --warn:#c81e1e; --ok:#15803d; --chip:#eef2f7; --zone:#94a3b8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0d1117; --fg:#e6edf3; --muted:#9aa7b4; --card:#161b22; --line:#30363d;
+           --ic-fill:#1b222c; --box-stroke:#a3b1bf; --accent:#6ea8fe; --cust:#f0b429;
+           --tunnel:#b39bfb; --warn:#f87171; --ok:#4ade80; --chip:#1e2632; --zone:#5b6773; }
+  }
+  html[data-theme="dark"]{ --bg:#0d1117; --fg:#e6edf3; --muted:#9aa7b4; --card:#161b22; --line:#30363d;
+           --ic-fill:#1b222c; --box-stroke:#a3b1bf; --accent:#6ea8fe; --cust:#f0b429;
+           --tunnel:#b39bfb; --warn:#f87171; --ok:#4ade80; --chip:#1e2632; --zone:#5b6773; }
+  html[data-theme="light"]{ --bg:#f4f6f8; --fg:#111827; --muted:#5b6675; --card:#ffffff; --line:#d3dae2;
+           --ic-fill:#ffffff; --box-stroke:#3f4b5b; --accent:#1d4ed8; --cust:#b45309;
+           --tunnel:#7c3aed; --warn:#c81e1e; --ok:#15803d; --chip:#eef2f7; --zone:#94a3b8; }
+
+  *{ box-sizing:border-box }
+  body{ background:var(--bg); color:var(--fg); margin:0;
+        font:15px/1.62 -apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:34px 22px 90px; }
+  h1{ font-size:29px; margin:0 0 6px; letter-spacing:-.02em }
+  .sub{ color:var(--muted); margin:0 0 26px }
+  h2{ font-size:21px; margin:44px 0 14px; padding-top:16px; border-top:1px solid var(--line) }
+  h3{ font-size:16.5px; margin:24px 0 8px }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0 }
+  .fig{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px; margin:12px 0; overflow-x:auto }
+  .fig svg{ display:block; min-width:980px; width:100%; height:auto }
+  .cap{ color:var(--muted); font-size:13.5px; margin:8px 2px 0 }
+  ul,ol{ padding-left:22px } li{ margin:6px 0 }
+  code{ background:var(--chip); padding:1px 6px; border-radius:5px; font-size:13px;
+        font-family:ui-monospace,Consolas,"Courier New",monospace }
+  pre{ background:var(--chip); border:1px solid var(--line); border-radius:9px; padding:13px 15px;
+       overflow-x:auto; font-family:ui-monospace,Consolas,"Courier New",monospace; font-size:12.8px; line-height:1.6 }
+  pre .c{ color:var(--muted) }
+  .tag{ display:inline-block; font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px;
+        border:1px solid currentColor; margin-right:9px; vertical-align:2px }
+  .t-stop{ color:var(--warn) } .t-ok{ color:var(--ok) } .t-q{ color:var(--accent) } .t-fix{ color:var(--cust) }
+  .risk{ border-left:3px solid var(--warn); padding-left:15px; margin:18px 0 }
+  .risk h3{ margin-top:0; color:var(--warn) }
+  .good{ border-left:3px solid var(--ok); padding-left:15px; margin:18px 0 }
+  .good h3{ margin-top:0; color:var(--ok) }
+  table{ border-collapse:collapse; width:100%; font-size:14px }
+  th,td{ text-align:left; padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top }
+  th{ color:var(--muted); font-weight:600; font-size:13px }
+  .muted{ color:var(--muted) }
+  .kv td:first-child{ font-family:ui-monospace,Consolas,monospace; font-size:13px; white-space:nowrap }
+
+  /* --- SVG --- */
+  .c-net{ color:var(--box-stroke) }
+  .c-mt{ color:var(--accent) }
+  .c-cu{ color:var(--cust) }
+  .zone{ fill:none; stroke:var(--zone); stroke-width:1.4; stroke-dasharray:8 6 }
+  .zone-cu{ fill:none; stroke:var(--cust); stroke-width:1.6; stroke-dasharray:8 6 }
+  .zone-t{ fill:var(--zone); font:700 12px -apple-system,"Segoe UI",Roboto,sans-serif; letter-spacing:.08em }
+  .zone-tc{ fill:var(--cust); font:700 12px -apple-system,"Segoe UI",Roboto,sans-serif; letter-spacing:.08em }
+  .ln{ stroke:var(--box-stroke); stroke-width:2.4; fill:none }
+  .ln-w{ stroke:var(--box-stroke); stroke-width:2.4; fill:none; stroke-dasharray:9 7 }
+  .pipe{ stroke:var(--tunnel); stroke-width:17; fill:none; opacity:.26; stroke-linecap:round; stroke-linejoin:round }
+  .wl{ stroke:var(--warn); stroke-width:2; fill:none; stroke-dasharray:6 5 }
+  .n{ fill:var(--fg); font:700 14.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .s{ fill:var(--muted); font:400 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .m{ fill:var(--muted); font:600 11.8px ui-monospace,Consolas,monospace }
+  .ma{ fill:var(--accent); font:600 11.8px ui-monospace,Consolas,monospace }
+  .mc{ fill:var(--cust); font:600 11.8px ui-monospace,Consolas,monospace }
+  .tp{ fill:var(--tunnel); font:700 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .tw{ fill:var(--warn); font:600 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .twb{ fill:var(--warn); font:700 13.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .stepc{ fill:var(--accent) }
+  .stept{ fill:#fff; font:700 12.5px sans-serif; text-anchor:middle }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Защищённый канал с инфраструктурой Заказчика</h1>
+<p class="sub">Материал к встрече · схемы построены по фактическому <code>/export</code> с MikroTik от 06.08.2026</p>
+
+<div class="card">
+<b>Что реально в конфиге</b> (отличается от первоначальной постановки — это важно проговорить на встрече)
+<table class="kv" style="margin-top:8px">
+<tr><td>if.1uplink (ether1)</td><td>WAN, <b>89.20.40.91/24</b>, шлюз 89.20.40.1 — белый статический, не CGNAT. Плюс на нём висит лишний <code>dhcp-client</code>.</td></tr>
+<tr><td>if2 (ether2)</td><td>порт бриджа → наш сервер живёт в общей LAN <b>10.15.10.0/24</b></td></tr>
+<tr><td>if3 (ether3)</td><td><b>отдельный сегмент 10.15.30.0/24</b>, comment=<code>AI_PC</code>, хост 10.15.30.15 с пробросами 8000/8008/5005 с 146.185.241.36</td></tr>
+<tr><td>if4 (ether4)</td><td>comment=<code>continent</code> — <b>Континент воткнут сюда, и порт в бридже</b>, т.е. криптошлюз стоит прямо в офисной LAN 10.15.10.0/24</td></tr>
+<tr><td>bridge</td><td>10.15.10.1/24, DHCP .10–.250; в нём if2, if4, if5, sfp1, оба Wi-Fi + 2 гостевых SSID (гости изолированы bridge-фильтром)</td></tr>
+<tr><td>OpenVPN</td><td>сервер включён, <b>только TCP/1194</b> (RouterOS 6.49.13), пул <b>10.15.20.10–.50</b>, шлюз 10.15.20.1, 5 учёток</td></tr>
+<tr><td>ещё включено</td><td>PPTP, SSTP (443), L2TP+IPsec, пул 192.168.89.0/24</td></tr>
+</table>
+<p style="margin:10px 0 0" class="muted">В постановке Континент был в порту 3 — по факту он в порту 4, а порт 3 занят AI-сервером в своей подсети. На схемах — как в конфиге.</p>
+</div>
+
+<h2>Схема 1 — физическая топология и путь ГОСТ-туннеля</h2>
+
+<div class="fig">
+<svg viewBox="0 0 1280 970" role="img" aria-label="Физическая сетевая схема">
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--box-stroke)"/></marker>
+
+  <g id="i-router" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M-40,-12 V10 A40,13 0 0 0 40,10 V-12 Z" fill="var(--ic-fill)"/>
+    <ellipse cx="0" cy="-12" rx="40" ry="13" fill="currentColor" fill-opacity=".14"/>
+    <path d="M-26,-17 H10" stroke-width="2"/><path d="M4,-21 L12,-17 L4,-13" stroke-width="2" stroke-linecap="round"/>
+    <path d="M26,-7 H-10" stroke-width="2"/><path d="M-4,-11 L-12,-7 L-4,-3" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <g id="i-switch" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M-44,-2 L-28,-18 H44 L28,-2 Z" fill="currentColor" fill-opacity=".14"/>
+    <path d="M28,-2 L44,-18 V0 L28,16 Z" fill="var(--ic-fill)"/>
+    <path d="M-44,-2 V16 H28 V-2 Z" fill="var(--ic-fill)"/>
+    <path d="M-20,-7 H4 M-2,-11 L6,-7 L-2,-3" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M16,-13 H-8 M-2,-17 L-10,-13 L-2,-9" stroke-width="1.7" stroke-linecap="round"/>
+  </g>
+
+  <g id="i-crypto" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-44" y="-30" width="88" height="60" rx="4" fill="var(--ic-fill)"/>
+    <path d="M-44,-10 H44 M-44,10 H44" stroke-width="1.5"/>
+    <path d="M-14,-30 V-10 M16,-30 V-10 M-29,-10 V10 M1,-10 V10 M31,-10 V10 M-14,10 V30 M16,10 V30" stroke-width="1.5"/>
+    <g transform="translate(28,17)">
+      <rect x="-9.5" y="-4" width="19" height="14" rx="2.5" fill="var(--ic-fill)" stroke-width="2"/>
+      <path d="M-5,-4 V-8.5 A5,5 0 0 1 5,-8.5 V-4" stroke-width="2"/>
+    </g>
+  </g>
+
+  <g id="i-server" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-27" y="-36" width="54" height="72" rx="5" fill="var(--ic-fill)"/>
+    <rect x="-18" y="-27" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <rect x="-18" y="-11" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <rect x="-18" y="5" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <circle cx="-12" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+    <circle cx="-2" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+  </g>
+
+  <g id="i-laptop" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-33" y="-28" width="66" height="46" rx="3" fill="var(--ic-fill)"/>
+    <rect x="-27" y="-22" width="54" height="34" rx="1.5" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <path d="M-46,18 H46 L52,28 H-52 Z" fill="var(--ic-fill)"/>
+  </g>
+
+  <g id="i-pc" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-34" y="-30" width="68" height="48" rx="3" fill="var(--ic-fill)"/>
+    <rect x="-28" y="-24" width="56" height="36" rx="1.5" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <path d="M-9,18 h18 v9 h-18 z" fill="var(--ic-fill)"/>
+    <path d="M-22,27 H22" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <g id="i-cloud" fill="var(--ic-fill)" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M-46,20 A21,21 0 0 1 -43,-16 A28,28 0 0 1 8,-28 A21,21 0 0 1 41,-9 A16,16 0 0 1 44,20 Z"/>
+  </g>
+
+  <g id="i-wifi" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+    <path d="M-9,5 A13,13 0 0 1 9,5"/><path d="M-15,-2 A21,21 0 0 1 15,-2"/><path d="M-21,-9 A29,29 0 0 1 21,-9"/>
+    <circle cx="0" cy="11" r="2.6" fill="currentColor"/>
+  </g>
+</defs>
+
+<!-- ГОСТ-туннель: рисуем первым, чтобы иконки легли поверх -->
+<path class="pipe" d="M 660 640 V 560 H 366 V 470 H 330 V 105 H 880"/>
+
+<!-- зоны -->
+<rect class="zone" x="40" y="228" width="944" height="662" rx="14"/>
+<text class="zone-t" x="58" y="252">ОФИС PRIMO</text>
+<rect class="zone-cu" x="552" y="592" width="404" height="286" rx="12"/>
+<text class="zone-tc" x="568" y="614">ОБОРУДОВАНИЕ ЗАКАЗЧИКА — СТОИТ У НАС В ОФИСЕ</text>
+<rect class="zone-cu" x="790" y="34" width="452" height="198" rx="12"/>
+<text class="zone-tc" x="806" y="56">ИНФРАСТРУКТУРА ЗАКАЗЧИКА</text>
+
+<!-- интернет -->
+<g class="c-net" transform="translate(330,105) scale(1.45)"><use href="#i-cloud"/></g>
+<text class="n" x="246" y="100" text-anchor="end">Интернет</text>
+<text class="s" x="246" y="119" text-anchor="end">аплинк провайдера</text>
+
+<!-- заказчик -->
+<g class="c-cu" transform="translate(884,132)"><use href="#i-crypto"/></g>
+<text class="n" x="884" y="188" text-anchor="middle">Континент (шлюз)</text>
+<text class="s" x="884" y="206" text-anchor="middle">вторая сторона туннеля</text>
+<g class="c-cu" transform="translate(1128,132) scale(.92)"><use href="#i-server"/></g>
+<text class="n" x="1128" y="188" text-anchor="middle">Ресурсы Заказчика</text>
+<text class="mc" x="1128" y="206" text-anchor="middle">подсети — ?</text>
+<line class="ln" x1="930" y1="132" x2="1096" y2="132"/>
+<line class="ln" x1="396" y1="105" x2="790" y2="105"/>
+
+<!-- mikrotik -->
+<g class="c-mt" transform="translate(330,300)"><use href="#i-router"/></g>
+<line class="ln" x1="330" y1="140" x2="330" y2="272" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<text class="ma" x="344" y="196">if.1uplink (ether1)</text>
+<text class="m"  x="344" y="214">89.20.40.91/24</text>
+<text class="m"  x="344" y="232">gw 89.20.40.1 · srcnat</text>
+<text class="n"  x="268" y="286" text-anchor="end">MikroTik hAP ac</text>
+<text class="s"  x="268" y="304" text-anchor="end">RB962UiGS · RouterOS 6.49.13</text>
+<text class="ma" x="268" y="324" text-anchor="end">OpenVPN сервер TCP:1194</text>
+<text class="m"  x="268" y="342" text-anchor="end">10.15.20.1 · пул .10–.50</text>
+
+<!-- if3 / AI PC -->
+<line class="ln" x1="372" y1="300" x2="596" y2="300" marker-end="url(#ar)"/>
+<text class="m" x="386" y="290">if3 (ether3) · 10.15.30.1/24</text>
+<text class="m" x="386" y="322">отдельный сегмент, вне бриджа</text>
+<g class="c-net" transform="translate(644,300) scale(.95)"><use href="#i-server"/></g>
+<text class="n" x="700" y="284">AI-сервер</text>
+<text class="m" x="700" y="302">10.15.30.15</text>
+<text class="m" x="700" y="320">dst-nat 8000 / 8008 / 5005</text>
+<text class="m" x="700" y="338">только с 146.185.241.36</text>
+
+<!-- bridge -->
+<line class="ln" x1="330" y1="323" x2="330" y2="450" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<g class="c-mt" transform="translate(330,470)"><use href="#i-switch"/></g>
+<text class="n"  x="268" y="466" text-anchor="end">bridge (коммутатор)</text>
+<text class="ma" x="268" y="484" text-anchor="end">LAN 10.15.10.1/24</text>
+<text class="m"  x="268" y="502" text-anchor="end">DHCP .10 – .250</text>
+
+<!-- шина от бриджа -->
+<polyline class="ln" points="300,486 300,560 120,560 120,608" marker-end="url(#ar)"/>
+<polyline class="ln" points="366,486 366,560 660,560 660,630" marker-end="url(#ar)"/>
+<line class="ln-w" x1="333" y1="486" x2="333" y2="608" marker-end="url(#ar)"/>
+
+<text class="m" x="150" y="552">if2 (ether2) · порт бриджа</text>
+<text class="m" x="418" y="552">if4 (ether4) · порт бриджа</text>
+<text class="tw" x="418" y="536">⚠ криптошлюз в общей LAN</text>
+<g class="c-mt" transform="translate(360,624) scale(.62)"><use href="#i-wifi"/></g>
+<text class="m" x="382" y="620">wlan 2.4 / 5 ГГц</text>
+
+<!-- наш сервер -->
+<g class="c-net" transform="translate(120,648)"><use href="#i-server"/></g>
+<text class="n" x="120" y="708" text-anchor="middle">Наш сервер</text>
+<text class="m" x="120" y="726" text-anchor="middle">10.15.10.x</text>
+
+<!-- офисные ПК -->
+<g class="c-net" transform="translate(333,644)"><use href="#i-pc"/></g>
+<text class="n" x="333" y="708" text-anchor="middle">Офисные машины</text>
+<text class="m" x="333" y="726" text-anchor="middle">Primo.RPA.2 / .5</text>
+<text class="m" x="333" y="744" text-anchor="middle">10.15.10.x</text>
+
+<!-- континент -->
+<g class="c-cu" transform="translate(660,665)"><use href="#i-crypto"/></g>
+<text class="n"  x="722" y="646">Континент IPC-R10</text>
+<text class="s"  x="722" y="664">криптошлюз, управляется ЦУС</text>
+<text class="mc" x="722" y="684">порт 1 → if4, адрес 10.15.10.? </text>
+<text class="mc" x="722" y="702">порт 2 → ноутбук, сеть ?</text>
+
+<!-- ноутбук -->
+<line class="ln" x1="660" y1="695" x2="660" y2="782" marker-end="url(#ar)"/>
+<text class="m" x="674" y="742">порт 2</text>
+<g class="c-net" transform="translate(660,812)"><use href="#i-laptop"/></g>
+<text class="n" x="722" y="806">Ноутбук (АРМ)</text>
+<text class="s" x="722" y="824">единственный разрешённый источник</text>
+<text class="s" x="722" y="842">+ Wi-Fi в 10.15.10.0/24 → см. схему 2</text>
+
+<!-- подписи туннеля -->
+<rect x="418" y="580" width="150" height="24" rx="12" fill="var(--tunnel)" opacity=".16"/>
+<text class="tp" x="493" y="597" text-anchor="middle">ГОСТ S2S-туннель</text>
+<text class="tp" x="420" y="82">туннель терминируется на IPC-R10, наружу выходит через NAT MikroTik</text>
+
+<!-- легенда -->
+<line class="ln" x1="58" y1="928" x2="104" y2="928"/><text class="s" x="114" y="932">Ethernet</text>
+<line class="ln-w" x1="196" y1="928" x2="242" y2="928"/><text class="s" x="252" y="932">Wi-Fi</text>
+<line class="pipe" x1="320" y1="928" x2="366" y2="928"/><text class="s" x="376" y="932">путь ГОСТ-туннеля (логический канал поверх физики)</text>
+</svg>
+</div>
+<p class="cap">Главное: туннель терминируется <b>на IPC-R10</b>, но его пакеты идут через bridge → MikroTik → <code>masquerade</code> → единственный белый IP. Для этого трафика MikroTik — транзит <i>и</i> NAT-устройство, поэтому от него напрямую зависит, поднимется ли канал.</p>
+
+<h2>Схема 2 — путь разработчика до сети Заказчика</h2>
+
+<div class="fig">
+<svg viewBox="0 0 1320 880" role="img" aria-label="Схема доступа разработчика">
+<defs>
+  <marker id="ar2" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--box-stroke)"/></marker>
+  <marker id="ar2w" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+</defs>
+
+<path class="pipe" d="M 950 655 V 762 H 530"/>
+
+<rect class="zone" x="520" y="168" width="770" height="524" rx="14"/>
+<text class="zone-t" x="538" y="192">ОФИС PRIMO</text>
+<rect class="zone-cu" x="880" y="566" width="392" height="112" rx="12"/>
+<text class="zone-tc" x="894" y="588">ОБОРУДОВАНИЕ ЗАКАЗЧИКА</text>
+<rect class="zone-cu" x="110" y="700" width="420" height="130" rx="12"/>
+<text class="zone-tc" x="126" y="724">ИНФРАСТРУКТУРА ЗАКАЗЧИКА</text>
+
+<!-- разработчик -->
+<g class="c-net" transform="translate(112,250)"><use href="#i-laptop"/></g>
+<text class="n" x="112" y="312" text-anchor="middle">Разработчик</text>
+<text class="s" x="112" y="330" text-anchor="middle">дома / вне офиса</text>
+<text class="m" x="112" y="350" text-anchor="middle">OpenVPN-клиент</text>
+
+<!-- облако -->
+<g class="c-net" transform="translate(350,250) scale(1.3)"><use href="#i-cloud"/></g>
+<text class="n" x="350" y="322" text-anchor="middle">Интернет</text>
+
+<line class="ln" x1="166" y1="250" x2="288" y2="250" marker-end="url(#ar2)"/>
+<line class="ln" x1="412" y1="250" x2="578" y2="250" marker-end="url(#ar2)"/>
+<circle class="stepc" cx="222" cy="222" r="13"/><text class="stept" x="222" y="226">1</text>
+<text class="ma" x="238" y="204">OpenVPN TCP/1194 → 89.20.40.91</text>
+<text class="m"  x="238" y="222">клиент получает 10.15.20.10–.50</text>
+
+<!-- микротик -->
+<g class="c-mt" transform="translate(620,250)"><use href="#i-router"/></g>
+<text class="n"  x="672" y="246">MikroTik hAP ac</text>
+<text class="ma" x="672" y="264">OVPN сервер · 10.15.20.1</text>
+<text class="m"  x="672" y="282">RouterOS 6.49.13 (только TCP)</text>
+
+<!-- bridge -->
+<line class="ln" x1="620" y1="273" x2="620" y2="410" marker-end="url(#ar2)"/>
+<g class="c-mt" transform="translate(620,430)"><use href="#i-switch"/></g>
+<text class="ma" x="576" y="348" text-anchor="end">bridge</text>
+<text class="m"  x="576" y="366" text-anchor="end">LAN 10.15.10.0/24</text>
+
+<!-- ноутбук -->
+<line class="ln-w" x1="668" y1="430" x2="898" y2="430" marker-end="url(#ar2)"/>
+<g class="c-mt" transform="translate(766,404) scale(.55)"><use href="#i-wifi"/></g>
+<circle class="stepc" cx="712" cy="466" r="13"/><text class="stept" x="712" y="470">2</text>
+<text class="ma" x="732" y="470">RDP 3389 → 10.15.10.x по Wi-Fi</text>
+
+<g class="c-net" transform="translate(950,430)"><use href="#i-laptop"/></g>
+<text class="n"  x="1012" y="404">Ноутбук (АРМ) — dual-homed</text>
+<text class="m"  x="1012" y="424">Wi-Fi → 10.15.10.x</text>
+<text class="m"  x="1012" y="442">Ethernet → порт 2 Континента</text>
+<text class="tw" x="1012" y="462">⚠ два шлюза по умолчанию</text>
+
+<!-- континент -->
+<line class="ln" x1="950" y1="460" x2="950" y2="590" marker-end="url(#ar2)"/>
+<circle class="stepc" cx="950" cy="524" r="13"/><text class="stept" x="950" y="528">3</text>
+<text class="m" x="970" y="528">трафик приложений уходит в Ethernet</text>
+<g class="c-cu" transform="translate(950,622) scale(.82)"><use href="#i-crypto"/></g>
+<text class="n"  x="1006" y="616">Континент IPC-R10</text>
+<text class="s"  x="1006" y="634">шифрование + фильтрация по ЦУС</text>
+
+<!-- заказчик -->
+<g class="c-cu" transform="translate(190,780) scale(.8)"><use href="#i-crypto"/></g>
+<g class="c-cu" transform="translate(320,780) scale(.72)"><use href="#i-server"/></g>
+<text class="n" x="380" y="776">Сеть Заказчика</text>
+<text class="s" x="380" y="794">целевые ресурсы</text>
+
+<circle class="stepc" cx="740" cy="762" r="13"/><text class="stept" x="740" y="766">4</text>
+<text class="tp" x="760" y="748">ГОСТ S2S-туннель</text>
+<text class="s"  x="760" y="784">физически — обратно через bridge → MikroTik → NAT → интернет (схема 1)</text>
+
+<!-- предупреждение -->
+<rect x="56" y="398" width="424" height="252" rx="12" class="wl"/>
+<text class="twb" x="76" y="428">⚠ Место, где схема ломается чаще всего</text>
+<text class="s" x="76" y="456">У ноутбука два активных интерфейса и два шлюза</text>
+<text class="s" x="76" y="476">по умолчанию. Windows выберет тот, у кого метрика</text>
+<text class="s" x="76" y="496">ниже, — обычно это Ethernet, т.е. Континент.</text>
+<text class="s" x="76" y="522">Тогда ответы на RDP, пришедший из 10.15.20.0/24,</text>
+<text class="s" x="76" y="542">уйдут в Континент и там умрут. Симптом: из офиса</text>
+<text class="s" x="76" y="562">RDP работает, из OpenVPN — нет.</text>
+<text class="n" x="76" y="592" style="font-size:13px">Фиксируем маршрут на ноутбуке:</text>
+<text class="m" x="76" y="614" style="fill:var(--fg)">route -p add 10.15.20.0 mask 255.255.255.0 10.15.10.1</text>
+<text class="s" x="76" y="636">и снимаем шлюз по умолчанию с Ethernet-интерфейса.</text>
+<path class="wl" d="M 480 470 C 620 470 700 500 890 452" marker-end="url(#ar2w)"/>
+</svg>
+</div>
+<p class="cap">Шаги: ① разработчик поднимает OpenVPN до 89.20.40.91 и получает адрес из 10.15.20.0/24 · ② по RDP заходит на ноутбук в офисной LAN (ноутбук в ней по Wi-Fi) · ③ с рабочего стола ноутбука трафик к ресурсам Заказчика уходит в проводной интерфейс · ④ Континент шифрует и отправляет его в туннель.</p>
+
+<h2>Почему это может не заработать</h2>
+
+<div class="risk">
+<h3>A. Континент за NAT — блокер №1</h3>
+<ol>
+<li><b>Криптошлюз за NAT — нештатная схема.</b> IPC-R10 рассчитан на то, что его внешний интерфейс сам смотрит в интернет. За NAT он может работать, но только если в ЦУС Заказчика узел заведён в режиме «за NAT» / с NAT-T и <b>туннель инициируется с нашей стороны</b>. Если ЦУС ждёт входящее соединение на адрес филиала — с одним белым IP без проброса порта это не поднимется.</li>
+<li><b>Конфликт по UDP 500/4500.</b> Если Континент использует IKE/NAT-T, то на нашем MikroTik эти порты уже заняты его собственным IPsec: включён <code>l2tp-server use-ipsec=yes</code> и в firewall стоят <code>accept input udp/500</code> и <code>udp/4500</code>. Два следствия: (а) входящий пакет от Заказчика на 4500 попадёт в MikroTik, а не в Континент; (б) <code>masquerade</code> может подменить исходящий порт 4500, если он локально занят, — часть реализаций NAT-T от этого не поднимается. Лечится отключением L2TP/IPsec на роутере и явным <code>dst-nat</code>.</li>
+<li><b>Привязка по адресу.</b> В ЦУС для узла часто прописан его внешний IP. За NAT реальный адрес порта 1 будет 10.15.10.x, а наружу Заказчик увидит 89.20.40.91. Если в конфиге ЦУС ожидается другое — согласование не пройдёт.</li>
+<li><b>Только UDP/TCP пролезет.</b> Чистый ESP (протокол 50) или GRE через NAT не проходит в принципе. Нужен точный протокол и номер порта.</li>
+<li><b>fasttrack и таймауты conntrack.</b> В forward стоит <code>fasttrack-connection</code> для всего established/related, а UDP-таймауты дефолтные. Долгоживущая UDP-сессия туннеля может схлопнуться при простое или повести себя непредсказуемо под fasttrack. Трафик криптошлюза стоит из fasttrack исключить и поднять <code>udp-stream-timeout</code>.</li>
+</ol>
+</div>
+
+<div class="risk">
+<h3>B. Криптошлюз стоит в общей офисной LAN</h3>
+<ol start="6">
+<li><b><code>if4</code> — порт бриджа.</b> Внешний интерфейс Континента находится в одном L2-домене с офисными машинами, нашим сервером и Wi-Fi-клиентами. Любая машина в офисе может слать пакеты прямо на криптошлюз Заказчика. Это первое, к чему придерётся его служба ИБ, и это же мешает нам разграничить доступ. Правильно — вынести <code>if4</code> из бриджа в отдельную подсеть, как уже сделано для AI-сервера на <code>if3</code>.</li>
+<li><b>Адрес порта 1 не зафиксирован.</b> Он придёт из общего DHCP-пула 10.15.10.10–250 и может смениться после перезагрузки — а на этот адрес будут завязаны и правила Заказчика, и наш возможный <code>dst-nat</code>. Нужна статическая аренда или отдельный сегмент.</li>
+</ol>
+</div>
+
+<div class="risk">
+<h3>C. Ноутбук с двумя интерфейсами</h3>
+<ol start="8">
+<li><b>Асимметричная маршрутизация</b> — самый частый практический затык, подробно на схеме 2. Пакет RDP приходит из 10.15.20.0/24, ответ уходит по default gateway, а он с высокой вероятностью в сторону Континента.</li>
+<li><b>Два DHCP.</b> Если Континент раздаёт ноутбуку адрес со шлюзом по умолчанию, а MikroTik по Wi-Fi — свой, маршрут будет прыгать при каждом переподключении.</li>
+<li><b>Пересечение подсетей.</b> Наши: <code>10.15.10.0/24</code>, <code>10.15.20.0/24</code> (OpenVPN), <code>10.15.30.0/24</code> (AI), <code>192.168.89.0/24</code> (PPTP/L2TP). Диапазон 10.15.x у корпоративных сетей встречается часто — надо сверить с адресацией Заказчика <b>до</b> настройки.</li>
+<li><b>Политика ИБ Заказчика.</b> Узел одновременно в защищённом контуре и в сети с выходом в интернет — прямой обход криптошлюза и нарушение типовой модели «АРМ за КШ». Увидев Wi-Fi на этом ноутбуке, ИБ Заказчика с высокой вероятностью потребует его отключить. <b>Это главный организационный риск</b>, к нему нужен план Б (ниже).</li>
+<li><b>Без Wi-Fi доступа к ноутбуку не останется.</b> Открытый трафик из нашей LAN в порт 2 Континента по умолчанию не ходит — это надо разрешать отдельным правилом в ЦУС Заказчика.</li>
+</ol>
+</div>
+
+<div class="risk">
+<h3>D. Производительность и MTU</h3>
+<ol start="13">
+<li><b>RouterOS 6.49.13 → OpenVPN только по TCP.</b> TCP-over-TCP при потерях даёт лавинообразную деградацию — RDP будет «залипать». WireGuard в ветке 6.x недоступен; чтобы его получить, нужен апгрейд до RouterOS 7 (hAP ac поддерживается).</li>
+<li><b>Слабое железо.</b> RB962UiGS — MIPSBE без аппаратного крипто. Реальный потолок OpenVPN — единицы–десятки Мбит/с при 100% CPU, и этот же CPU параллельно тянет NAT для туннеля Континента и пробросы к AI-серверу.</li>
+<li><b>Тройная инкапсуляция, а <code>mangle</code> пустой.</b> RDP → OpenVPN (−~50 байт) → ГОСТ-туннель (−70…100) → возможный NAT-T. Без MSS-clamping получим классику: сессия открывается, но виснет на больших передачах, файлы не копируются.</li>
+</ol>
+</div>
+
+<div class="risk">
+<h3>E. Отдельно — то, что всплывёт при аудите конфига</h3>
+<ol start="16">
+<li><b>OpenVPN разрешает <code>null</code>-шифр и <code>null</code>-аутентификацию:</b> <code>auth=sha1,md5,null cipher=blowfish128,aes128,aes192,aes256,null</code>. Клиент может согласовать канал без шифрования. Для встречи с ИБ Заказчика это красная тряпка — поправить до неё.</li>
+<li><b>Включены PPTP, SSTP и L2TP</b>, наружу открыты 1723/tcp, 443/tcp, 1701/500/4500/udp. PPTP считается небезопасным. Лишняя поверхность атаки на том же белом адресе, через который пойдёт канал Заказчика.</li>
+<li><b>В chain=forward нет финального <code>drop</code></b> — политика по умолчанию accept. Практический эффект: RDP из 10.15.20.0/24 в 10.15.10.0/24 сейчас работает <i>не благодаря правилам, а потому что запрета нет</i>. Правила «Allow all openVPn» стоят в chain=<b>input</b> и разрешают доступ только к самому роутеру, не в LAN — это не то, что от них ожидается.</li>
+<li><b>На WAN одновременно статический адрес и <code>dhcp-client</code>.</b> Если провайдер отдаст адрес по DHCP, появится второй IP и второй маршрут по умолчанию — плавающие обрывы, которые будут списывать на Континент.</li>
+<li><b>Мелочи:</b> у VPN-клиентов разрешён только TCP к роутеру, поэтому DNS по UDP/53 к 10.15.10.1 не работает; winbox не доступен из 10.15.20.0/24; в address-list висит неиспользуемый <code>192.168.88.0/24</code>.</li>
+</ol>
+</div>
+
+<div class="good">
+<h3>Когда схема заработает</h3>
+<ol>
+<li>Заказчик подтверждает, что IPC-R10 <b>штатно работает за NAT</b> и туннель инициируется с нашей стороны.</li>
+<li>Мы знаем протокол и порт инкапсуляции, отключаем свой L2TP/IPsec, чтобы не конкурировать за 500/4500, и не даём fasttrack трогать этот трафик.</li>
+<li><code>if4</code> вынесен из бриджа в отдельную подсеть, адрес порта 1 зафиксирован.</li>
+<li>Адресация не пересекается: 10.15.10 / 10.15.20 / 10.15.30 ≠ сети Заказчика ≠ сеть за портом 2.</li>
+<li>На ноутбуке жёстко зафиксирована маршрутизация: <code>10.15.10.0/24</code> и <code>10.15.20.0/24</code> — через Wi-Fi, всё остальное — через Континент.</li>
+<li>Включён MSS-clamping, OpenVPN переведён на aes256+sha1 (или, лучше, весь удалённый доступ — на WireGuard после апгрейда до ROS 7).</li>
+<li>Служба ИБ Заказчика согласовала dual-homed АРМ.</li>
+</ol>
+<p style="margin-bottom:0">При выполнении этих пунктов схема рабочая и достаточно распространённая. Единственный по-настоящему непредсказуемый элемент — поведение Континента за NAT, и это вопрос к Заказчику, а не к нам.</p>
+</div>
+
+<h3>План Б — если Заказчик запретит Wi-Fi на ноутбуке</h3>
+<div class="card">
+<p style="margin-top:0">Ноутбук остаётся <b>только</b> в порту 2 Континента, IPC-R10 работает как маршрутизатор и МЭ между нашим сегментом и защищённым. Заказчик со своего ЦУС добавляет одно правило для <b>открытого</b> трафика: <code>10.15.20.0/24 → 3389 на ноутбук — разрешить</code>, остальное запрещено. Путь разработчика: OpenVPN → MikroTik → <code>if4</code> → порт 1 IPC → порт 2 → RDP.</p>
+<p style="margin-bottom:0">У ноутбука один интерфейс и один шлюз, никаких асимметричных маршрутов, модель «АРМ за КШ» не нарушается. Минус — целиком зависит от готовности Заказчика править политику в ЦУС. <b>Рекомендую нести это как основное предложение, а dual-homed — как компромисс.</b></p>
+</div>
+
+<h2><span class="tag t-fix">до встречи</span>Что стоит поправить на MikroTik</h2>
+<p class="muted">Порядок правил в firewall важен — делать через <code>/system safe-mode</code> и проверять индексы <code>place-before</code> по факту.</p>
+<pre><span class="c"># 1. Убрать лишний DHCP-клиент на WAN (адрес прописан статикой)</span>
+/ip dhcp-client disable [find interface=if.1uplink]
+
+<span class="c"># 2. Ужесточить OpenVPN — сейчас разрешён null-шифр</span>
+/interface ovpn-server server set auth=sha1 cipher=aes256
+
+<span class="c"># 3. Убрать лишние VPN-серверы и освободить 500/4500 под Континент</span>
+/interface pptp-server server set enabled=no
+/interface sstp-server server set enabled=no
+/interface l2tp-server server set enabled=no
+
+<span class="c"># 4. Вынести Континент из бриджа в свой сегмент</span>
+/interface bridge port remove [find interface=if4]
+/ip address add address=10.15.40.1/24 interface=if4 network=10.15.40.0
+/ip pool add name=continent ranges=10.15.40.10-10.15.40.20
+/ip dhcp-server add name=dhcp_continent interface=if4 address-pool=continent disabled=no
+/ip dhcp-server network add address=10.15.40.0/24 gateway=10.15.40.1
+/ip firewall nat add chain=srcnat action=masquerade src-address=10.15.40.0/24 out-interface=if.1uplink
+
+<span class="c"># 5. MSS clamping — иначе RDP будет виснуть на больших передачах</span>
+/ip firewall mangle add chain=forward action=change-mss new-mss=clamp-to-pmtu \
+    protocol=tcp tcp-flags=syn
+
+<span class="c"># 6. Не давать fasttrack трогать трафик криптошлюза + поднять UDP-таймауты</span>
+/ip firewall filter add chain=forward action=accept src-address=10.15.40.0/24 \
+    place-before=[find action=fasttrack-connection]
+/ip firewall connection tracking set udp-timeout=1m udp-stream-timeout=5m
+
+<span class="c"># 7. Мелочи: DNS по UDP и winbox для VPN-клиентов</span>
+/ip firewall filter add chain=input action=accept protocol=udp dst-port=53 \
+    src-address=10.15.20.0/24 place-before=[find comment~"drop all not coming from LAN"]
+/ip service set winbox address=10.15.10.0/24,10.15.20.0/24,10.15.30.0/24,10.15.40.0/24
+
+<span class="c"># 8. Только если Заказчик инициирует туннель со своей стороны —</span>
+<span class="c">#    порт уточнить у него, 10.15.40.10 — адрес порта 1 IPC-R10</span>
+/ip firewall nat add chain=dstnat action=dst-nat dst-address=89.20.40.91 \
+    protocol=udp dst-port=&lt;порт&gt; to-addresses=10.15.40.10</pre>
+
+<h2><span class="tag t-q">вопросы</span>Что мне нужно от тебя</h2>
+<ol>
+<li>Континент уже физически подключён и настроен, или пока только стоит в стойке? Какой адрес он получил — <code>/ip dhcp-server lease print</code> и <code>/ip arp print interface=if4</code>.</li>
+<li>Есть ли у нас вообще доступ к веб-интерфейсу IPC-R10, или он полностью управляется из ЦУС Заказчика?</li>
+<li>Что воткнуто в <code>if2</code> и <code>if5</code>, что за AI-сервер на <code>if3</code> и кто такой <code>146.185.241.36</code> — просто чтобы на схеме не было белых пятен, если Заказчик спросит про соседние сегменты.</li>
+<li>Ноутбук уже есть? Чей он — наш или выданный Заказчиком, и кто им управляет?</li>
+<li>89.20.40.91 — по договору статический? Нужна ли Заказчику гарантия неизменности адреса.</li>
+<li>Готовы ли мы обновить RouterOS до 7.x ради WireGuard, или ветку 6 long-term трогать нельзя?</li>
+<li>PPTP/SSTP/L2TP кем-то используются, или их можно выключить?</li>
+</ol>
+
+<h2><span class="tag t-q">вопросы</span>Что спросить у Заказчика на встрече</h2>
+<table>
+<tr><th style="width:36%">Вопрос</th><th>Зачем</th></tr>
+<tr><td>Версия и режим Континента: 3.x или 4.x, криптошлюз или абонентский пункт?</td><td>От этого зависит поведение за NAT и набор портов.</td></tr>
+<tr><td>Поддерживается ли работа узла <b>за NAT</b>, включён ли NAT-T?</td><td>Главный технический блокер. Ответ «нет» — схему надо переделывать целиком.</td></tr>
+<tr><td>Кто инициирует туннель — филиал или ЦУС?</td><td>Если ЦУС — нужен <code>dst-nat</code> на единственном белом IP.</td></tr>
+<tr><td>Транспортный протокол и номера портов?</td><td>Для правил firewall и проверки конфликта с нашим IPsec на 500/4500.</td></tr>
+<tr><td>Нужен ли им 89.20.40.91 в whitelist и требуется ли он статическим?</td><td>Зафиксировать у провайдера заранее.</td></tr>
+<tr><td>Какой адрес должен быть на порту 1 — DHCP от нас или статика? Какую подсеть под него выделить?</td><td>Мы предлагаем отдельный сегмент 10.15.40.0/24 вместо общей LAN.</td></tr>
+<tr><td>Какая подсеть за портом 2 и кто выдаёт адрес ноутбуку?</td><td>Проверка пересечения с 10.15.10/20/30.</td></tr>
+<tr><td>Какие подсети у них в целевой сети?</td><td>Там же — проверка пересечений.</td></tr>
+<tr><td>Какие именно ресурсы и порты нужны с ноутбука?</td><td>Заложить в правила ЦУС сразу, а не добирать по одному после запуска.</td></tr>
+<tr><td>Допускается ли на ноутбуке второй интерфейс (Wi-Fi) в нашей сети?</td><td>Ключевой организационный вопрос. Отсюда — план Б.</td></tr>
+<tr><td>Если нет — разрешат ли на IPC-R10 открытое правило «10.15.20.0/24 → RDP 3389 на ноутбук»?</td><td>Это и есть план Б.</td></tr>
+<tr><td>Требования по MTU / фрагментации со стороны их шлюза?</td><td>Сразу выставить MSS-clamping и не ловить зависания.</td></tr>
+<tr><td>Требуется ли аттестация сегмента, ведение журналов, ограничения на носители, согласование состава ПО на АРМ?</td><td>Может неожиданно расширить объём работ и сроки.</td></tr>
+</table>
+
+<h2>Что взять на встречу</h2>
+<ul>
+<li>Эти две схемы — они снимают половину уточнений и сразу показывают, что мы разобрались в их оборудовании.</li>
+<li>Наш белый IP 89.20.40.91 и подтверждение статичности от провайдера.</li>
+<li>План адресации: 10.15.10.0/24 (LAN), 10.15.20.0/24 (OpenVPN), 10.15.30.0/24 (AI), предлагаемый 10.15.40.0/24 под Континент — сверить пересечения прямо на встрече.</li>
+<li>Позицию по доступу: план Б как основное предложение, dual-homed ноутбук — как компромисс, если правку политики в ЦУС они не потянут.</li>
+<li>Перед встречей поправить null-шифр в OpenVPN и выключить PPTP — чтобы не всплыло в разговоре с их ИБ.</li>
+</ul>
+
+</div>
+</body>
+</html>
