@@ -1,0 +1,1433 @@
+{
+ "compa_aethersoul": {
+  "desc": "Amulets and Medals",
+  "resists": {
+   "aether": 16
+  },
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_aethersteelalloy": {
+  "desc": "Shields (renamed to Reinforced Shell)",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "shield"
+  ]
+ },
+ "compa_aethersteelbolts": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_amber": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_ballisticplating": {
+  "desc": "Chest",
+  "resists": {},
+  "slots": [
+   "chest"
+  ]
+ },
+ "compa_batteredshell": {
+  "desc": "Shields",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "shield"
+  ]
+ },
+ "compa_blacktallow": {
+  "desc": "Amulets and Medals",
+  "resists": {
+   "chaos": 16
+  },
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_bladedplating": {
+  "desc": "Armor",
+  "health": 120,
+  "resists": {},
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_blazingruby": {
+  "desc": "Amulet/Medal",
+  "health": 160,
+  "health_pct": 4,
+  "resists": {},
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_blessedsteel": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_bloodiedcrystal": {
+  "desc": "Ring/Amulet/Medal",
+  "resists": {
+   "bleed": 15
+  },
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_bristlyfur": {
+  "desc": "All Armor",
+  "health": 90,
+  "resists": {},
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_chilledsteel": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_chippedclaw": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_coldstone": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_consecratedwrappings": {
+  "desc": "Hands",
+  "resists": {
+   "chaos": 8
+  },
+  "slots": [
+   "hands"
+  ]
+ },
+ "compa_corpsedust": {
+  "desc": "Rings and Amulets",
+  "health_pct": 4,
+  "resists": {
+   "vitality": 10
+  },
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_crackedlodestone": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_deathchillbolts": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_densefur": {
+  "desc": "All Armor",
+  "health": 90,
+  "resists": {
+   "cold": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_ectoplasm": {
+  "desc": "Helms Rings Amulets and Medals",
+  "resists": {},
+  "slots": [
+   "head",
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_enchantedearth": {
+  "desc": "Armor",
+  "health_pct": 4,
+  "resists": {},
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_festeringblood": {
+  "desc": "Rings Amulets and Medals (renamed to Roiling Blood)",
+  "resists": {},
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_flint": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_flintcorebolts": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_focusingprism": {
+  "desc": "Amulets",
+  "resists": {},
+  "slots": [
+   "amulet"
+  ]
+ },
+ "compa_frozenheart": {
+  "desc": "Rings",
+  "health": 70,
+  "resists": {
+   "cold": 10
+  },
+  "slots": [
+   "ring"
+  ]
+ },
+ "compa_gallstone": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_hellbaneammo": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_hollowedfang": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_imbuedsilver": {
+  "desc": "All Weapon + Amulet",
+  "grants_skill": true,
+  "resists": {
+   "bleed": 15
+  },
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_leatheryhide": {
+  "desc": "Helm",
+  "health_pct": 6,
+  "resists": {
+   "stun": 25
+  },
+  "slots": [
+   "head"
+  ]
+ },
+ "compa_markofillusions": {
+  "desc": "Rings and Amulets",
+  "resists": {},
+  "slots": [
+   "amulet",
+   "ring"
+  ]
+ },
+ "compa_markofthetraveler": {
+  "desc": "Boots",
+  "resists": {},
+  "slots": [
+   "feet"
+  ]
+ },
+ "compa_moltenskin": {
+  "desc": "All Armor",
+  "resists": {
+   "fire": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_mutagenicichor": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_mutatedscales": {
+  "desc": "Sho / Chest / Legs / Hands",
+  "health": 180,
+  "health_pct": 3,
+  "resists": {},
+  "slots": [
+   "shoulders",
+   "chest",
+   "legs",
+   "hands"
+  ]
+ },
+ "compa_polishedemerald": {
+  "desc": "Helm / Shield / Ring / Chest",
+  "resists": {},
+  "slots": [
+   "head",
+   "chest",
+   "ring",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_purifiedsalt": {
+  "desc": "All Weapon + Amulet",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_radiantgem": {
+  "desc": "Shields",
+  "grants_skill": true,
+  "resists": {
+   "elemental_all": 15
+  },
+  "slots": [
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_reinforcedshell": {
+  "desc": "Shields (renamed to Serrated Shell)",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "shield"
+  ]
+ },
+ "compa_resilientchestplate": {
+  "desc": "Chest / Shoulders / Shield",
+  "resists": {
+   "pierce": 15
+  },
+  "slots": [
+   "shoulders",
+   "chest",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_restlessremains": {
+  "desc": "Hands",
+  "resists": {},
+  "slots": [
+   "hands"
+  ]
+ },
+ "compa_riftstone": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_rigidshell": {
+  "desc": "All Armor",
+  "resists": {
+   "lightning": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_rottenheart": {
+  "desc": "Chest",
+  "resists": {},
+  "slots": [
+   "chest"
+  ]
+ },
+ "compa_runeboundtopaz": {
+  "desc": "Ring/Amulet/Medal",
+  "health": 160,
+  "resists": {
+   "stun": 10
+  },
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_runestone": {
+  "desc": "Helm",
+  "resists": {
+   "aether": 12,
+   "elemental_all": 12,
+   "poison": 12
+  },
+  "slots": [
+   "head"
+  ]
+ },
+ "compa_sanctifiedbone": {
+  "desc": "Chest and Head",
+  "resists": {
+   "chaos": 12,
+   "vitality": 18
+  },
+  "slots": [
+   "head",
+   "chest"
+  ]
+ },
+ "compa_scalyhide": {
+  "armor_absorb_pct": 20,
+  "desc": "Shoulder Chest and Legs",
+  "resists": {},
+  "slots": [
+   "shoulders",
+   "chest",
+   "legs"
+  ]
+ },
+ "compa_scavengedplating": {
+  "desc": "All Armor",
+  "resists": {},
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_sealblades": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealblight": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealcorruption": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealdestruction": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealmight": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "health": 160,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealnight": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealresonance": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "health": 160,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealshadows": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealskies": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_sealvoid": {
+  "desc": "Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_searingember": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_serratedspike": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_severedclaw": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_silkswatch": {
+  "desc": "Shoulder Chest and Legs",
+  "resists": {
+   "bleed": 18,
+   "pierce": 18
+  },
+  "slots": [
+   "shoulders",
+   "chest",
+   "legs"
+  ]
+ },
+ "compa_soulshard": {
+  "desc": "Rings Amulets and Medals",
+  "resists": {
+   "vitality": 20
+  },
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_spellscorchedplating": {
+  "desc": "Armor",
+  "health": 100,
+  "resists": {
+   "elemental_all": 15,
+   "pierce": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_spinedcarapace": {
+  "desc": "All Armor",
+  "resists": {},
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_taintedheart": {
+  "desc": "Amulet/Medal",
+  "resists": {
+   "aether": 12,
+   "vitality": 12
+  },
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_ugdenbogleather": {
+  "desc": "Armor",
+  "resists": {
+   "bleed": 20,
+   "poison": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_vengefulwraith": {
+  "desc": "Rings Amulets and Medals",
+  "resists": {},
+  "slots": [
+   "amulet",
+   "ring",
+   "medal"
+  ]
+ },
+ "compa_venomtippedammo": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_viciousjawbone": {
+  "desc": "Amulets and Medals",
+  "resists": {},
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_viciousspikes": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compa_viscousvenom": {
+  "desc": "All Armor (renamed to Antivenom Salve)",
+  "resists": {
+   "poison": 20
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest",
+   "legs",
+   "hands",
+   "feet",
+   "waist"
+  ]
+ },
+ "compa_voidtouchedammo": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compa_wardstone": {
+  "desc": "Amulets and Medals",
+  "resists": {
+   "bleed": 18,
+   "elemental_all": 18
+  },
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compa_whetstone": {
+  "desc": "Swords Axes and Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "axe",
+   "axe2h",
+   "spear2h",
+   "ranged1h",
+   "ranged2h"
+  ]
+ },
+ "compa_wrathstone": {
+  "desc": "Melee Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_ancientarmorplate": {
+  "armor_absorb_pct": 8,
+  "desc": "Chest and Legs",
+  "resists": {},
+  "slots": [
+   "chest",
+   "legs"
+  ]
+ },
+ "compb_arcanediamond": {
+  "desc": "Helm",
+  "grants_skill": true,
+  "health_pct": 4,
+  "resists": {
+   "vitality": 15
+  },
+  "slots": [
+   "head"
+  ]
+ },
+ "compb_arcanelens": {
+  "desc": "Amulets",
+  "resists": {},
+  "slots": [
+   "amulet"
+  ]
+ },
+ "compb_arcanespark": {
+  "desc": "Amulets and Medals",
+  "resists": {
+   "disruption": 30
+  },
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compb_beronath": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_bindingsofbysmiel": {
+  "desc": "Chest",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "chest"
+  ]
+ },
+ "compb_bloodywhetstone": {
+  "desc": "Swords Axes and Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "axe",
+   "axe2h",
+   "spear2h",
+   "ranged1h",
+   "ranged2h"
+  ]
+ },
+ "compb_chainsofoleron": {
+  "desc": "Chest",
+  "resists": {},
+  "slots": [
+   "chest"
+  ]
+ },
+ "compb_deviltouchedammo": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compb_dreadskull": {
+  "desc": "Amulets and Medals",
+  "resists": {},
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compb_eldritchmirror": {
+  "desc": "Helm/Chest",
+  "grants_skill": true,
+  "resists": {
+   "vitality": 10
+  },
+  "slots": [
+   "head",
+   "chest"
+  ]
+ },
+ "compb_hallowedground": {
+  "desc": "Chest",
+  "resists": {
+   "elemental_all": 12
+  },
+  "slots": [
+   "chest"
+  ]
+ },
+ "compb_hauntedsteel": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_kilriansoul": {
+  "desc": "Chest",
+  "grants_skill": true,
+  "resists": {
+   "vitality": 20
+  },
+  "slots": [
+   "chest"
+  ]
+ },
+ "compb_livingarmor": {
+  "armor_absorb_pct": 12,
+  "desc": "Shoulder/Helm/Chest",
+  "resists": {
+   "chaos": 8,
+   "elemental_all": 10
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest"
+  ]
+ },
+ "compb_lodestone": {
+  "desc": "Amulets and Medals",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "amulet",
+   "medal"
+  ]
+ },
+ "compb_markofdreeg": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_markofmogdrogen": {
+  "desc": "Boots",
+  "health_pct": 5,
+  "resists": {},
+  "slots": [
+   "feet"
+  ]
+ },
+ "compb_markofthemyrmidon": {
+  "desc": "Shields",
+  "grants_skill": true,
+  "health": 120,
+  "resists": {},
+  "slots": [
+   "shield"
+  ]
+ },
+ "compb_oleronblood": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_sacredplating": {
+  "armor_absorb_pct": 12,
+  "desc": "Shoulder/Helm/Chest",
+  "health": 210,
+  "resists": {
+   "aether": 18,
+   "vitality": 14
+  },
+  "slots": [
+   "head",
+   "shoulders",
+   "chest"
+  ]
+ },
+ "compb_sealancestry": {
+  "desc": "Amulet",
+  "grants_skill": true,
+  "health_pct": 5,
+  "resists": {
+   "vitality": 20
+  },
+  "slots": [
+   "amulet"
+  ]
+ },
+ "compb_sealannihilation": {
+  "desc": "Amulet",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "amulet"
+  ]
+ },
+ "compb_silvercorebolts": {
+  "desc": "All Guns",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "ranged1h",
+   "ranged2h",
+   "offhand"
+  ]
+ },
+ "compb_spellwoventhreads": {
+  "desc": "Hands",
+  "resists": {},
+  "slots": [
+   "hands"
+  ]
+ },
+ "compb_symbolofsolael": {
+  "desc": "All Weapons",
+  "grants_skill": true,
+  "resists": {},
+  "slots": [
+   "sword",
+   "sword2h",
+   "mace",
+   "mace2h",
+   "axe",
+   "axe2h",
+   "dagger",
+   "scepter",
+   "spear2h",
+   "ranged1h",
+   "ranged2h",
+   "offhand",
+   "shield"
+  ]
+ },
+ "compb_titanplating": {
+  "desc": "Helm/Chest",
+  "resists": {
+   "pierce": 24
+  },
+  "slots": [
+   "head",
+   "chest"
+  ]
+ },
+ "compb_unholyinscription": {
+  "desc": "Hands",
+  "resists": {
+   "bleed": 15,
+   "vitality": 10
+  },
+  "slots": [
+   "hands"
+  ]
+ }
+}

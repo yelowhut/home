@@ -1,0 +1,767 @@
+<title>Purifier 87 — огненный стрелок для Ultimate</title>
+
+<style>
+  :root {
+    --ground:#131110; --panel:#1B1817; --panel2:#221E1C; --line:#302A25; --line-soft:#241F1D;
+    --text:#E9E2D7; --muted:#9C9186; --dim:#6E655C;
+    --ember:#DE5F26; --amber:#F0A83C; --patina:#5D8A82;
+    --ok:#82A05C; --warn:#C9A227; --crit:#B4462F;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px -16px rgba(0,0,0,.8);
+    --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,"Times New Roman",serif;
+    --sans:"Segoe UI Variable Text","Segoe UI",Optima,Candara,"Trebuchet MS",system-ui,sans-serif;
+    --mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",ui-monospace,monospace;
+    --s1:.35rem; --s2:.7rem; --s3:1.1rem; --s4:1.7rem; --s5:2.6rem; --s6:4rem;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ground:#E9E6DF; --panel:#F4F2EC; --panel2:#EDEAE2; --line:#CFC7B9; --line-soft:#DCD6CA;
+      --text:#221E19; --muted:#6A6157; --dim:#8C8377;
+      --ember:#B4471A; --amber:#96650B; --patina:#3D6C64;
+      --ok:#5C7A38; --warn:#8A6B0C; --crit:#9B3620;
+      --shadow:0 1px 0 rgba(255,255,255,.6), 0 8px 20px -18px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#131110; --panel:#1B1817; --panel2:#221E1C; --line:#302A25; --line-soft:#241F1D;
+    --text:#E9E2D7; --muted:#9C9186; --dim:#6E655C;
+    --ember:#DE5F26; --amber:#F0A83C; --patina:#5D8A82;
+    --ok:#82A05C; --warn:#C9A227; --crit:#B4462F;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+  :root[data-theme="light"] {
+    --ground:#E9E6DF; --panel:#F4F2EC; --panel2:#EDEAE2; --line:#CFC7B9; --line-soft:#DCD6CA;
+    --text:#221E19; --muted:#6A6157; --dim:#8C8377;
+    --ember:#B4471A; --amber:#96650B; --patina:#3D6C64;
+    --ok:#5C7A38; --warn:#8A6B0C; --crit:#9B3620;
+    --shadow:0 1px 0 rgba(255,255,255,.6), 0 8px 20px -18px rgba(0,0,0,.4);
+  }
+
+  body { margin:0; background:var(--ground); color:var(--text);
+         font-family:var(--sans); font-size:16px; line-height:1.6;
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1140px; margin:0 auto; padding:var(--s5) var(--s3) var(--s6); }
+  @media (min-width:1180px) {
+    .wrap { display:grid; grid-template-columns:1fr 190px; gap:var(--s5); align-items:start; max-width:1300px; }
+    .col { min-width:0; }
+    .rail { position:sticky; top:var(--s4); }
+  }
+  .col > * + * { margin-top:0; }
+
+  h1,h2,h3,h4 { font-family:var(--serif); font-weight:600; text-wrap:balance; margin:0; letter-spacing:-.01em; }
+  h1 { font-size:clamp(2rem,5.5vw,3.1rem); line-height:1.05; }
+  h2 { font-size:1.7rem; line-height:1.15; }
+  h3 { font-size:1.17rem; }
+  h4 { font-size:1rem; font-family:var(--sans); font-weight:600; }
+  p { margin:0; max-width:66ch; }
+  a { color:var(--ember); text-decoration-thickness:1px; text-underline-offset:2px; }
+  a:focus-visible, summary:focus-visible { outline:2px solid var(--amber); outline-offset:3px; border-radius:2px; }
+
+  .eyebrow { font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+             color:var(--ember); margin:0 0 var(--s2); }
+  .lede { font-size:1.06rem; color:var(--muted); max-width:62ch; }
+
+  /* ── header ─────────────────────────────────── */
+  header.hero { border-bottom:1px solid var(--line); padding-bottom:var(--s4); }
+  .hero .classes { display:flex; flex-wrap:wrap; gap:var(--s2); align-items:baseline;
+                   font-family:var(--mono); font-size:.82rem; color:var(--muted); margin-top:var(--s2); }
+  .hero .classes b { color:var(--text); font-weight:600; }
+  .flame { color:var(--ember); }
+
+  /* ── stat tiles ─────────────────────────────── */
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:1px;
+           background:var(--line-soft); border:1px solid var(--line); margin-top:var(--s4); }
+  .tile { background:var(--panel); padding:var(--s3); }
+  .tile .k { font-family:var(--mono); font-size:.66rem; letter-spacing:.13em; text-transform:uppercase; color:var(--dim); }
+  .tile .v { font-family:var(--serif); font-size:1.6rem; line-height:1.1; margin-top:.25rem;
+             font-variant-numeric:tabular-nums; }
+  .tile .n { font-size:.78rem; color:var(--muted); margin-top:.2rem; }
+
+  /* ── sections ───────────────────────────────── */
+  section { margin-top:var(--s6); scroll-margin-top:var(--s3); }
+  section > * + * { margin-top:var(--s3); }
+  .shead { display:flex; gap:var(--s3); align-items:baseline; border-bottom:1px solid var(--line);
+           padding-bottom:var(--s2); }
+  .shead .num { font-family:var(--mono); font-size:.78rem; color:var(--ember); letter-spacing:.1em;
+                padding-top:.4rem; }
+
+  /* ── nav rail ───────────────────────────────── */
+  .rail nav { font-family:var(--mono); font-size:.74rem; line-height:1.9; }
+  .rail nav a { display:block; color:var(--muted); text-decoration:none; border-left:2px solid var(--line);
+                padding-left:.6rem; }
+  .rail nav a:hover { color:var(--ember); border-left-color:var(--ember); }
+  .rail .railhead { font-family:var(--mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+                    color:var(--dim); margin-bottom:var(--s2); }
+  @media (max-width:1179px) { .rail { display:none; } }
+
+  /* ── tables ─────────────────────────────────── */
+  .scroller { overflow-x:auto; border:1px solid var(--line); background:var(--panel); box-shadow:var(--shadow); }
+  table { border-collapse:collapse; width:100%; font-size:.88rem; }
+  caption { text-align:left; font-family:var(--mono); font-size:.7rem; letter-spacing:.12em;
+            text-transform:uppercase; color:var(--dim); padding:var(--s2) var(--s3); border-bottom:1px solid var(--line); }
+  th, td { text-align:left; padding:.5rem var(--s2); border-bottom:1px solid var(--line-soft); vertical-align:top; }
+  th:first-child, td:first-child { padding-left:var(--s3); }
+  th:last-child, td:last-child { padding-right:var(--s3); }
+  thead th { font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+             color:var(--muted); font-weight:400; border-bottom:1px solid var(--line);
+             background:var(--panel2); position:sticky; top:0; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover td { background:var(--panel2); }
+  .num, td.num, .n0 { font-variant-numeric:tabular-nums; font-family:var(--mono); }
+  td.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); white-space:nowrap; }
+  th.n { text-align:right; }
+  tfoot td { font-family:var(--mono); font-size:.8rem; background:var(--panel2); border-top:1px solid var(--line);
+             color:var(--muted); }
+  tfoot td b { color:var(--text); }
+  .sk { font-weight:600; }
+  .tag { font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; padding:.08rem .34rem;
+         border:1px solid var(--line); color:var(--muted); white-space:nowrap; }
+  .tag.hot { color:var(--ember); border-color:color-mix(in srgb, var(--ember) 45%, transparent); }
+  .tag.cool { color:var(--patina); border-color:color-mix(in srgb, var(--patina) 45%, transparent); }
+  .tag.set { color:var(--amber); border-color:color-mix(in srgb, var(--amber) 45%, transparent); }
+
+  /* ── point bars ─────────────────────────────── */
+  .bar { display:flex; height:7px; min-width:78px; background:var(--line-soft); margin-top:.42rem; }
+  .bar i { display:block; height:100%; }
+  .bar .own { background:var(--ember); }
+  .bar .gear { background:color-mix(in srgb, var(--amber) 55%, transparent); }
+  .legend { display:flex; gap:var(--s3); font-family:var(--mono); font-size:.7rem; color:var(--muted);
+            flex-wrap:wrap; }
+  .legend span { display:inline-flex; gap:.4rem; align-items:center; }
+  .swatch { width:22px; height:7px; display:inline-block; }
+
+  /* ── resist meters ──────────────────────────── */
+  .meter { position:relative; height:9px; background:var(--line-soft); min-width:120px; margin-top:.4rem; }
+  .meter i { position:absolute; left:0; top:0; height:100%; background:var(--ok); }
+  .meter i.over { background:color-mix(in srgb, var(--ok) 55%, var(--patina)); }
+  .meter u { position:absolute; top:-3px; width:1px; height:15px; background:var(--text); opacity:.55; }
+
+  /* ── callouts ───────────────────────────────── */
+  .note { border-left:2px solid var(--ember); padding:var(--s2) 0 var(--s2) var(--s3);
+          background:linear-gradient(90deg, color-mix(in srgb, var(--ember) 7%, transparent), transparent 70%); }
+  .note.cool { border-left-color:var(--patina);
+          background:linear-gradient(90deg, color-mix(in srgb, var(--patina) 8%, transparent), transparent 70%); }
+  .note h4 { margin-bottom:.3rem; }
+  .note p, .note ul { max-width:64ch; }
+  .grid2 { display:grid; gap:var(--s3); grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); }
+  ul.tight { margin:0; padding-left:1.15rem; }
+  ul.tight li + li { margin-top:.3rem; }
+  code { font-family:var(--mono); font-size:.85em; color:var(--amber); }
+
+  details { border:1px solid var(--line); background:var(--panel); }
+  summary { cursor:pointer; padding:var(--s2) var(--s3); font-family:var(--mono); font-size:.78rem;
+            letter-spacing:.06em; color:var(--muted); }
+  details[open] summary { border-bottom:1px solid var(--line); color:var(--text); }
+  details .body { padding:var(--s3); }
+  details .body > * + * { margin-top:var(--s2); }
+
+  footer { margin-top:var(--s6); padding-top:var(--s3); border-top:1px solid var(--line);
+           font-family:var(--mono); font-size:.74rem; color:var(--dim); }
+  footer p { max-width:74ch; }
+  footer p + p { margin-top:var(--s2); }
+</style>
+
+<div class="wrap">
+<div class="col">
+
+<header class="hero">
+  <p class="eyebrow">Grim Dawn · уровень 87 · Ultimate · дальний бой</p>
+  <h1>Purifier: <span class="flame">огненный стрелок</span> с двуручным ружьём</h1>
+  <p class="classes">
+    <b>Demolitionist</b> 50 <span>+</span> <b>Inquisitor</b> 50
+    <span>·</span> Fire Strike / Brimstone <span>·</span> 100 % урона в Fire &amp; Lightning
+  </p>
+  <p class="lede" style="margin-top:var(--s3)">
+    Максимум ДПС, который реально собирается на 87-м уровне: тир легендарок 94 закрыт,
+    поэтому каркас — сет 75-го тира плюс всё лучшее из 84-го. Стрельба идёт с максимальной
+    дистанции, пули прошивают строй насквозь, каждый выстрел разбрасывает осколки Brimstone
+    и держит на врагах Elemental Storm, а метеоритный дождь подкидывается коктейлями:
+    небесные силы разведены по шести навыкам, потому что на один навык вешается только одна.
+    Мобильность решается не «бегом», а упором
+    в кап скорости передвижения 135 % плюс телепорт с глифа на медали.
+  </p>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">очков навыков</div><div class="v">221</div><div class="n">86 левелапов: 3/ур. до 50, далее 2/ур.</div></div>
+    <div class="tile"><div class="k">очков атрибутов</div><div class="v">86</div><div class="n">1 за уровень</div></div>
+    <div class="tile"><div class="k">devotion</div><div class="v">55</div><div class="n">полная карта, всё выбрано</div></div>
+    <div class="tile"><div class="k">потолок предметов</div><div class="v">84</div><div class="n">142 легендарки доступны, 821 — нет</div></div>
+    <div class="tile"><div class="k">монстры в ultimate</div><div class="v">+7</div><div class="n">уровней сверху к вашему</div></div>
+  </div>
+</header>
+
+<section id="why">
+  <div class="shead"><span class="num">A</span><h2>Почему именно эта пара классов</h2></div>
+  <p>Требование «только дальний бой» отсекает почти всё: <b>Inquisitor — единственное мастерство,
+    заточенное под оружие дальнего боя на уровне механики</b>. У Ranged Expertise в записи стоит флаг
+    <code>dualRangedOrAllRangedOnly</code>, у Bursting Round и Storm Spread — <code>Ranged1h / Ranged2h</code>.
+    Ни один другой класс таких скиллов не имеет. Demolitionist даёт под это лучшую в игре
+    авто-атаку: Fire Strike масштабируется от 100 % до 170 % урона оружия и получает Brimstone —
+    разлёт огненно-хаотических осколков с каждого попадания.</p>
+
+  <div class="grid2">
+    <div class="note">
+      <h4>Двуручное ружьё, а не два пистолета</h4>
+      <p>Это решение вытекает из данных, а не из вкуса. Созвездие <b>Kraken</b> (5 очков) даёт
+        +120 % общего урона, +26 % скорости атаки, +15 % крит-урона, +500 HP и +5 % бега — но во всех
+        пяти его узлах прописан квалификатор <code>Ranged2h = 1</code> и <code>Ranged1h = 0</code>.
+        С парой пистолетов Kraken не работает вообще. Ни один набор бонусов со второго пистолета
+        этого не перекрывает. Бонус: транcмутер <b>Word of Arms</b> (нужно двуручное) срезает
+        4 секунды с перезарядки Word of Renewal.</p>
+    </div>
+    <div class="note cool">
+      <h4>Как получается мобильность</h4>
+      <ul class="tight">
+        <li>Кап скорости бега в движке — <b>135 %</b>. Билд его перекрывает с запасом: снаряжение +26 %,
+          Vindictive Flame +16 %, Word of Renewal +12 %, девоушен +20 %.</li>
+        <li>Ranged Expertise поднимает сам кап на +6 %.</li>
+        <li>Медаль несёт <b>Glyph of Burning Rifts</b> — телепорт на 14 юнитов раз в 5,5 с,
+          с огненным взрывом в точке прибытия. Это и есть рывок, которого у Purifier нет в дереве.</li>
+        <li>Пули прошивают цели (75 % пробоя от MI-модификатора при желании), так что стрелять
+          можно с края экрана и не входить в контакт.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="shead"><span class="num">1</span><h2>Классы и распределение очков навыков</h2></div>
+
+  <p>Оба мастерства качаются до 50. Это не «на всякий случай»: пороги тиров жёстко прописаны
+    в движке — <code>skillMasteryTierLevel = [1, 5, 10, 15, 20, 25, 32, 40, 50]</code>. Brimstone (тир 9
+    у Demolitionist) и Aura of Censure (тир 9 у Inquisitor) открываются только на 50-м уровне полосы.
+    Оба скилла — ядро билда, так что 100 очков уходит в полосы, 121 остаётся на навыки.</p>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--ember)"></i> вложено очков</span>
+    <span><i class="swatch" style="background:color-mix(in srgb, var(--amber) 55%, transparent)"></i> добавлено снаряжением</span>
+    <span>серым — незанятый остаток до softcap</span>
+  </div>
+
+  <div class="scroller">
+    <table>
+      <caption>Demolitionist — полоса мастерства 50, навыки 72 очка</caption>
+      <thead><tr>
+        <th>Навык</th><th class="n">Вложить</th><th class="n">С предметов</th><th class="n">Итого</th>
+        <th style="min-width:120px">Уровень</th><th>Что даёт на этом уровне</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="sk">Fire Strike <span class="tag hot">ядро</span></td><td class="n">12</td><td class="n">+10</td><td class="n">22</td>
+          <td><div class="bar"><i class="own" style="flex:12"></i><i class="gear" style="flex:10"></i></div></td>
+          <td>170 % урона оружия, +120 огня, +124 % физ. урона. 22 — абсолютный потолок скилла.</td></tr>
+        <tr><td class="sk">Brimstone <span class="tag hot">AoE</span></td><td class="n">12</td><td class="n">+3</td><td class="n">15</td>
+          <td><div class="bar"><i class="own" style="flex:12"></i><i class="gear" style="flex:3"></i><i style="flex:7"></i></div></td>
+          <td>4–5 осколков с каждого выстрела: 78 огня + 83–108 хаоса. Главный источник зачистки пачек.</td></tr>
+        <tr><td class="sk">Flame Touched</td><td class="n">12</td><td class="n">+3</td><td class="n">15</td>
+          <td><div class="bar"><i class="own" style="flex:12"></i><i class="gear" style="flex:3"></i><i style="flex:7"></i></div></td>
+          <td>+133 % огонь и молния, +42 огня, +157 к точности. Резервирует 215 энергии.</td></tr>
+        <tr><td class="sk">Thermite Mine <span class="tag hot">RR</span></td><td class="n">9</td><td class="n">+7</td><td class="n">16</td>
+          <td><div class="bar"><i class="own" style="flex:9"></i><i class="gear" style="flex:7"></i></div></td>
+          <td><b>−30 % к сопротивлению элементам</b> у всех в радиусе. Крупнейший множитель урона в билде. 3 мины за каст, до 6 живых, 18 с.</td></tr>
+        <tr><td class="sk">Vindictive Flame</td><td class="n">9</td><td class="n">+7</td><td class="n">16</td>
+          <td><div class="bar"><i class="own" style="flex:9"></i><i class="gear" style="flex:7"></i></div></td>
+          <td>+16 % ко всем скоростям (атака, каст, бег), +170 реген HP, 120 огня по площади при получении удара.</td></tr>
+        <tr><td class="sk">Ulzuin's Wrath</td><td class="n">1</td><td class="n">+5</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:5"></i><i style="flex:6"></i></div></td>
+          <td>Разряд по цепочке до 5 целей: 80 огня + 56–94 молнии, 16 % вампиризма, <b>−15 % урона врагам</b> на 3 с.</td></tr>
+        <tr><td class="sk">Blast Shield <span class="tag cool">защита</span></td><td class="n">7</td><td class="n">+3</td><td class="n">10</td>
+          <td><div class="bar"><i class="own" style="flex:7"></i><i class="gear" style="flex:3"></i><i style="flex:9"></i></div></td>
+          <td>На 60 % HP: щит на 1050 урона, +62 % сопр. элементам и пробиванию, +5 % к капам, 46 % отражения снарядов.</td></tr>
+        <tr><td class="sk">Static Strike</td><td class="n">3</td><td class="n">+3</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:3"></i><i class="gear" style="flex:3"></i><i style="flex:12"></i></div></td>
+          <td>52 % шанс добавить 94 молнии и +26 % к огню. Молния у нас усилена так же, как огонь, конверсия не нужна.</td></tr>
+        <tr><td class="sk">Agonizing Flames <span class="tag hot">RR</span></td><td class="n">3</td><td class="n">+3</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:3"></i><i class="gear" style="flex:3"></i><i style="flex:12"></i></div></td>
+          <td>−13 ко <b>всем</b> сопротивлениям на 3 с. Другая механическая категория, чем у мин, — складывается.</td></tr>
+        <tr><td class="sk">Blackwater Cocktail</td><td class="n">1</td><td class="n">+9</td><td class="n">10</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:9"></i><i style="flex:2"></i></div></td>
+          <td>Носитель для Agonizing Flames. Лужа радиусом 5,1: 120 % горения и −120 к точности врагов.</td></tr>
+        <tr><td class="sk">Canister Bomb</td><td class="n">1</td><td class="n">+7</td><td class="n">8</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:7"></i><i style="flex:4"></i></div></td>
+          <td>6–8 осколков, 80 огня + 63–88 пробивания, КД 4,5 с. Одно очко раскрывает +7 с ружья и сета.</td></tr>
+        <tr><td class="sk">Improved Casing</td><td class="n">1</td><td class="n">+5</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:5"></i><i style="flex:4"></i></div></td>
+          <td>+50 % к огню и пробиванию бомбы, радиус осколков +1,7, замедление 148 %.</td></tr>
+        <tr><td class="sk">Temper</td><td class="n">1</td><td class="n">+5</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:5"></i><i style="flex:6"></i></div></td>
+          <td>Берётся только за +120 к защите. Физический урон от Temper билду не нужен.</td></tr>
+      </tbody>
+      <tfoot><tr><td>Полоса мастерства 50 + навыки</td><td class="n"><b>72</b></td><td class="n">—</td><td class="n" colspan="3">итого по классу <b>122</b> очка</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="scroller">
+    <table>
+      <caption>Inquisitor — полоса мастерства 50, навыки 49 очков</caption>
+      <thead><tr>
+        <th>Навык</th><th class="n">Вложить</th><th class="n">С предметов</th><th class="n">Итого</th>
+        <th style="min-width:120px">Уровень</th><th>Что даёт на этом уровне</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="sk">Deadly Aim <span class="tag hot">ядро</span></td><td class="n">12</td><td class="n">—</td><td class="n">12</td>
+          <td><div class="bar"><i class="own" style="flex:12"></i><i style="flex:10"></i></div></td>
+          <td><b>+125 % общего урона</b>, +18 % точности, +15 % крит-урона. Срабатывает от попадания, 100 %, держится 5 с. Лучшее вложение на очко во всём билде.</td></tr>
+        <tr><td class="sk">Aura of Censure <span class="tag hot">RR</span></td><td class="n">10</td><td class="n">+2</td><td class="n">12</td>
+          <td><div class="bar"><i class="own" style="flex:10"></i><i class="gear" style="flex:2"></i><i style="flex:10"></i></div></td>
+          <td>−25 % сопр. элементам, <b>−15 % урона врагам</b>, 74 огня, радиус 7. Эксклюзивный скилл, резерв 160 энергии.</td></tr>
+        <tr><td class="sk">Steel Resolve <span class="tag cool">резисты</span></td><td class="n">10</td><td class="n">—</td><td class="n">10</td>
+          <td><div class="bar"><i class="own" style="flex:10"></i><i style="flex:10"></i></div></td>
+          <td>+30 % к эфиру и хаосу (без него эфир не закрывается), +50 % к урону элементами и физике.</td></tr>
+        <tr><td class="sk">Ranged Expertise</td><td class="n">7</td><td class="n">+3</td><td class="n">10</td>
+          <td><div class="bar"><i class="own" style="flex:7"></i><i class="gear" style="flex:3"></i></div></td>
+          <td>+15 % скорости атаки, <b>+6 % к капу скорости бега</b>, +50 % к урону элементами, +70 % пробивания.</td></tr>
+        <tr><td class="sk">Word of Renewal</td><td class="n">6</td><td class="n">—</td><td class="n">6</td>
+          <td><div class="bar"><i class="own" style="flex:6"></i><i style="flex:16"></i></div></td>
+          <td>+12 % бега, +61 защиты, +595 и +12 % HP на 20 юнитов вокруг. С Word of Arms КД −4 с.</td></tr>
+        <tr><td class="sk">Vigor</td><td class="n">2</td><td class="n">—</td><td class="n">2</td>
+          <td><div class="bar"><i class="own" style="flex:2"></i><i style="flex:18"></i></div></td>
+          <td>+185 HP, +10 % сопр. заморозке, окаменению и ловушкам. Технический минимум против контроля.</td></tr>
+        <tr><td class="sk">Bursting Round</td><td class="n">1</td><td class="n">+6</td><td class="n">7</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i class="gear" style="flex:6"></i><i style="flex:13"></i></div></td>
+          <td>WPS: 133 % урона оружия + 66 огня взрывом в радиусе 3,7. Вес в пуле 20.</td></tr>
+        <tr><td class="sk">Word of Pain <span class="tag cool">носитель</span></td><td class="n">1</td><td class="n">—</td><td class="n">1</td>
+          <td><div class="bar"><i class="own" style="flex:1"></i><i style="flex:21"></i></div></td>
+          <td>Взято за <b>шестой слот под небесную силу</b> (см. раздел про привязку). Заодно дебафф на 8 с в радиусе 3: −5 % скорости атаки врагам, немного огня и холода.</td></tr>
+      </tbody>
+      <tfoot><tr><td>Полоса мастерства 50 + навыки</td><td class="n"><b>49</b></td><td class="n">—</td><td class="n" colspan="3">итого по классу <b>99</b> очков</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="scroller">
+    <table>
+      <caption>Проверка бюджета</caption>
+      <thead><tr><th>Статья</th><th class="n">Очков</th><th>Комментарий</th></tr></thead>
+      <tbody>
+        <tr><td>Полоса Demolitionist до 50</td><td class="n">50</td><td>открывает тир 9 → Brimstone</td></tr>
+        <tr><td>Полоса Inquisitor до 50</td><td class="n">50</td><td>открывает тир 9 → Aura of Censure</td></tr>
+        <tr><td>Навыки Demolitionist</td><td class="n">72</td><td>13 записей</td></tr>
+        <tr><td>Навыки Inquisitor</td><td class="n">49</td><td>8 записей, включая 1 очко в Word of Pain под привязку</td></tr>
+      </tbody>
+      <tfoot><tr><td><b>Всего</b></td><td class="n"><b>221</b></td><td>ровно бюджет 87-го уровня</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="note">
+    <h4>Куда девать квестовые очки</h4>
+    <p>Сверх 221 игра выдаёт ещё несколько очков за квесты — в извлечённой базе их нет
+      (лежат в <code>.qst</code>, вне области <code>.arz</code>), поэтому в таблицах они не учтены.
+      Приоритет для избытка, по порядку: Blast Shield до 12 → Word of Renewal до 12 →
+      Vigor до 10 → Static Strike до 12. Если играете больше по боссам, чем по толпам,
+      переложите 8 очков со Static Strike и Agonizing Flames в Inquisitor Seal —
+      стационарная печать держит удар лучше, чем прибавка к чистому урону.</p>
+  </div>
+
+  <div class="note cool">
+    <h4>Атрибуты: 86 очков</h4>
+    <p>Ставьте в <b>Cunning</b> ровно столько, чтобы надеть ружьё и лёгкую броню, всё остальное — в
+      <b>Physique</b> (HP и требования тяжёлых наручей и штанов). Точных чисел требований в базе нет:
+      в записях предметов поля <code>dexterityRequirement</code> и <code>strengthRequirement</code>
+      равны нулю, реальное требование движок считает по <code>attributeScalePercent</code> и уровню
+      предмета. Практический порядок — примерно 2 части Cunning на 1 часть Physique, с корректировкой
+      по факту. В Spirit не нужно ничего: весь урон масштабируется от процентов, а не от Spirit.</p>
+  </div>
+</section>
+
+<section id="devotion">
+  <div class="shead"><span class="num">2</span><h2>Devotion: 55 очков, порядок взятия</h2></div>
+  <p>Порядок здесь важен по-настоящему: каждое созвездие требует определённое affinity, и его
+    можно получить только полностью закрыв предыдущие. Таблица проверена скриптом — на каждом шаге
+    требования выполнены, сумма ровно 55.</p>
+
+  <div class="scroller">
+    <table>
+      <caption>Последовательность прокачки</caption>
+      <thead><tr>
+        <th class="n">#</th><th>Созвездие</th><th class="n">Цена</th><th>Требует</th>
+        <th>Affinity после шага</th><th>Зачем</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="sk">Crossroads (Chaos)</td><td class="n">1</td><td>—</td><td class="num">C 1</td><td>стартовый ключ к Chaos-ветке</td></tr>
+        <tr><td class="n">2</td><td class="sk">Fiend</td><td class="n">5</td><td>Chaos 1</td><td class="num">C 3 · E 3</td><td>+39 % огня, <b>Flame Torrent</b> — веер огня на 25 % атак</td></tr>
+        <tr><td class="n">3</td><td class="sk">Bat</td><td class="n">5</td><td>Eldritch 1</td><td class="num">C 5 · E 6</td><td><b>Twin Fangs</b>: 40 % вампиризма — единственный нормальный сустейн у стрелка</td></tr>
+        <tr><td class="n">4</td><td class="sk">Hawk</td><td class="n">3</td><td>Eldritch 1</td><td class="num">C 5 · E 9</td><td>+5 % крит-урона, +30 точности, +3 % к точности</td></tr>
+        <tr><td class="n">5</td><td class="sk">Solael's Witchblade</td><td class="n">5</td><td>E 6 · C 4</td><td class="num">C 6 · E 10</td><td>+80 % огня, <b>Eldritch Fire</b> — дебафф на огонь и хаос</td></tr>
+        <tr><td class="n">6</td><td class="sk">Crossroads (Primordial)</td><td class="n">1</td><td>—</td><td class="num">P 1</td><td>+18 защиты, ключ к Primordial</td></tr>
+        <tr><td class="n">7</td><td class="sk">Sailor's Guide</td><td class="n">4</td><td>Primordial 1</td><td class="num">P 6</td><td><b>+10 % бега</b>, +15 % сопр. элементам, +3 % физ. сопр.</td></tr>
+        <tr><td class="n">8</td><td class="sk">Kraken <span class="tag set">2H</span></td><td class="n">5</td><td>P 5 · E 5</td><td class="num">C 8 · E 10 · P 9</td><td><b>+120 % общего урона, +26 % скорости атаки, +15 % крит-урона, +500 HP, +5 % бега.</b> Работает только с двуручным</td></tr>
+        <tr><td class="n">9</td><td class="sk">Ghoul</td><td class="n">5</td><td>Chaos 1</td><td class="num">C 11 · E 10 · P 9</td><td><b>Ghoulish Hunger</b> на 30 % HP: +22 % скоростей, +80 % вампиризма, +18 % физ. сопр.</td></tr>
+        <tr><td class="n">10</td><td class="sk">Crossroads (Ascendant)</td><td class="n">1</td><td>—</td><td class="num">A 1</td><td>+18 точности, ключ к Ascendant</td></tr>
+        <tr><td class="n">11</td><td class="sk">Quill</td><td class="n">4</td><td>Eldritch 1</td><td class="num">A 4 · E 13</td><td><b>+39 % к урону элементами</b>, +8 % сопр. эфиру, +100 HP, +150 энергии, +2 % защиты. Небесной силы нет — слот привязки не занимает</td></tr>
+        <tr><td class="n">12</td><td class="sk">Scholar's Light</td><td class="n">3</td><td>Eldritch 1</td><td class="num">A 4 · E 17</td><td>+39 % к урону элементами, +15 защиты, +8 % сопр. элементам и эфиру</td></tr>
+        <tr><td class="n">13</td><td class="sk">Crossroads (Eldritch)</td><td class="n">1</td><td>—</td><td class="num">A 4 · E 18</td><td>+18 точности. Последнее свободное очко</td></tr>
+        <tr><td class="n">14</td><td class="sk">Ulzuin's Torch <span class="tag hot">T3</span></td><td class="n">7</td><td>C 8 · E 15</td><td class="num">—</td><td>+180 % огня, +200 % горения, +5 % бега, +3 % к капу огня, +15 % сопр. хаосу, <b>Meteor Shower</b></td></tr>
+        <tr><td class="n">15</td><td class="sk">Rhowan's Crown <span class="tag hot">T2</span></td><td class="n">5</td><td>E 6 · A 4</td><td class="num">—</td><td>+70 % к урону элементами, +18 % сопр. элементам, <b>Elemental Storm</b>: −32 к сопр. элементам</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2"><b>Итого</b></td><td class="n"><b>55</b></td><td colspan="3">финальные affinity: Chaos 11 · Eldritch 19 · Primordial 9 · Ascendant 5. Проверено скриптом: нарушений требований 0</td></tr></tfoot>
+    </table>
+  </div>
+
+  <h3 style="margin-top:var(--s5)">Привязка небесных сил: один скилл — одна сила</h3>
+  <p>Ограничение игры: к каждому навыку можно прицепить <b>только одну</b> небесную силу, поэтому
+    свалить всё на Fire Strike нельзя. Пять сил требуют носителя, Ghoulish Hunger срабатывает сам.
+    Носителями годятся активные атакующие навыки — отсюда одно очко в Word of Pain: оно нужно
+    именно как шестой слот. Заодно из карты убран Falcon: его проку тоже понадобился бы носитель,
+    а статы у него физические и для огненного билда мёртвые. Quill вместо него даёт +39 %
+    к урону элементами и не занимает слот.</p>
+
+  <div class="scroller">
+    <table>
+      <caption>Кто на чём висит и почему именно так</caption>
+      <thead><tr><th>Сила</th><th>Триггер</th><th class="n">КД</th><th>Носитель</th><th>Логика выбора</th></tr></thead>
+      <tbody>
+        <tr><td class="sk">Elemental Storm</td><td>атака по врагу, 25 %</td><td class="n">1,5 с</td><td class="sk">Fire Strike</td>
+          <td>132 урона элементами и <b>−32 к сопр. элементам</b>. Единственный по-настоящему частый носитель отдаётся снижению сопротивлений: оно множит и урон оружия, и все проки с предметов.</td></tr>
+        <tr><td class="sk">Meteor Shower</td><td>атака по врагу, 30 %</td><td class="n">3,5 с</td><td class="sk">Blackwater Cocktail</td>
+          <td>190–232 огня + 185–210 физики в радиусе 5. У коктейля нет перезарядки, при броске примерно раз в секунду 30 % шанса полностью насыщают 3,5-секундный КД метеоритов.</td></tr>
+        <tr><td class="sk">Twin Fangs</td><td>атака по врагу, 20 %</td><td class="n">0,6 с</td><td class="sk">Vindictive Flame</td>
+          <td><b>40 % вампиризма</b>. Vindictive Flame срабатывает со 100 % шансом, когда вас бьют, с КД 1,6 с — лечение приходит ровно в тот момент, когда нужно.</td></tr>
+        <tr><td class="sk">Eldritch Fire</td><td>пассивно от атак</td><td class="n">—</td><td class="sk">Word of Pain</td>
+          <td>Дебафф на огонь и хаос. Word of Pain кастуется по цели прицельно, дебафф ложится на того, кого вы и так добиваете.</td></tr>
+        <tr><td class="sk">Flame Torrent</td><td>атака по врагу, 25 %</td><td class="n">0,5 с</td><td class="sk">Canister Bomb</td>
+          <td>2–4 снаряда, 178 огня + 126 хаоса. Самый слабый из пяти прок получает самого редкого носителя — 4,5 с перезарядки бомбы.</td></tr>
+        <tr><td class="sk">Ghoulish Hunger</td><td>падение HP ниже порога</td><td class="n">45 с</td><td>носитель не нужен</td>
+          <td>Работает само. +22 % скоростей, +80 % вампиризма, +40 % к лечению, +18 % физ. сопр.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="note">
+      <h4>Если умираете чаще, чем хотелось бы</h4>
+      <p>Поменяйте Elemental Storm и Twin Fangs местами: вампиризм на Fire Strike лечит с каждого
+        выстрела, а Elemental Storm переедет на Blackwater Cocktail (там его 1,5-секундный КД тоже
+        почти насыщается). Meteor Shower тогда уходит на Vindictive Flame. Урон просядет — снижение
+        сопротивлений будет держаться не постоянно, — зато сустейн вырастет заметно.</p>
+    </div>
+    <div class="note cool">
+      <h4>Куда привязывать нельзя</h4>
+      <p>В данных у каждой силы есть <code>attach_blacklist</code>, и во всех пяти он один и тот же:
+        <b>скиллы-перемещения с рун и глифов</b> (телепорты и отскоки). То есть повесить прок на
+        Glyph of Burning Rifts не получится — движок это запрещает явно.
+        У Flame Torrent список длиннее: ей запрещены ещё и Rune of Hagarrad с Rune of Kalastor.
+        Не стоит также вешать урон на Thermite Mine: мины — это питомцы, и прок с них будет
+        считаться по бонусам питомцев, а не по вашим.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>О снижении сопротивлений — не переусердствуйте</h4>
+    <p>В схеме данных ровно две официальные категории RR на семейство: <b>Absolute</b> и
+      <b>Percent</b>. Внутри одной категории применяется только самый сильный источник, между
+      категориями — складываются. Практически это значит: Thermite Mine (−30 %) и Aura of Censure
+      (−25 %) друг с другом не суммируются, поэтому Censure берётся ради всегда включённых −15 %
+      урона врагам и огненного урона, а не ради второго RR. А вот Elemental Storm, Agonizing Flames
+      и аугмент Hexxer's Kiss лежат в других группах схемы и добавляются сверху.
+      Третьего типа RR в базе не нашлось — это отдельно зафиксировано в отчёте о расхождениях.</p>
+  </div>
+</section>
+
+<section id="gear">
+  <div class="shead"><span class="num">3</span><h2>Предметы по слотам</h2></div>
+
+  <p>Каркас — 4 части сета <b>Ulzuin's Avatar</b> (75-й уровень): шлем, плечи, амулет, ружьё.
+    Именно четыре, потому что бонус за 4 части даёт <b>+2 ко всем навыкам Demolitionist</b>,
+    а нагрудник в сете слабее, чем Rune Armor of Ignaffar 84-го тира. Остальные слоты — лучшее
+    из доступного на 87-м. Предметы 84-го уровня в игре называются с приставкой
+    <b>Mythical</b> (в данных это <code>itemStyleTag = tagStyleUniqueTier3</code>).</p>
+
+  <div class="scroller">
+    <table>
+      <caption>Основной комплект</caption>
+      <thead><tr><th>Слот</th><th>Предмет</th><th class="n">Ур.</th><th>Ключевые статы</th><th>Бонусы к навыкам</th></tr></thead>
+      <tbody>
+        <tr><td>Оружие</td><td class="sk">Ulzuin's Flamespreader <span class="tag set">сет</span></td><td class="n">75</td>
+          <td>163–202 чистого огня базой, +126 % огонь/молния, +126 % горение, +490 HP, +70 точности, −15 % КД скиллов</td>
+          <td>+4 Canister Bomb, +4 Ulzuin's Chosen · прок Ulzuin's Flame: заразный дебафф −15 % к огню, молнии и физике, расходится на 10 целей</td></tr>
+        <tr><td>Голова</td><td class="sk">Ulzuin's Headguard <span class="tag set">сет</span></td><td class="n">75</td>
+          <td>939 брони, +44 % огонь/молния, +44 % горение, +24 % сопр. пробиванию, +28 точности</td>
+          <td>+2 Improved Casing · прок Ulzuin's Gaze: 133 огня, 240 % горения в радиусе 2,6</td></tr>
+        <tr><td>Плечи</td><td class="sk">Ulzuin's Shoulderguard <span class="tag set">сет</span></td><td class="n">75</td>
+          <td>939 брони, +44 % огонь/молния, 25 % хаоса → огонь, +27 % сопр. элементам, +42 % яду, +44 точности, +260 HP</td>
+          <td>+2 Temper, +2 Ulzuin's Chosen</td></tr>
+        <tr><td>Амулет</td><td class="sk">Heart of Ulzuin <span class="tag set">сет</span></td><td class="n">75</td>
+          <td>+60 % огонь/молния, <b>+5 % к капам огня, холода и молнии</b>, +20 % сопр. элементам, +30 % хаосу, 10 % физики → огонь</td>
+          <td>+2 Vindictive Flame</td></tr>
+        <tr><td>Нагрудник</td><td class="sk">Mythical Rune Armor of Ignaffar</td><td class="n">84</td>
+          <td>1425 брони, <b>+780 HP</b>, +104 защиты, +52 % огонь/молния, +40 % хаосу, +25 % оглушению</td>
+          <td><b>+3 Fire Strike</b>, +3 Blackwater Cocktail, +3 Bursting Round · прок Ignaffar's Presence (аура: 102 огня + 102 молнии, −12 % урона врагам)</td></tr>
+        <tr><td>Руки</td><td class="sk">Mythical Wyrmbone Handguards</td><td class="n">84</td>
+          <td>1340 брони, <b>+8 % скорости атаки</b>, +460 HP, +94 точности, +52 % огонь/молния, +18 % сопр. элементам</td>
+          <td>+3 Blackwater Cocktail, +2 Thermite Mine · прок Volcanic Wyrm's Breath: конус на 10 юнитов, 102–168 огня + 45–224 молнии</td></tr>
+        <tr><td>Ноги</td><td class="sk">Mythical Hellforged Legplates</td><td class="n">84</td>
+          <td><b>1752 брони</b>, +75 % сопр. огню, +30 % хаосу и яду, <b>+6 % физ. сопр.</b>, +90 защиты, +52 % огня</td>
+          <td>+3 Bursting Round · прок Ring of Flame: 142 огня, 110 % горения в радиусе 4</td></tr>
+        <tr><td>Обувь</td><td class="sk">Mythical Wyrmscale Footguards</td><td class="n">84</td>
+          <td><b>+8 % бега</b>, +36 % сопр. элементам, +50 % оглушению и окаменению, +55 защиты, +48 точности</td>
+          <td>+2 Aura of Censure, +2 Thermite Mine · прок Wyrmscale: щит на <b>10 000</b> урона от элементов и кровотечения, 100 % при получении удара</td></tr>
+        <tr><td>Пояс</td><td class="sk">Mythical Cinderplate Girdle</td><td class="n">84</td>
+          <td>+65 % огня, 50 % пробивания → огонь, +7 % крит-урона, +32 % сопр. хаосу, +5 % к капу яда</td>
+          <td><b>+2 Fire Strike</b> · прок Magma Orb: 196–226 огня, 4–7 осколков. Крафтится по чертежу</td></tr>
+        <tr><td>Медаль</td><td class="sk">Mythical Pyroclasm Mark</td><td class="n">84</td>
+          <td>+65 % огонь/молния, <b>+3 % к капам огня и молнии</b>, +5 % скорости атаки, +18 % сопр. эфиру</td>
+          <td><b>+3 Ranged Expertise</b>, +2 Vindictive Flame, +2 Ulzuin's Wrath · прок Blazing Fury (WPS): 125 % урона оружия + 120–190 огня, взрыв 1,8, 100 % пробоя, вес 18</td></tr>
+        <tr><td>Кольцо 1</td><td class="sk">Mythical Combustion Band</td><td class="n">84</td>
+          <td>+8 % скорости атаки, +66 % огонь/хаос/физика, +255 HP, +24 % сопр. элементам</td>
+          <td><b>+2 Fire Strike</b> · прок Combustion: дебафф −8 % к огню, хаосу и физике</td></tr>
+        <tr><td>Кольцо 2</td><td class="sk">Mythical Band of the Eternal Pyre</td><td class="n">84</td>
+          <td>+6 % скорости атаки, +66 % огня, 25 % холода → огонь, 25 % молнии → огонь, +210 HP, +25 % сопр. кровотечению</td>
+          <td>прок Flame Patch: горящая лужа, 155 огня, 150 % горения, −80 к защите врага</td></tr>
+        <tr><td>Реликвия</td><td class="sk">Ulzuin's Pyroclasm</td><td class="n">60</td>
+          <td>+78 % огонь/молния, +78 % горение, +50 % к длительности горения, +5 % скорости атаки, +30 % сопр. заморозке</td>
+          <td><b>+1 ко всем навыкам Demolitionist</b> · прок Pyroclasm при крите: веер из 3 снарядов, 143–244 огня + 44–290 молнии, 100 % пробоя</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="5">Бонус сета за 4 части: <b>+2 ко всем навыкам Demolitionist</b>, +80 % огня, +80 % молнии, +100 % горения, +50 % к длительности горения, <b>+12 % физического сопротивления</b></td></tr></tfoot>
+    </table>
+  </div>
+
+  <h3 style="margin-top:var(--s5)">Слот — предмет — аффиксы — компонент — аугмент</h3>
+  <p>Отдельная таблица под вопрос про суффиксы и префиксы. Важный факт из данных:
+    <b>легендарные и эпические предметы не роллят случайные аффиксы</b> — это проверено на
+    6308 ссылках в базе. Искать «Ulzuin's Flamespreader of the Boar» бессмысленно, такого не бывает.
+    Аффиксы есть только у Rare-предметов (в том числе Monster Infrequent), и они указаны
+    в колонке только там, где MI выступает альтернативой.</p>
+
+  <div class="scroller">
+    <table>
+      <caption>Полная сборка слотов</caption>
+      <thead><tr>
+        <th>Слот</th><th>Предмет</th><th>Префикс / суффикс</th><th>Компонент</th><th>Аугмент</th><th>Фракция</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Оружие</td><td class="sk">Ulzuin's Flamespreader</td><td>нет — легендарка</td>
+          <td>Seal of Destruction<br><span class="tag">+50 % огонь/молния, +6 % крит, прок Stormfire</span></td>
+          <td>Potent Hexxer's Kiss<br><span class="tag hot">+90 % огонь/хаос, 30 % шанс −15 % ко всем сопр.</span></td>
+          <td>Coven of Ugdenbog · Honored</td></tr>
+        <tr><td>Голова</td><td class="sk">Ulzuin's Headguard</td><td>нет — легендарка</td>
+          <td>Sacred Plating<br><span class="tag">+210 HP, +14 % вит., +18 % эфир</span></td>
+          <td>Spellward Powder<br><span class="tag cool">+9 % эфир, +9 % витализм</span></td>
+          <td>Order of Death's Vigil</td></tr>
+        <tr><td>Плечи</td><td class="sk">Ulzuin's Shoulderguard</td><td>нет — легендарка</td>
+          <td>Sacred Plating<br><span class="tag">+210 HP, +14 % вит., +18 % эфир</span></td>
+          <td>Spellward Powder<br><span class="tag cool">+9 % эфир, +9 % витализм</span></td>
+          <td>Order of Death's Vigil</td></tr>
+        <tr><td>Нагрудник</td><td class="sk">Mythical Rune Armor of Ignaffar</td><td>нет — легендарка</td>
+          <td>Titan Plating<br><span class="tag">+24 % пробивание, +12 % брони</span></td>
+          <td>Kingsguard Powder<br><span class="tag cool">+9 % пробивание, +12 % яд</span></td>
+          <td>The Black Legion</td></tr>
+        <tr><td>Руки</td><td class="sk">Mythical Wyrmbone Handguards</td><td>нет — легендарка</td>
+          <td>Spellscorched Plating<br><span class="tag">+20 % пробивание, +15 % элементы, +100 HP</span></td>
+          <td>Mogdrogen's Touch<br><span class="tag cool">+9 % витализм, +12 % яд</span></td>
+          <td>Devil's Crossing</td></tr>
+        <tr><td>Ноги</td><td class="sk">Mythical Hellforged Legplates</td><td>нет — легендарка</td>
+          <td>Silk Swatch<br><span class="tag">+18 % пробивание, +18 % кровотечение</span></td>
+          <td>Mogdrogen's Touch<br><span class="tag cool">+9 % витализм, +12 % яд</span></td>
+          <td>Devil's Crossing</td></tr>
+        <tr><td>Обувь</td><td class="sk">Mythical Wyrmscale Footguards</td><td>нет — легендарка</td>
+          <td>Spellscorched Plating<br><span class="tag">+20 % пробивание, +15 % элементы, +100 HP</span></td>
+          <td>Spellward Powder<br><span class="tag cool">+9 % эфир, +9 % витализм</span></td>
+          <td>Order of Death's Vigil</td></tr>
+        <tr><td>Пояс</td><td class="sk">Mythical Cinderplate Girdle</td><td>нет — легендарка</td>
+          <td>Spellscorched Plating<br><span class="tag">+20 % пробивание, +15 % элементы, +100 HP</span></td>
+          <td>Spiritguard Powder<br><span class="tag cool">+12 % витализм</span></td>
+          <td>Order of Death's Vigil</td></tr>
+        <tr><td>Амулет</td><td class="sk">Heart of Ulzuin</td><td>нет — легендарка</td>
+          <td>Wardstone<br><span class="tag">+18 % кровотечение, +18 % элементы, +6 % бега</span></td>
+          <td>Cinderbark Powder<br><span class="tag hot">+36 % огонь, молния, горение</span></td>
+          <td>Cult of Bysmiel · Honored</td></tr>
+        <tr><td>Медаль</td><td class="sk">Mythical Pyroclasm Mark</td><td>нет — легендарка</td>
+          <td>Wardstone<br><span class="tag">+18 % кровотечение, +18 % элементы, +6 % бега</span></td>
+          <td><b>Glyph of Burning Rifts</b><br><span class="tag hot">телепорт 14 юнитов, КД 5,5 с, 180 огня + 180 хаоса + 300 % горения в точке прибытия</span></td>
+          <td>покупается / выпадает, ур. 50</td></tr>
+        <tr><td>Кольцо 1</td><td class="sk">Mythical Combustion Band</td><td>нет — легендарка</td>
+          <td>Bloodied Crystal<br><span class="tag">+15 % кровотечение, +40 защиты, +75 брони</span></td>
+          <td>Cinderbark Powder<br><span class="tag hot">+36 % огонь, молния, горение</span></td>
+          <td>Cult of Bysmiel · Honored</td></tr>
+        <tr><td>Кольцо 2</td><td class="sk">Mythical Band of the Eternal Pyre</td><td>нет — легендарка</td>
+          <td>Bloodied Crystal<br><span class="tag">+15 % кровотечение, +40 защиты, +75 брони</span></td>
+          <td>Cinderbark Powder<br><span class="tag hot">+36 % огонь, молния, горение</span></td>
+          <td>Cult of Bysmiel · Honored</td></tr>
+        <tr><td>Реликвия</td><td class="sk">Ulzuin's Pyroclasm</td><td>бонус завершения — случайный</td>
+          <td>слота нет</td><td>слота нет</td>
+          <td>крафт: Conflagration + Devil-Touched Ammo + Focusing Prism + Blood of Ch'thon</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <h4>Почему аугменты 70-го, а не 90-го уровня</h4>
+    <p>Топовые аугменты фракций (Potent Solael's Vision, Arcanum Dust и вся ветка «Potent … revered»
+      на 120 % урона) требуют <b>90-го уровня</b> — на 87-м они недоступны, все 127 штук.
+      Максимум для брони — тир 70, для украшений и оружия — тир 65 (Honored). Это часть цены
+      ограничения по уровню: примерно −250 % огненного урона относительно того же билда на 100-м.</p>
+  </div>
+</section>
+
+<section id="resists">
+  <div class="shead"><span class="num">4</span><h2>Проверка сопротивлений в Ultimate</h2></div>
+  <p>В Ultimate игра снимает фиксированный штраф: <b>−50 %</b> к огню, холоду, молнии, пробиванию
+    и яду, <b>−25 %</b> к эфиру, хаосу, витализму и кровотечению. Значит, чтобы сидеть на капе 80 %,
+    в сумме на снаряжении нужно 130 % и 105 % соответственно. Комплект выше это закрывает —
+    впритык по эфиру и витализму, с запасом по остальному.</p>
+
+  <div class="scroller">
+    <table>
+      <caption>Сырое значение → штраф → факт · маркер на шкале = требуемый минимум</caption>
+      <thead><tr><th>Тип</th><th class="n">Гир + компоненты + аугменты</th><th class="n">Devotion</th><th class="n">Всего</th><th class="n">Нужно</th><th class="n">Кап</th><th class="n">Итог</th><th style="min-width:130px">Запас</th></tr></thead>
+      <tbody>
+        <tr><td>Огонь</td><td class="n">297</td><td class="n">+41</td><td class="n">338</td><td class="n">141</td><td class="n">91</td><td class="n">91</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:42%"></u></div></td></tr>
+        <tr><td>Холод</td><td class="n">206</td><td class="n">+41</td><td class="n">247</td><td class="n">135</td><td class="n">85</td><td class="n">85</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:55%"></u></div></td></tr>
+        <tr><td>Молния</td><td class="n">222</td><td class="n">+41</td><td class="n">263</td><td class="n">138</td><td class="n">88</td><td class="n">88</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:52%"></u></div></td></tr>
+        <tr><td>Пробивание</td><td class="n">135</td><td class="n">—</td><td class="n">135</td><td class="n">130</td><td class="n">80</td><td class="n">80</td><td><div class="meter"><i style="width:100%"></i><u style="left:96%"></u></div></td></tr>
+        <tr><td>Яд</td><td class="n">146</td><td class="n">—</td><td class="n">146</td><td class="n">135</td><td class="n">85</td><td class="n">85</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:92%"></u></div></td></tr>
+        <tr><td>Эфир</td><td class="n">111</td><td class="n">+16</td><td class="n">127</td><td class="n">105</td><td class="n">80</td><td class="n">80</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:83%"></u></div></td></tr>
+        <tr><td>Хаос</td><td class="n">162</td><td class="n">+31</td><td class="n">193</td><td class="n">105</td><td class="n">80</td><td class="n">80</td><td><div class="meter"><i class="over" style="width:100%"></i><u style="left:54%"></u></div></td></tr>
+        <tr><td>Витализм</td><td class="n">105</td><td class="n">—</td><td class="n">105</td><td class="n">105</td><td class="n">80</td><td class="n">80</td><td><div class="meter"><i style="width:100%"></i><u style="left:100%"></u></div></td></tr>
+        <tr><td>Кровотечение</td><td class="n">109</td><td class="n">—</td><td class="n">109</td><td class="n">105</td><td class="n">80</td><td class="n">80</td><td><div class="meter"><i style="width:100%"></i><u style="left:96%"></u></div></td></tr>
+        <tr><td>Физическое</td><td class="n">21</td><td class="n">+7</td><td class="n">28</td><td class="n">—</td><td class="n">80</td><td class="n">28</td><td><div class="meter"><i class="over" style="width:35%"></i></div></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="8">Капы подняты предметами и девоушеном: огонь до 91 % (амулет +5, медаль +3, Ulzuin's Torch +3), молния до 88 %, холод и яд до 85 %.
+        Devotion даёт +41 к каждому из трёх элементов (Sailor's Guide 15, Scholar's Light 8, Rhowan's Crown 18), +16 к эфиру (Quill, Scholar's Light), +31 к хаосу (Fiend, Ulzuin's Torch, Rhowan's Crown), +7 к физическому (Sailor's Guide, Kraken).
+        Витализм ровно на минимуме, пробивание и кровотечение — с запасом в 4–5: любой зелёный предмет с этими сопротивлениями даст свободу переставить компонент под урон.
+        Физическое сопротивление капом не ограничено; Ghoulish Hunger добавляет ещё 18 % в аварийном режиме.</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="note cool">
+      <h4>Прочие итоги комплекта</h4>
+      <ul class="tight">
+        <li>+3075 HP и +7569 брони со предметов, до этого — база персонажа</li>
+        <li>+32 % скорости атаки со снаряжения, +15 % с Ranged Expertise, +26 % с Kraken (кап движка — 200 %)</li>
+        <li>+26 % скорости бега со снаряжения и компонентов, +16 % с Vindictive Flame, +12 % с Word of Renewal, +20 % с девоушена. Кап <b>135 %</b> перекрыт — это осознанный перебор под замедления и рывки</li>
+        <li>+299 точности, +423 защиты, +18 % крит-урона, −15 % КД скиллов</li>
+        <li>Суммарно +1012 % к огню и +673 % к молнии со предметов, до бонусов навыков и девоушена</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>Резерв энергии — узкое место</h4>
+      <p>Flame Touched 215 + Aura of Censure 160 + Vindictive Flame 100 = <b>475 единиц энергии
+        в резерве</b>, и это фиксированные числа, не проценты. Ignaffar's Presence с нагрудника
+        просит ещё 250 — включайте её только когда максимума энергии хватает. Если упираетесь,
+        поставьте Ectoplasm вместо одного Wardstone или снимите пару очков с Flame Touched.</p>
+    </div>
+  </div>
+</section>
+
+<section id="play">
+  <div class="shead"><span class="num">5</span><h2>Как это играется</h2></div>
+
+  <div class="scroller">
+    <table>
+      <caption>Раскладка панели</caption>
+      <thead><tr><th>Кнопка</th><th>Скилл</th><th>Когда</th></tr></thead>
+      <tbody>
+        <tr><td class="num">ЛКМ</td><td class="sk">Fire Strike</td><td>Удерживать. На нём растут Brimstone и Static Strike, из его атак выпадают WPS — Blazing Fury, Bursting Round, Stormfire — и на него привязан Elemental Storm.</td></tr>
+        <tr><td class="num">1</td><td class="sk">Thermite Mine</td><td>Первым делом на каждой пачке и на боссе. −30 % к сопротивлению элементам — это больше, чем любой предмет в билде.</td></tr>
+        <tr><td class="num">2</td><td class="sk">Blackwater Cocktail</td><td>Спамить между минами: Agonizing Flames снимает ещё 13 со всех сопротивлений, лужа режет точность врагов на 120, и на нём висит Meteor Shower — это ваш главный источник метеоритов.</td></tr>
+        <tr><td class="num">3</td><td class="sk">Word of Pain</td><td>Один каст на цель или пачку. Носитель Eldritch Fire, плюс сам снимает скорость атаки.</td></tr>
+        <tr><td class="num">4</td><td class="sk">Canister Bomb</td><td>По КД 4,5 с в плотный строй. С Improved Casing радиус осколков 1,7. Носитель Flame Torrent.</td></tr>
+        <tr><td class="num">5</td><td class="sk">Glyph of Burning Rifts</td><td>Разрыв дистанции и вход в позицию. Заодно 180 огня + 180 хаоса в точке прибытия. Небесную силу на него привязать нельзя.</td></tr>
+        <tr><td class="num">6</td><td class="sk">Word of Renewal</td><td>Перед пачкой: HP, защита, скорость бега. С Word of Arms КД короче на 4 с.</td></tr>
+        <tr><td>всегда</td><td class="sk">Flame Touched · Aura of Censure · Vindictive Flame</td><td>Включены постоянно. Blast Shield и Wyrmscale срабатывают сами.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Порядок на боссе: телепорт на дистанцию → мины под ноги боссу → Word of Pain по цели →
+    коктейль → держать ЛКМ, подкидывая коктейль ради метеоритов и подновляя мины каждые 18 секунд. Deadly Aim набирает +125 % общего урона с первого попадания
+    и держится, пока вы стреляете. При просадке HP ниже 60 % включается Blast Shield, ниже порога —
+    Ghoulish Hunger с 80 % вампиризма; в этот момент не отбегайте, а продолжайте стрелять — лечение
+    идёт от урона.</p>
+</section>
+
+<section id="flex">
+  <div class="shead"><span class="num">6</span><h2>Варианты и путь наверх</h2></div>
+
+  <details>
+    <summary>Если не выпал сет Ulzuin's Avatar</summary>
+    <div class="body">
+      <p>Билд собирается и без сета, потеряв +2 ко всем навыкам Demolitionist и 12 % физического
+        сопротивления. Замены, все ≤ 87:</p>
+      <ul class="tight">
+        <li><b>Ружьё:</b> Hellmaw Shotgun (75, эпик) — 160–226 огня, +125 % огня, +20 % скорости атаки,
+          <b>+2 ко всем навыкам Demolitionist</b>, +4 Bursting Round. Или Ugdenbog Flamethrower (82, MI) —
+          183–232 огня, самый высокий базовый урон в тире. Или <b>Eye</b> (75, эпик) — +2 Demolitionist
+          и +2 Inquisitor одновременно, но урон физический, нужна конверсия.</li>
+        <li><b>Голова:</b> Incendiary Casque (84, MI) — +3 Fire Strike, +3 Flames of Ignaffar и модификатор,
+          который переводит <b>100 % молнии в огонь у Fire Strike</b> и даёт +18 % крит-урона.</li>
+        <li><b>Плечи:</b> Fabius' Pauldron (84, MI) — +3 Fire Strike, +4 % скорости атаки.
+          Или Mantle of Agrivix (75) — +2 Vindictive Flame, +3 Ulzuin's Wrath.</li>
+        <li><b>Амулет:</b> Alazra's Ruby (82, эпик) — +65 % огня, +1 ко всем Demolitionist.</li>
+        <li><b>Пояс:</b> Ulzuin's Torment (75) — +1 ко всем Demolitionist, +2 Vindictive Flame. Крафтится.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Если хочется настоящего рывка вместо телепорта</summary>
+    <div class="body">
+      <p>Глифы на медаль (введены во втором аддоне) дают целое семейство перемещений, и все они
+        доступны на 87-м: <b>Glyph of the Rising Phoenix</b> — огненный отскок назад на 16 юнитов,
+        КД 4 с, оставляет 400 % горения и −22 % урона врагам; <b>Emblem of the Riftstalker</b> —
+        базовый телепорт на 13 юнитов, КД 5 с; <b>Glyph of Incorporeal Winds</b> — рывок вперёд.
+        Для стрелка отскок Phoenix обычно приятнее телепорта: срабатывает мгновенно и вешает дебафф.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Альтернативная связка, если мобильность важнее ДПС</summary>
+    <div class="body">
+      <p><b>Infiltrator</b> — Nightblade + Inquisitor. У Nightblade есть Shadow Strike, настоящий
+        блинк по врагу прямо в дереве навыков, плюс Pneumatic Burst на лечение и Phantasmal Blades
+        как дальнобойный спелл. На 87-м под него есть <b>Valdun's Treachery</b> (75, 4 части,
+        двуручное ружьё) — холод и пробивание. Цена: у Nightblade нет ничего похожего на
+        Deadly Aim + Brimstone + Ulzuin's Torch, поэтому итоговый урон заметно ниже, а эффекты —
+        холодные вспышки вместо огненного шторма. Беру Purifier как ответ на запрос «баланс», но
+        Infiltrator честно выигрывает по одной оси из трёх.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Что меняется на 94-м уровне и выше</summary>
+    <div class="body">
+      <p>Открывается 821 легендарка вместо 142. Конкретно для этого билда: <b>Mythical Ulzuin's
+        Flamespreader</b> (94) — 740 HP, +178 % огня, −18 % КД; полный сет <b>Ulzuin's Infernal
+        Avatar</b>; аугменты «Potent … revered» на +120 % огня в оружие вместо +90 %; Mythical
+        Deviltongue и Darkblaze Incinerator под вариант с двумя пистолетами. Скелет билда —
+        мастерства, порядок девоушена, ротация — не меняется, меняются только числа.</p>
+    </div>
+  </details>
+</section>
+
+<footer>
+  <p><b>Откуда числа.</b> Всё, что в таблицах, взято из базы установленной игры (82 132 записи,
+    все четыре аддона, включая Fangs of Asterkarn): <code>docs/grim-dawn/extract</code> и
+    <code>data/grim-dawn</code>. Очки уровня — <code>records/creatures/pc/playerlevels.dbr</code>
+    (<code>skillModifierPoints</code>, сумма первых 86 значений = 221; <code>maxDevotionPoints = 55</code>).
+    Пороги тиров и капы скоростей — <code>records/game/gameengine.dbr</code>. Штрафы сложности —
+    <code>balancingadjustment_mp+difficulty_players01.dbr</code>. Порядок девоушена и итоги
+    сопротивлений посчитаны скриптом по <code>devotions.json</code> и <code>items.jsonl</code>,
+    а не на глаз.</p>
+  <p><b>Где числа неточны.</b> Требования по атрибутам движок считает формулой, в записях предметов
+    их нет. Квестовые очки навыков лежат в <code>.qst</code> вне охваченной базы. Базовый кэп
+    сопротивлений 80 % в данных отсутствует — он зашит в <code>Game.dll</code>, здесь взят как
+    общеизвестная константа, а от неё уже считаются штрафы и бонусы к капу из данных.
+    Правило несложения RR внутри одной категории — тоже игровая механика вне <code>.arz</code>;
+    в схеме подтверждено только существование двух отдельных категорий, Absolute и Percent.
+    Ограничение «одна небесная сила на один навык» в базе тоже не лежит: из данных доступен только
+    <code>attach_blacklist</code> у каждой силы (какие навыки запрещены — это руны перемещения),
+    а сама вместимость слота считается клиентом. Здесь оно принято как правило игры, и раздел
+    привязки построен из него.</p>
+</footer>
+
+</div>
+
+<aside class="rail">
+  <p class="railhead">на странице</p>
+  <nav>
+    <a href="#why">Выбор классов</a>
+    <a href="#skills">1 · Навыки</a>
+    <a href="#devotion">2 · Devotion 55</a>
+    <a href="#gear">3 · Предметы</a>
+    <a href="#resists">4 · Сопротивления</a>
+    <a href="#play">5 · Ротация</a>
+    <a href="#flex">6 · Варианты</a>
+  </nav>
+</aside>
+
+</div>

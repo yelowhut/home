@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>GameSpeedUnlocked</AssemblyName>
+    <RootNamespace>FarthestFrontier.GameSpeed</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Version>1.2.0</Version>
+    <!-- MelonLoader loads the DLL itself; no runtime config / deps file wanted. -->
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultItems>true</EnableDefaultItems>
+  </PropertyGroup>
+
+  <!-- Override on the command line if the game lives somewhere else:
+       dotnet build -p:GameDir="D:\SteamLibrary\steamapps\common\Farthest Frontier" -->
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == ''">C:\games\Farthest Frontier</GameDir>
+    <MelonNet6Dir>$(GameDir)\MelonLoader\net6</MelonNet6Dir>
+    <Il2CppDir>$(GameDir)\MelonLoader\Il2CppAssemblies</Il2CppDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="MelonLoader">
+      <HintPath>$(MelonNet6Dir)\MelonLoader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(MelonNet6Dir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(MelonNet6Dir)\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(Il2CppDir)\Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(Il2CppDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(Il2CppDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="VerifyGameDir" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(MelonNet6Dir)\MelonLoader.dll')"
+           Text="MelonLoader not found at '$(MelonNet6Dir)'. Pass -p:GameDir=&quot;&lt;game folder&gt;&quot;." />
+    <Error Condition="!Exists('$(Il2CppDir)\Assembly-CSharp.dll')"
+           Text="Il2Cpp proxy assemblies not found at '$(Il2CppDir)'. Launch the game once with MelonLoader so it generates them." />
+  </Target>
+
+</Project>

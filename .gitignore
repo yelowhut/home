@@ -42,3 +42,19 @@ androguard.db-wal
 docs/hayday/SEND ME 1 COIN!/
 docs/hayday/SEND ME 1 COIN!.zip
 docs/hayday/**/storage*.xml
+
+# Scratch dir and large media captures (not source)
+tmp/
+/third_september.gif
+/third_september_540.gif
+
+# Grim Dawn: извлечённые данные игры (пересобираются пайплайном, gd.sqlite ~1 ГБ)
+data/grim-dawn/
+
+# Упакованные копии того, что уже лежит в репозитории исходниками
+*.zip
+*.7z
+
+# Бинарные вложения входящих материалов (исходники — .md/.html рядом)
+docs/inbox/*.docx
+docs/inbox/*.png

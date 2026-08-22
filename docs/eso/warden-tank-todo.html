@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warden Tank «Frostbite» — план трансформации</title>
+<style>
+/* ─────────── tokens ─────────── */
+:root{
+  --bg:#f4f5f7; --surface:#fff; --sunken:#eceef2; --raised:#f8f9fb;
+  --ink:#11151b; --ink2:#525c6b; --ink3:#8b95a5;
+  --line:#dde1e8; --line2:#c9cfda;
+  --accent:#3f5fd6; --accent-bg:#e6ebfb; --accent-line:#b9c6f2;
+  --ok:#0d7a52; --ok-bg:#dcf2e7; --ok-line:#a8ddc4;
+  --mid:#96550a; --mid-bg:#fbeed3; --mid-line:#e8ce9a;
+  --no:#a02b2b; --no-bg:#fadfdf; --no-line:#eeb6b6;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0c0f14; --surface:#141a21; --sunken:#1b222b; --raised:#1a212a;
+    --ink:#e8eef5; --ink2:#a3aebd; --ink3:#6e7988;
+    --line:#252d38; --line2:#333d4a;
+    --accent:#7d9bff; --accent-bg:#18233c; --accent-line:#2c3d63;
+    --ok:#54d69c; --ok-bg:#0f2b1f; --ok-line:#1f4a36;
+    --mid:#f0b95c; --mid-bg:#2e2410; --mid-line:#4c3c17;
+    --no:#ff9494; --no-bg:#341a1a; --no-line:#552b2b;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-feature-settings:"tnum" 0;
+}
+h1,h2,h3,h4{letter-spacing:-.015em;margin:0}
+a{color:var(--accent)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+
+/* ─────────── shell ─────────── */
+.app{max-width:1240px;margin:0 auto;padding:28px 22px 90px;display:grid;gap:26px;grid-template-columns:1fr}
+@media(min-width:1000px){
+  .app{grid-template-columns:236px minmax(0,1fr);align-items:start;padding-top:36px}
+  .rail{position:sticky;top:36px}
+}
+
+/* ─────────── rail ─────────── */
+.rail{display:flex;flex-direction:column;gap:16px}
+.rail-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.ring-wrap{display:flex;align-items:center;gap:14px}
+.ring{width:60px;height:60px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.ring .bgc{stroke:var(--sunken)}
+.ring .fgc{stroke:var(--accent);transition:stroke-dashoffset .4s cubic-bezier(.4,0,.2,1)}
+.ring-num{font:700 21px/1 system-ui;letter-spacing:-.03em}
+.ring-sub{font:500 12px/1.3 var(--mono);color:var(--ink3);margin-top:3px}
+nav.steps{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+nav.steps a{
+  display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;
+  text-decoration:none;color:var(--ink2);font-size:13.5px;
+}
+nav.steps a:hover{background:var(--sunken);color:var(--ink)}
+nav.steps a .n{
+  width:19px;height:19px;flex:none;border-radius:5px;background:var(--sunken);
+  color:var(--ink3);font:600 10.5px/19px var(--mono);text-align:center;
+}
+nav.steps a.done .n{background:var(--ok-bg);color:var(--ok)}
+nav.steps a .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav.steps a .frac{font:500 11.5px/1 var(--mono);color:var(--ink3);flex:none}
+nav.steps .sep{height:1px;background:var(--line);margin:7px 0}
+.btn-reset{
+  width:100%;margin-top:14px;background:none;border:1px solid var(--line);
+  color:var(--ink3);border-radius:8px;padding:7px;font:500 12.5px/1 inherit;cursor:pointer;
+}
+.btn-reset:hover{color:var(--ink);border-color:var(--line2)}
+
+/* ─────────── hero ─────────── */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.hero h1{font-size:26px;margin:11px 0 9px}
+.hero p{margin:0;color:var(--ink2);max-width:64ch}
+.path{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:20px}
+.path-step{
+  flex:1 1 190px;background:var(--sunken);border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+}
+.path-step .ps-k{font:600 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.path-step .ps-v{margin-top:6px;font-size:13.5px;line-height:1.4}
+.path-step.now{background:var(--no-bg);border-color:var(--no-line)}
+.path-step.goal{background:var(--ok-bg);border-color:var(--ok-line)}
+
+/* ─────────── sections ─────────── */
+section{scroll-margin-top:24px}
+.sec-head{display:flex;align-items:flex-end;gap:14px;margin:34px 2px 14px;flex-wrap:wrap}
+.sec-head h2{font-size:19px}
+.sec-head .meta{font:500 12px/1 var(--mono);color:var(--ink3);margin-left:auto;white-space:nowrap}
+.sec-head p{margin:5px 0 0;color:var(--ink2);font-size:13.5px;flex-basis:100%}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.group-label{
+  padding:11px 20px 9px;background:var(--raised);border-bottom:1px solid var(--line);
+  font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+}
+.card > .group-label + .group-label{border-top:1px solid var(--line)}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{border-bottom:1px solid var(--line)}
+.rows li:last-child{border-bottom:0}
+.card .rows + .group-label{border-top:1px solid var(--line)}
+
+/* task row */
+.task{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:0 13px;padding:13px 20px;align-items:start}
+.task:hover{background:var(--raised)}
+.task > input{width:16px;height:16px;margin:3px 0 0;accent-color:var(--accent);cursor:pointer}
+.task .body{min-width:0}
+.task .ttl{font-weight:600;font-size:14.5px;cursor:pointer;display:block}
+.task .spec{display:block;margin-top:4px;color:var(--ink2);font-size:13px}
+.task .why{display:block}
+.task .spec .v{
+  font-family:var(--mono);font-size:12px;background:var(--sunken);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;white-space:nowrap;
+}
+.task > input:checked ~ .body .ttl{text-decoration:line-through 1.5px;color:var(--ink3)}
+.task > input:checked ~ .body .spec{opacity:.5}
+.task .why{margin-top:6px}
+.task .why summary{
+  list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+  font:500 12px/1 inherit;color:var(--accent);padding:3px 0;
+}
+.task .why summary::-webkit-details-marker{display:none}
+.task .why summary::before{content:"+";font-family:var(--mono);font-weight:700}
+.task .why[open] summary::before{content:"–"}
+.task .why > div{
+  margin-top:7px;padding:10px 13px;background:var(--sunken);border-radius:8px;
+  font-size:13px;color:var(--ink2);border-left:2px solid var(--line2);
+}
+.task .why b{color:var(--ink);font-weight:600}
+
+/* pills */
+.pill{
+  display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;
+  padding:4px 7px;border-radius:5px;border:1px solid transparent;white-space:nowrap;
+}
+.p-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line)}
+.p-mid{background:var(--mid-bg);color:var(--mid);border-color:var(--mid-line)}
+.p-no{background:var(--no-bg);color:var(--no);border-color:var(--no-line)}
+.p-neutral{background:var(--sunken);color:var(--ink3);border-color:var(--line)}
+.task .pill{margin-top:2px}
+
+/* ─────────── stock grid ─────────── */
+.stock{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}
+.st{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:14px 15px;display:flex;flex-direction:column;gap:8px}
+.st.ok{border-color:var(--ok-line)}
+.st.mid{border-color:var(--mid-line)}
+.st.no{opacity:.72}
+.st-top{display:flex;align-items:baseline;gap:8px}
+.st-name{font-weight:600;font-size:14px;flex:1;min-width:0}
+.st-frac{font:700 15px/1 var(--mono);letter-spacing:-.03em}
+.st.ok .st-frac{color:var(--ok)} .st.mid .st-frac{color:var(--mid)} .st.no .st-frac{color:var(--ink3)}
+.st-meter{height:4px;border-radius:99px;background:var(--sunken);overflow:hidden}
+.st-meter i{display:block;height:100%;border-radius:99px}
+.st.ok .st-meter i{background:var(--ok)} .st.mid .st-meter i{background:var(--mid)} .st.no .st-meter i{background:var(--line2)}
+.st-note{font-size:12.5px;color:var(--ink2);line-height:1.45}
+
+/* consumables strip */
+.strip{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:12px}
+.cs{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.cs .mk{font:700 13px/1.35 var(--mono);flex:none;width:15px;text-align:center}
+.cs.ok .mk{color:var(--ok)} .cs.mid .mk{color:var(--mid)} .cs.no .mk{color:var(--no)}
+.cs > span:last-child{min-width:0}
+.cs-t{display:block;font-weight:600;font-size:13.5px}
+.cs-d{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px;line-height:1.45}
+
+/* ─────────── tabs + tables ─────────── */
+.tabs{display:flex;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--raised);flex-wrap:wrap}
+.tabs button{
+  background:none;border:1px solid transparent;color:var(--ink2);border-radius:8px;
+  padding:7px 13px;font:600 13px/1 inherit;cursor:pointer;
+}
+.tabs button:hover{color:var(--ink);background:var(--sunken)}
+.tabs button[aria-selected=true]{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.pane{display:none}
+.pane.on{display:block}
+.tscroll{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:600px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{
+  font:600 10.5px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);
+  background:var(--raised);white-space:nowrap;position:sticky;top:0;
+}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--raised)}
+td.sl{font-weight:600;white-space:nowrap}
+td .w{font:500 11px/1 var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
+td.was{color:var(--ink3);font-size:12.5px}
+td.was s{text-decoration:line-through 1px;text-decoration-color:var(--no)}
+td.now{font-weight:600;white-space:nowrap}
+td.keep{font-weight:600;color:var(--ok);white-space:nowrap}
+tr.wpn td{background:var(--accent-bg)}
+tr.wpn:hover td{background:var(--accent-bg)}
+.ok-t{color:var(--ok);font-weight:700}
+.bad-t{color:var(--mid);font-weight:700}
+.result{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:12px}
+.res{background:var(--surface);border:1px solid var(--ok-line);border-radius:11px;padding:14px 16px}
+.res .rh{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
+.res .rn{font-weight:700;font-size:14.5px;flex:1}
+.res .rf{font:700 14px/1 var(--mono);color:var(--ok)}
+.res .rd{font-size:12.5px;color:var(--ink2);line-height:1.45}
+.res .rw{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font:500 11.5px/1.4 var(--mono);color:var(--ink3)}
+.tnote{padding:13px 18px;border-top:1px solid var(--line);background:var(--raised);font-size:13px;color:var(--ink2)}
+.tnote b{color:var(--ink)}
+
+/* ─────────── bars ─────────── */
+.bars{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.barcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.barcard h4{padding:13px 17px;background:var(--raised);border-bottom:1px solid var(--line);font:600 12px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)}
+.barcard ol{list-style:none;margin:0;padding:0;counter-reset:s}
+.barcard li{display:grid;grid-template-columns:22px 1fr auto;gap:11px;align-items:center;padding:10px 17px;border-bottom:1px solid var(--line)}
+.barcard li:last-child{border-bottom:0}
+.barcard li .i{counter-increment:s;font:600 10.5px/20px var(--mono);text-align:center;background:var(--sunken);border-radius:5px;color:var(--ink3);height:20px}
+.barcard li .i::before{content:counter(s)}
+.barcard li.ultimate{background:var(--accent-bg);border-top:1px solid var(--accent-line)}
+.barcard li.ultimate .i{background:var(--accent);color:#fff}
+.barcard li.ultimate .i::before{content:"U"}
+.barcard li > span:nth-child(2){min-width:0}
+.barcard .sk{display:block;font-weight:600;font-size:13.5px}
+.barcard .fn{display:block;font-size:12px;color:var(--ink2);margin-top:1px}
+.mk-have,.mk-miss{font:700 12px/1 var(--mono);width:15px;text-align:center}
+.mk-have{color:var(--ok)} .mk-miss{color:var(--no);opacity:.65}
+
+.callout{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 11px 11px 0;padding:14px 17px;margin-top:12px;font-size:13.5px;color:var(--ink2)}
+.callout b{color:var(--ink);font-weight:600}
+.callout.warn{border-left-color:var(--mid)}
+
+footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px}
+footer a{color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════ RAIL ══════════ -->
+<aside class="rail">
+  <div class="rail-card">
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 60 60" aria-hidden="true">
+        <circle class="bgc" cx="30" cy="30" r="25"></circle>
+        <circle class="fgc" id="ring" cx="30" cy="30" r="25" stroke-dasharray="157" stroke-dashoffset="157"></circle>
+      </svg>
+      <div>
+        <div class="ring-num" id="pct">0%</div>
+        <div class="ring-sub" id="frac">0 / 0</div>
+      </div>
+    </div>
+    <nav class="steps" id="nav">
+      <a href="#s0" data-sec="s0"><span class="n">0</span><span class="lbl">Разлепить гибрид</span><span class="frac"></span></a>
+      <a href="#now"><span class="n">🎯</span><span class="lbl">Надеть сейчас</span></a>
+      <a href="#s1" data-sec="s1"><span class="n">1</span><span class="lbl">Навыки</span><span class="frac"></span></a>
+      <a href="#s2" data-sec="s2"><span class="n">2</span><span class="lbl">Крафт</span><span class="frac"></span></a>
+      <a href="#s3" data-sec="s3"><span class="n">3</span><span class="lbl">Фарм сетов</span><span class="frac"></span></a>
+      <a href="#s4" data-sec="s4"><span class="n">4</span><span class="lbl">Armory</span><span class="frac"></span></a>
+      <span class="sep"></span>
+      <a href="#stock"><span class="n">📦</span><span class="lbl">Ревизия склада</span></a>
+      <a href="#gear"><span class="n">🛡</span><span class="lbl">Комплекты</span></a>
+      <a href="#bars"><span class="n">⚔</span><span class="lbl">Бары и ЧП</span></a>
+    </nav>
+    <button class="btn-reset" id="reset">Сбросить отметки</button>
+  </div>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main>
+
+<div class="hero">
+  <div class="kicker">ESO · Update 50 · Warden · yelowhut</div>
+  <h1>План трансформации в танк «Frostbite»</h1>
+  <p>
+    Эталон — <a href="https://alcasthq.com/eso-warden-tank-build-pve/" target="_blank" rel="noopener">Warden Tank PvE от Alcast</a>.
+    Задачи упорядочены по принципу «сначала бесплатное, потом долгое». Отметки сохраняются в браузере.
+  </p>
+  <div class="path">
+    <div class="path-step now">
+      <div class="ps-k">Сейчас</div>
+      <div class="ps-v">Двуручник, средняя броня, четыре недособранных сета</div>
+    </div>
+    <div class="path-step">
+      <div class="ps-k">Этап 2 — крафт</div>
+      <div class="ps-v">Fortified Brass · Torug's Pact · Night's Silence</div>
+    </div>
+    <div class="path-step goal">
+      <div class="ps-k">Цель</div>
+      <div class="ps-v">Turning Tide · Powerful Assault · Nazaray · Puncturing Remedy</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────── ЭТАП 0 ────────── -->
+<section id="s0">
+  <div class="sec-head">
+    <h2>Этап 0 · Разлепить гибрид</h2>
+    <span class="meta">бесплатно · сегодня</span>
+    <p>Фармить ничего не нужно. Максимум эффекта за минимум действий.</p>
+  </div>
+  <div class="card"><ul class="rows">
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a1" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Распределить 64 очка атрибутов</span>
+        <span class="spec"><span class="v">10 магии</span> <span class="v">54 здоровья</span> <span class="v">0 стамины</span></span>
+        <details class="why"><summary>почему так</summary><div>
+          Сейчас <b>0 / 0 / 0</b> — очки не вложены вообще. Магия нужна не сама по себе:
+          синергии возвращают <b>больший</b> из двух запасов, а танку выгоднее получать стамину,
+          поэтому стамина должна остаться выше магии.
+        </div></details>
+      </span>
+      <span class="pill p-no">не сделано</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a2" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Заменить двуручник на одноручное + щит</span>
+        <span class="spec">Щиты на складе: Ebon <span class="v">Sturdy</span> · Plague Doctor <span class="v">Infused</span> · Battalion Defender ×2</span>
+        <details class="why"><summary>почему так</summary><div>
+          <code>Heroic Slash</code> — скилл линии «Одноручное и щит», с двуручником игра не даст его слотировать.
+          Разблокирует заодно все пять пассивок One Hand and Shield, которые уже прокачаны и сейчас мертвы.
+          <b>Ebon Shield</b> уже в нужном трейте Sturdy.
+        </div></details>
+      </span>
+      <span class="pill p-ok">есть чем</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a3" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Сменить мундус</span>
+        <span class="spec"><span class="v">The Mage</span> → <span class="v">The Lord</span> · +макс. здоровье</span>
+        <details class="why"><summary>почему так</summary><div>
+          The Mage даёт максимальную магию — на танке это почти мёртвая статистика.
+          Смена бесплатна, нужно только доехать до камня.
+        </div></details>
+      </span>
+      <span class="pill p-no">не сделано</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a4" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Почистить бары</span>
+        <span class="spec">Снять дубли <span class="v">Growing Swarm</span> <span class="v">Subterranean Assault</span> и ДД-скиллы</span>
+        <details class="why"><summary>что именно убрать</summary><div>
+          <b>Дубли:</b> Growing Swarm и Subterranean Assault стоят на обоих барах — DoT'ы не спадают
+          при свапе, так что вторая копия просто съедает слот.<br>
+          <b>Из танк-сборки уходят:</b> Cutting Dive, Acid Spray, Arrow Barrage, Green Lotus.<br>
+          <b>Остаются:</b> Heroic Slash и Bull Netch — они есть и у Alcast.
+        </div></details>
+      </span>
+      <span class="pill p-neutral">5 мин</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a5" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Убрать небоевые пассивки</span>
+        <span class="spec"><span class="v">Scry</span> <span class="v">Finders Keepers</span> <span class="v">See the Unseen</span></span>
+        <details class="why"><summary>чем</summary><div>
+          В бою не дают ничего. На складе лежит <b>Skill Respecification Scroll ×1</b> —
+          можно перераспределить бесплатно, не платя за респек.
+        </div></details>
+      </span>
+      <span class="pill p-ok">свиток есть</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="a6" data-sec="s0">
+      <span class="body">
+        <span class="ttl">Переодеться в танк-комплект со склада</span>
+        <span class="spec">Ebon Armory <span class="v">5/5</span> + Battalion Defender <span class="v">5/5</span> — оба на обоих барах</span>
+        <details class="why"><summary>расклад по слотам</summary><div>
+          Со склада собираются <b>два полных 5-piece танк-сета одновременно</b>, оба из списка рабочих
+          у Alcast, ничего фармить не надо. Точная раскладка по каждому слоту, с трейтами
+          и зачарованиями — в разделе <a href="#now">«Что надеть прямо сейчас»</a>.
+        </div></details>
+      </span>
+      <span class="pill p-ok">всё есть</span>
+    </label></li>
+
+  </ul></div>
+  <div class="callout">
+    <b>Armory Station</b> бесплатна в Crown Store (Furniture → Special): два слота билдов на персонажа,
+    сохраняет снаряжение, атрибуты, скиллы, морфы и все очки чемпиона.
+    <b>Мундус не сохраняет</b> — поэтому держим танковый и для соло-сборки тоже.
+  </div>
+</section>
+
+<!-- ────────── НАДЕТЬ СЕЙЧАС ────────── -->
+<section id="now">
+  <div class="sec-head">
+    <h2>🎯 Что надеть прямо сейчас — по слотам</h2>
+    <span class="meta">без фарма и крафта</span>
+    <p>Со склада собираются <b>два полных 5-piece танк-сета одновременно</b>, и оба держатся на обоих барах. Слева — что надето по твоей ссылке на eso-hub.</p>
+  </div>
+
+  <div class="card">
+    <div class="tscroll"><table style="min-width:760px">
+      <thead><tr><th>Слот</th><th>Сейчас надето</th><th>Надеть</th><th>Вес</th><th>Трейт</th><th>Зачарование</th></tr></thead>
+      <tbody>
+        <tr><td class="sl">Голова</td><td class="was"><s>Briarheart Helmet</s> · средняя, Well-fitted</td><td class="now">Ebon Helm</td><td><span class="w">Тяжёлая</span></td><td><span class="ok-t">Infused ✓</span></td><td>Трёхстат — сюда единственный Hakeijo</td></tr>
+        <tr><td class="sl">Плечи</td><td class="was"><s>Briarheart Arm Cops</s> · средняя, Sturdy</td><td class="now">Battalion Defender Pauldron</td><td><span class="w">Тяжёлая</span></td><td>Reinforced</td><td>Здоровье</td></tr>
+        <tr><td class="sl">Грудь</td><td class="was"><s>Jack of Hunding's Rage</s> · средняя, Divines</td><td class="now">Ebon Cuirass</td><td><span class="w">Тяжёлая</span></td><td><span class="bad-t">Training ⚠</span></td><td>Здоровье</td></tr>
+        <tr><td class="sl">Кисти</td><td class="was"><s>Briarheart Bracers</s> · средняя, Divines</td><td class="now">Ebon Gauntlets</td><td><span class="w">Тяжёлая</span></td><td>Reinforced</td><td>Здоровье</td></tr>
+        <tr><td class="sl">Пояс</td><td class="was"><s>Belt of Hunding's Rage</s> · средняя, Divines</td><td class="now">Ebon Girdle</td><td><span class="w">Тяжёлая</span></td><td><span class="ok-t">Sturdy ✓</span></td><td>Здоровье</td></tr>
+        <tr><td class="sl">Ноги</td><td class="was"><s>Guards of Hunding's Rage</s> · средняя, Divines</td><td class="now">Ebon Greaves</td><td><span class="w">Тяжёлая</span></td><td>Reinforced</td><td>Здоровье</td></tr>
+        <tr><td class="sl">Стопы</td><td class="was"><s>Briarheart Boots</s> · средняя, Divines</td><td class="now">Battalion Defender Sabatons</td><td><span class="w">Тяжёлая</span></td><td>Well-fitted</td><td>Здоровье</td></tr>
+        <tr><td class="sl">Ожерелье</td><td class="was"><s>Ebon Armory</s> · Healthy, стоимость заклинаний</td><td class="now">Bonehand's Amulet</td><td><span class="w">Ювелирка</span></td><td><span class="ok-t">Healthy ✓</span></td><td>Стоимость призматики (Indeko)</td></tr>
+        <tr><td class="sl">Кольцо 1</td><td class="was">Battalion Defender · Healthy</td><td class="keep">оставить как есть</td><td><span class="w">Ювелирка</span></td><td><span class="ok-t">Healthy ✓</span></td><td>Стоимость призматики (Indeko)</td></tr>
+        <tr><td class="sl">Кольцо 2</td><td class="was">Battalion Defender · Healthy</td><td class="keep">оставить как есть</td><td><span class="w">Ювелирка</span></td><td><span class="ok-t">Healthy ✓</span></td><td>Bracing</td></tr>
+        <tr class="wpn"><td class="sl">Бар 1 · оружие</td><td class="was"><s>Greatsword of Hunding's Rage</s> · Defending</td><td class="now">Ebon Axe</td><td><span class="w">Одноручное</span></td><td><span class="ok-t">Decisive ✓</span></td><td>Weakening — глиф уже есть</td></tr>
+        <tr class="wpn"><td class="sl">Бар 1 · щит</td><td class="was">— слота не было</td><td class="now">Battalion Defender Shield</td><td><span class="w">Щит</span></td><td>Impenetrable</td><td>Здоровье</td></tr>
+        <tr class="wpn"><td class="sl">Бар 2 · оружие</td><td class="was"><s>Maelstrom's Perfected Bow</s> · Defending</td><td class="now">Ebon Mace</td><td><span class="w">Одноручное</span></td><td><span class="bad-t">Charged ⚠</span></td><td><b>Crusher</b> — скрафтить из Deteri</td></tr>
+        <tr class="wpn"><td class="sl">Бар 2 · щит</td><td class="was">— слота не было</td><td class="now">Battalion Defender Shield</td><td><span class="w">Щит</span></td><td>Impenetrable</td><td>Здоровье</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tnote">
+      Оба щита Battalion Defender у тебя есть — ровно два, по одному на бар. Поэтому сет не слетает при свапе.
+    </div>
+  </div>
+
+  <div class="result">
+    <div class="res">
+      <div class="rh"><span class="rn">Ebon Armory</span><span class="rf">5/5</span></div>
+      <div class="rd">+1000 максимального здоровья тебе и до 11 членов группы в 28 метрах. <b>Сохраняется после смерти</b> — за это танков в случайных данжах и любят.</div>
+      <div class="rw">голова · грудь · кисти · пояс · ноги · оба оружия</div>
+    </div>
+    <div class="res">
+      <div class="rh"><span class="rn">Battalion Defender</span><span class="rf">5/5</span></div>
+      <div class="rd">При блоке лечит тебя или члена группы в 15 метрах. Пассивный групповой хил просто за то, что ты держишь блок.</div>
+      <div class="rw">плечи · стопы · 2 кольца · щит на каждом баре</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>Почему все семь частей тяжёлые, а не 5+1+1.</b>
+    Раскладка «5 тяжёлых + средняя + лёгкая» нужна только ради <code>Undaunted Mettle</code>, а её у тебя пока нет.
+    Зато есть <code>Resolve</code> и <code>Constitution</code> — они считаются <b>за каждую</b> тяжёлую часть.
+    Так что сейчас выгоднее семь тяжёлых, а как возьмёшь Mettle — поменяешь две части на среднюю и лёгкую.
+  </div>
+
+  <div class="callout warn">
+    <b>Монстр-сета сейчас не будет.</b> Полной пары «голова + плечи» из танковых на складе нет — везде по половинке
+    (Tremorscale, Lord Warden, Bloodspawn, Encratis's Behemoth). Единственная собранная пара — Symphony of Blades,
+    но это хилерский сет, и он занял бы слоты, на которых стоят Ebon и Battalion. Голова и плечи остаются под сеты.
+  </div>
+
+  <div class="callout warn">
+    <b>Ожерелье — единственный слот, который ничего не даёт.</b> Танкового ожерелья на складе нет вообще:
+    ни Ebon Armory, ни Battalion Defender, ни Plague Doctor. Поэтому выбираем просто по трейту — <b>Healthy</b>
+    (их три штуки, Bonehand's Amulet). Заодно проверь в игре, что надето: на eso-hub у тебя стоит ожерелье
+    Ebon Armory, но в выгрузке склада его нет.
+  </div>
+
+  <div class="callout">
+    <b>Что снять и убрать в банк:</b> всё Hunding's Rage и Briarheart, двуручник и лук.
+    Лук и двуручник понадобятся во втором слоте Armory под соло — не продавай.
+    <b>Кольца не трогаем</b>, они уже правильные.
+  </div>
+</section>
+
+<!-- ────────── ЭТАП 1 ────────── -->
+<section id="s1">
+  <div class="sec-head">
+    <h2>Этап 1 · Навыки</h2>
+    <span class="meta">самая долгая часть</span>
+    <p>Из десяти скиллов целевых баров у тебя есть два. Именно это отделяет «надел танк-сеты» от работающего танка.</p>
+  </div>
+  <div class="card">
+
+    <div class="group-label">Классовые ветки</div>
+    <ul class="rows">
+      <li><label class="task">
+        <input type="checkbox" data-id="b1" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Winter's Embrace — вся ветка</span>
+          <span class="spec"><span class="v">Ice Fortress</span> <span class="v">Polar Wind</span> <span class="v">Shimmering Shield</span> + 4 пассивки</span>
+          <details class="why"><summary>что даёт</summary><div>
+            <b>Ice Fortress</b> — Major Resolve и Minor Protection. <b>Polar Wind</b> — хил, масштабируемый
+            от максимального здоровья. <b>Shimmering Shield</b> — Major Heroism при поглощении снаряда,
+            это основной разгон ульты. Пассивки: <code>Glacial Presence</code>, <code>Frozen Armor</code>,
+            <code>Icy Aura</code>, <code>Piercing Cold</code>.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет ничего</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b2" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Green Balance — пассивки и ульта</span>
+          <span class="spec"><span class="v">Nature's Gift</span> <span class="v">Maturation</span> <span class="v">Emerald Moss</span> <span class="v">Accelerated Growth</span></span>
+          <details class="why"><summary>что даёт</summary><div>
+            <b>Nature's Gift</b> возвращает ресурсы при каждом лечении — заметная часть сустейна.
+            Ульта <code>Enchanted Forest</code> — аварийный групповой хил, когда группа просела.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b3" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Class Mastery</span>
+          <span class="spec"><span class="v">Green Keeper's Hide</span> <span class="v">Tundra's Maw</span></span>
+          <details class="why"><summary>важный нюанс</summary><div>
+            Снижение получаемого урона и Major Brittle врагам. <b>Работает только без subclassing</b> —
+            включение подкласса гасит Class Mastery целиком. И помни: смена подклассовых линий стоит
+            1500 золота каждый раз, ровно как респек, так что свапать их туда-сюда не выйдет.
+          </div></details>
+        </span>
+        <span class="pill p-neutral">новое в U50</span>
+      </label></li>
+    </ul>
+
+    <div class="group-label">Гильдии и PvP</div>
+    <ul class="rows">
+      <li><label class="task">
+        <input type="checkbox" data-id="b4" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Undaunted</span>
+          <span class="spec"><span class="v">Undaunted Mettle</span> <span class="v">Undaunted Command</span> + <span class="v">Inner Rage</span> <span class="v">Energy Orb</span></span>
+          <details class="why"><summary>почему это первым</summary><div>
+            <b>Mettle</b> даёт +2% к максимальным запасам за каждый носимый тип брони — отсюда и целевая
+            раскладка <b>5 тяжёлых + 1 средняя + 1 лёгкая</b>. Без неё веса в таблице комплекта теряют смысл.
+            <b>Inner Rage</b> — тонт на дистанции, без него сбор пачек мучителен.
+            Качается ежедневками Undaunted Pledges.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b5" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Alliance War → Assault</span>
+          <span class="spec"><span class="v">Aggressive Warhorn</span> <span class="v">Echoing Vigor</span> · только Сиродил</span>
+          <details class="why"><summary>что даёт</summary><div>
+            <b>Warhorn</b> — главная групповая ульта танка: +10% к максимальным запасам и крит-урону всей группе.
+            <b>Echoing Vigor</b> — групповой хил и то, чем прокается сет Powerful Assault, поэтому он и живёт
+            на заднем баре.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b6" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Mages Guild → Spell Symmetry</span>
+          <span class="spec">обмен здоровья на магию · сбор книг гильдии</span>
+          <details class="why"><summary>что даёт</summary><div>
+            Основной инструмент маги-сустейна в этой сборке. Кастовать аккуратно — цена в здоровье реальная.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет</span>
+      </label></li>
+    </ul>
+
+    <div class="group-label">Оружие, броня, прочее</div>
+    <ul class="rows">
+      <li><label class="task">
+        <input type="checkbox" data-id="b7" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Heavy Armor — добрать ветку</span>
+          <span class="spec">есть <span class="v">Resolve</span> <span class="v">Constitution</span> · нужны <span class="v">Juggernaut</span> <span class="v">Revitalize</span> <span class="v">Rapid Mending</span></span>
+        </span>
+        <span class="pill p-mid">2 из 5</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b8" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Destruction Staff — под ледяной посох</span>
+          <span class="spec"><span class="v">Ancient Knowledge</span> <span class="v">Penetrating Magic</span> <span class="v">Elemental Force</span> <span class="v">Destruction Expert</span> + <span class="v">Elemental Blockade</span></span>
+          <details class="why"><summary>два предупреждения</summary><div>
+            <b>Не брать <code>Tri Focus</code></b> — Alcast прямо пишет обходить эту пассивку.<br>
+            Если не хочется сразу вкладывать очки в целую линию, Alcast разрешает поставить на задний бар
+            <b>второй меч и щит</b>, а посох добавить потом.
+          </div></details>
+        </span>
+        <span class="pill p-no">нет</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b9" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Расовые пассивки Wood Elf</span>
+          <span class="spec">взят только <span class="v">Acrobat</span></span>
+          <details class="why"><summary>про смену расы</summary><div>
+            Wood Elf не в списке рекомендованных Alcast'ом (Nord, Argonian, Imperial, Orc, Redguard, Dark Elf),
+            но это не респек, а токен за кроны. Низкий приоритет — играть можно и так.
+          </div></details>
+        </span>
+        <span class="pill p-mid">1 из 4</span>
+      </label></li>
+
+      <li><label class="task">
+        <input type="checkbox" data-id="b10" data-sec="s1">
+        <span class="body">
+          <span class="ttl">Alchemy → Medicinal Use</span>
+          <span class="spec">+ длительность зелий · пассивка дешёвая</span>
+        </span>
+        <span class="pill p-neutral">быстро</span>
+      </label></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ────────── ЭТАП 2 ────────── -->
+<section id="s2">
+  <div class="sec-head">
+    <h2>Этап 2 · Крафт стартового комплекта</h2>
+    <span class="meta">материалов хватает с запасом</span>
+    <p>Fortified Brass + Torug's Pact + Night's Silence — всё крафтится, фарм не нужен.</p>
+  </div>
+  <div class="card"><ul class="rows">
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c1" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Проверить исследованные трейты</span>
+        <span class="spec">нужны <span class="v">Reinforced</span> <span class="v">Sturdy</span> <span class="v">Infused</span> <span class="v">Decisive</span> + Infused на ювелирке</span>
+        <details class="why"><summary>чем закрыть пробелы</summary><div>
+          На складе лежат <b>Instant All Research ×1</b>, <b>Instant Blacksmithing ×1</b>,
+          <b>Instant Clothing ×3</b>, <b>Instant Woodworking ×1</b>.
+        </div></details>
+      </span>
+      <span class="pill p-ok">свитки есть</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c2" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Fortified Brass — 6 предметов</span>
+        <span class="spec">4 трейта · грудь, пояс, обувь, одноручное, щит, ледяной посох</span>
+        <details class="why"><summary>веса не случайны</summary><div>
+          Грудь тяжёлая, пояс лёгкий, обувь средняя — именно эта раскладка включает
+          <code>Undaunted Mettle</code>. Точные трейты и зачарования — в таблице «Комплекты».
+        </div></details>
+      </span>
+      <span class="pill p-no">крафт</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c3" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Torug's Pact — 5 предметов</span>
+        <span class="spec">3 трейта · штаны, кисти, ожерелье, 2 кольца</span>
+        <details class="why"><summary>зачем именно этот сет</summary><div>
+          5pc усиливает мощность оружейных чар на 45% и режет их кулдаун на 33% —
+          именно это делает глиф <b>Crusher</b> по-настоящему сильным.<br>
+          <b>Альтернатива:</b> Alcast разрешает заменить на <b>Plague Doctor</b>, а его у тебя
+          уже 4 части из 5.
+        </div></details>
+      </span>
+      <span class="pill p-mid">есть замена</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c4" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Night's Silence — 2 предмета</span>
+        <span class="spec">2 трейта · шлем и плечи, оба тяжёлые</span>
+        <details class="why"><summary>можно не крафтить</summary><div>
+          Это затычка на место монстр-сета до Nazaray. Быстрее надеть <b>Tremorscale Pauldrons</b>,
+          которые уже есть, и добить шлем в Volenfell.
+        </div></details>
+      </span>
+      <span class="pill p-mid">есть обход</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c5" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Скрафтить глифы Crusher</span>
+        <span class="spec">эссенция <span class="v">Deteri</span> · на Infused ледяной посох</span>
+        <details class="why"><summary>руны уже есть</summary><div>
+          <b>Deteri ×55</b>, <b>Rejera ×102</b>, <b>Repora ×97</b>, <b>Kuta ×49</b> —
+          хватит на Truly Superb и легендарные без единой покупки.
+        </div></details>
+      </span>
+      <span class="pill p-ok">руны есть</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c6" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Остальные глифы</span>
+        <span class="spec">узкое место — <span class="v">Hakeijo ×1</span>, а трёхстатов нужно 3</span>
+        <details class="why"><summary>разбор по позициям</summary><div>
+          <b>Есть:</b> Major Glyph of Weakening ×1 (на одноручное — ровно как у Alcast),
+          Indeko ×21 (снижение стоимости призматики на ювелирку), Oko / Deni / Makko
+          на здоровье, стамину и магию.<br>
+          <b>Не хватает:</b> трёхстатное зачарование (Prismatic Defense) делается из <b>Hakeijo</b>,
+          а его на складе один. Пока — один трёхстат, остальное на здоровье.
+          Hakeijo падает в Сиродиле и Имперском городе.<br>
+          <b>Перекрафтить:</b> Strong Glyph of Bracing слишком низкого уровня → Truly Superb.
+        </div></details>
+      </span>
+      <span class="pill p-mid">частично</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="c7" data-sec="s2">
+      <span class="body">
+        <span class="ttl">Еда и зелья</span>
+        <span class="spec">зелья закрыты · нужна <span class="v">Bewitched Sugar Skulls</span></span>
+        <details class="why"><summary>что есть и чего нет</summary><div>
+          <b>Зелья:</b> Crown Tri-Restoration ×717 плюс Bugloss / Columbine / Mountain Flower
+          примерно на 87 крафтовых трёхстатных — делать нечего.<br>
+          <b>Еда:</b> целевой <b>Bewitched Sugar Skulls</b> (или дешёвый <b>Longfin Pasty with Melon Sauce</b>)
+          нет ни того, ни другого. Как затычка годятся Venison Pot Roast ×234 и Dubious Camoran Throne ×94.
+        </div></details>
+      </span>
+      <span class="pill p-mid">еды нет</span>
+    </label></li>
+
+  </ul></div>
+</section>
+
+<!-- ────────── ЭТАП 3 ────────── -->
+<section id="s3">
+  <div class="sec-head">
+    <h2>Этап 3 · Фарм целевых сетов</h2>
+    <span class="meta">после этапов 0–2, не вместо</span>
+    <p>Endgame-комплект. До него билд уже должен работать на крафтовом.</p>
+  </div>
+  <div class="card"><ul class="rows">
+
+    <li><label class="task">
+      <input type="checkbox" data-id="d1" data-sec="s3">
+      <span class="body">
+        <span class="ttl">Turning Tide ×5</span>
+        <span class="spec">Shipwright's Regret · DLC Ascending Tide · грудь, пояс, обувь, штаны, кисти</span>
+        <details class="why"><summary>что даёт 5pc</summary><div>
+          При блоке следующий Bash накладывает <b>Major Vulnerability</b> — +10% получаемого урона
+          по шести целям. Это основной вклад танка в урон группы.
+        </div></details>
+      </span>
+      <span class="pill p-no">0 из 5</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="d2" data-sec="s3">
+      <span class="body">
+        <span class="ttl">Powerful Assault ×5</span>
+        <span class="spec">Imperial City Vaults или гильд-магазины · 3 украшения + ледяной посох</span>
+        <details class="why"><summary>почему на заднем баре</summary><div>
+          Прокается скиллом <code>Echoing Vigor</code>, который стоит на заднем баре.
+          Реально проще купить в гильдейках, чем фармить Имперский город.
+        </div></details>
+      </span>
+      <span class="pill p-no">0 из 5</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="d3" data-sec="s3">
+      <span class="body">
+        <span class="ttl">Nazaray ×2</span>
+        <span class="spec">vShipwright's Regret или награды Undaunted · шлем лёгкий, плечи средние</span>
+        <details class="why"><summary>связка с Turning Tide</summary><div>
+          Наложил Major Vulnerability → кинул ульту → Nazaray продлевает дебафф.
+          При 500 очках ульты это <b>+25 секунд</b>, итого до 35.
+          Веса шлема и плеч подобраны специально под <code>Undaunted Mettle</code>.
+        </div></details>
+      </span>
+      <span class="pill p-no">0 из 2</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="d4" data-sec="s3">
+      <span class="body">
+        <span class="ttl">Puncturing Remedy ×2</span>
+        <span class="spec">nDragonstar Arena · оружие и щит переднего бара</span>
+        <details class="why"><summary>если недоступно</summary><div>
+          Перфект-версия — из vDragonstar. Alcast разрешает вместо этого просто вынести
+          <b>Powerful Assault</b> и на передний бар.
+        </div></details>
+      </span>
+      <span class="pill p-no">0 из 2</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="d5" data-sec="s3">
+      <span class="body">
+        <span class="ttl">Быстрый обход: добить свой монстр-сет</span>
+        <span class="spec">Tremorscale · Lord Warden · Bloodspawn · Encratis's Behemoth — везде по половинке</span>
+        <details class="why"><summary>почему это быстрее</summary><div>
+          Все четыре сета Alcast перечисляет как рабочие, и от каждого у тебя уже есть одна половина.
+          Добрать вторую половинку кратно быстрее, чем собрать Nazaray с нуля.
+        </div></details>
+      </span>
+      <span class="pill p-mid">половинки есть</span>
+    </label></li>
+
+  </ul></div>
+</section>
+
+<!-- ────────── ЭТАП 4 ────────── -->
+<section id="s4">
+  <div class="sec-head">
+    <h2>Этап 4 · Свап без респеков</h2>
+    <span class="meta">фиксация результата</span>
+  </div>
+  <div class="card"><ul class="rows">
+
+    <li><label class="task">
+      <input type="checkbox" data-id="e1" data-sec="s4">
+      <span class="body">
+        <span class="ttl">Поставить Armory Station в дом</span>
+        <span class="spec">Crown Store → Furniture → Special · бесплатно · 2 слота</span>
+        <details class="why"><summary>как</summary><div>
+          Забрать, войти в редактор дома (F5), поставить, взаимодействовать → «Save Build».
+          Снаряжение обоих билдов должно физически лежать у тебя — система подскажет, где именно.
+        </div></details>
+      </span>
+      <span class="pill p-ok">бесплатно</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="e2" data-sec="s4">
+      <span class="body">
+        <span class="ttl">Слот 1 — Tank</span>
+        <span class="spec">атрибуты <span class="v">10/54/0</span> · S&amp;B + ледяной посох · танк-ЧП</span>
+      </span>
+      <span class="pill p-neutral">после этапа 2</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="e3" data-sec="s4">
+      <span class="body">
+        <span class="ttl">Слот 2 — Solo</span>
+        <span class="spec">двуручник + <span class="v">Maelstrom's Perfected Bow</span> · Hunding's Rage · Briarheart</span>
+        <details class="why"><summary>что докупить и добрать</summary><div>
+          Лук уже есть (это и есть Perfected Thunderous Volley), но в трейте <b>Defending</b> —
+          для урона перековать в Infused или Precise.
+          Пассивок <b>Two Handed</b> и <b>Bow</b> сейчас нет ни одной — их придётся вложить,
+          иначе свап не имеет смысла.
+        </div></details>
+      </span>
+      <span class="pill p-mid">нужны пассивки</span>
+    </label></li>
+
+    <li><label class="task">
+      <input type="checkbox" data-id="e4" data-sec="s4">
+      <span class="body">
+        <span class="ttl">Помнить: мундус Armory не переносит</span>
+        <span class="spec">The Lord остаётся на обе сборки</span>
+        <details class="why"><summary>последствия</summary><div>
+          Соло-урон будет ниже, чем на The Thief, но оверленд и нормальные данжи это не портит.
+          Менять камень туда-обратно ради соло не стоит.
+        </div></details>
+      </span>
+      <span class="pill p-neutral">заметка</span>
+    </label></li>
+
+  </ul></div>
+</section>
+
+<!-- ────────── СКЛАД ────────── -->
+<section id="stock">
+  <div class="sec-head">
+    <h2>Ревизия склада</h2>
+    <span class="meta">docs/inbox/ESO&nbsp;-&nbsp;yelowhut.txt</span>
+    <p>Сколько частей каждого пригодного сета уже лежит в банке и сумке.</p>
+  </div>
+
+  <div class="stock">
+    <div class="st ok">
+      <div class="st-top"><span class="st-name">Ebon Armory</span><span class="st-frac">5/5</span></div>
+      <div class="st-meter"><i style="width:100%"></i></div>
+      <div class="st-note">Все семь слотов брони плюс щит, топор, булава и кольцо. Тяжёлый, из Crypt of Hearts, у Alcast в списке рабочих. +1000 HP группе, сохраняется после смерти.</div>
+    </div>
+    <div class="st mid">
+      <div class="st-top"><span class="st-name">Plague Doctor</span><span class="st-frac">4/5</span></div>
+      <div class="st-meter"><i style="width:80%"></i></div>
+      <div class="st-note">Gauntlets Infused, Sabatons Infused, Shield Infused, Ring Healthy. Alcast прямо предлагает как замену Torug's Pact. Дёшево докупается в гильдейках.</div>
+    </div>
+    <div class="st ok">
+      <div class="st-top"><span class="st-name">Battalion Defender</span><span class="st-frac">5/5</span></div>
+      <div class="st-meter"><i style="width:100%"></i></div>
+      <div class="st-note">Pauldron, Sabatons, Ring ×2 и <b>два</b> Shield — по щиту на бар, поэтому 5pc держится на обоих. Хил группе при блоке.</div>
+    </div>
+    <div class="st mid">
+      <div class="st-top"><span class="st-name">Tremorscale</span><span class="st-frac">1/2</span></div>
+      <div class="st-meter"><i style="width:50%"></i></div>
+      <div class="st-note">Есть плечи (Reinforced). Шлем — финальный босс Volenfell. При тонте вспышка урона и −880 брони цели.</div>
+    </div>
+    <div class="st mid">
+      <div class="st-top"><span class="st-name">Lord Warden</span><span class="st-frac">1/2</span></div>
+      <div class="st-meter"><i style="width:50%"></i></div>
+      <div class="st-note">Есть шлем (Dusk's Visage, Sturdy). Плечи — из сундуков Undaunted.</div>
+    </div>
+    <div class="st mid">
+      <div class="st-top"><span class="st-name">Encratis's Behemoth</span><span class="st-frac">1/2</span></div>
+      <div class="st-meter"><i style="width:50%"></i></div>
+      <div class="st-note">Есть шлем (Guise, Divines). Black Drake Villa.</div>
+    </div>
+    <div class="st mid">
+      <div class="st-top"><span class="st-name">Bloodspawn</span><span class="st-frac">1/2</span></div>
+      <div class="st-meter"><i style="width:50%"></i></div>
+      <div class="st-note">Есть плечи (Infused). Классический танк-монстр на разгон ульты.</div>
+    </div>
+    <div class="st no">
+      <div class="st-top"><span class="st-name">Turning Tide</span><span class="st-frac">0/5</span></div>
+      <div class="st-meter"><i style="width:0"></i></div>
+      <div class="st-note">Shipwright's Regret, DLC Ascending Tide. Основной целевой сет.</div>
+    </div>
+    <div class="st no">
+      <div class="st-top"><span class="st-name">Powerful Assault</span><span class="st-frac">0/5</span></div>
+      <div class="st-meter"><i style="width:0"></i></div>
+      <div class="st-note">Imperial City Vaults или гильд-магазины.</div>
+    </div>
+    <div class="st no">
+      <div class="st-top"><span class="st-name">Nazaray</span><span class="st-frac">0/2</span></div>
+      <div class="st-meter"><i style="width:0"></i></div>
+      <div class="st-note">vShipwright's Regret или награды Undaunted.</div>
+    </div>
+    <div class="st no">
+      <div class="st-top"><span class="st-name">Puncturing Remedy</span><span class="st-frac">0/2</span></div>
+      <div class="st-meter"><i style="width:0"></i></div>
+      <div class="st-note">nDragonstar Arena, перфект — из vDragonstar.</div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Руны на Crusher</span>
+      <span class="cs-d">Deteri ×55, Rejera ×102, Repora ×97, Kuta ×49 — хватит на легендарные</span>
+    </span></div>
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Глифы ювелирки</span>
+      <span class="cs-d">Indeko ×21 — ровно те призматические, что в таблице Alcast'а</span>
+    </span></div>
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Weakening на оружие</span>
+      <span class="cs-d">Major Glyph of Weakening ×1 уже лежит готовым</span>
+    </span></div>
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Зелья</span>
+      <span class="cs-d">Crown Tri-Restoration ×717 + мат примерно на 87 крафтовых</span>
+    </span></div>
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Материалы под крафт</span>
+      <span class="cs-d">Rubedite ×1384, Sanded Ruby Ash ×1298, улучшайки на полный комплект</span>
+    </span></div>
+    <div class="cs ok"><span class="mk">✓</span><span>
+      <span class="cs-t">Свитки</span>
+      <span class="cs-d">Skill Respec ×1, Instant All Research ×1, Clothing ×3, Blacksmithing ×1, Woodworking ×1</span>
+    </span></div>
+    <div class="cs mid"><span class="mk">!</span><span>
+      <span class="cs-t">Hakeijo ×1</span>
+      <span class="cs-d">Трёхстатных зачарований нужно три. Падает в Сиродиле и Имперском городе</span>
+    </span></div>
+    <div class="cs no"><span class="mk">✕</span><span>
+      <span class="cs-t">Целевая еда</span>
+      <span class="cs-d">Bewitched Sugar Skulls / Longfin Pasty — нет. Затычка: Venison Pot Roast ×234</span>
+    </span></div>
+  </div>
+
+  <div class="callout warn">
+    Выгрузка не содержит надетых предметов и не различает банк и сумку — перед крафтом стоит
+    глянуть, что из перечисленного реально под рукой.
+  </div>
+</section>
+
+<!-- ────────── КОМПЛЕКТЫ ────────── -->
+<section id="gear">
+  <div class="sec-head">
+    <h2>Комплекты по слотам</h2>
+    <span class="meta">по Alcast</span>
+  </div>
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-pane="p-end">Endgame</button>
+      <button role="tab" aria-selected="false" data-pane="p-start">Стартовый крафтовый</button>
+    </div>
+
+    <div class="pane on" id="p-end">
+      <div class="tscroll"><table>
+        <thead><tr><th>Слот</th><th>Сет</th><th>Вес</th><th>Трейт</th><th>Зачарование</th></tr></thead>
+        <tbody>
+          <tr><td class="sl">Грудь</td><td>Turning Tide</td><td><span class="w">Тяжёлая</span></td><td>Reinforced</td><td>Трёхстат</td></tr>
+          <tr><td class="sl">Пояс</td><td>Turning Tide</td><td><span class="w">Тяжёлая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Обувь</td><td>Turning Tide</td><td><span class="w">Тяжёлая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Штаны</td><td>Turning Tide</td><td><span class="w">Тяжёлая</span></td><td>Infused</td><td>Трёхстат</td></tr>
+          <tr><td class="sl">Кисти</td><td>Turning Tide</td><td><span class="w">Тяжёлая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Шлем</td><td>Nazaray</td><td><span class="w">Лёгкая</span></td><td>Infused</td><td>Трёхстат</td></tr>
+          <tr><td class="sl">Плечи</td><td>Nazaray</td><td><span class="w">Средняя</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Ожерелье</td><td>Powerful Assault</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Стоимость призматики</td></tr>
+          <tr><td class="sl">Кольцо</td><td>Powerful Assault</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Стоимость призматики</td></tr>
+          <tr><td class="sl">Кольцо</td><td>Powerful Assault</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Bracing</td></tr>
+          <tr><td class="sl">Оружие 1</td><td>Puncturing Remedy</td><td><span class="w">Одноручное</span></td><td>Decisive</td><td>Weakening</td></tr>
+          <tr><td class="sl">Щит</td><td>Puncturing Remedy</td><td><span class="w">Щит</span></td><td>Sturdy</td><td>Трёхстат</td></tr>
+          <tr><td class="sl">Оружие 2</td><td>Powerful Assault</td><td><span class="w">Лед. посох</span></td><td>Infused</td><td><b>Crusher</b></td></tr>
+        </tbody>
+      </table></div>
+      <div class="tnote">Веса брони подобраны не случайно: <b>5 тяжёлых + 1 лёгкая + 1 средняя</b> — условие пассивки <code>Undaunted Mettle</code>.</div>
+    </div>
+
+    <div class="pane" id="p-start">
+      <div class="tscroll"><table>
+        <thead><tr><th>Слот</th><th>Сет</th><th>Вес</th><th>Трейт</th><th>Зачарование</th></tr></thead>
+        <tbody>
+          <tr><td class="sl">Грудь</td><td>Fortified Brass</td><td><span class="w">Тяжёлая</span></td><td>Reinforced</td><td>Стамина</td></tr>
+          <tr><td class="sl">Пояс</td><td>Fortified Brass</td><td><span class="w">Лёгкая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Обувь</td><td>Fortified Brass</td><td><span class="w">Средняя</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Штаны</td><td>Torug's Pact</td><td><span class="w">Тяжёлая</span></td><td>Infused</td><td>Стамина</td></tr>
+          <tr><td class="sl">Кисти</td><td>Torug's Pact</td><td><span class="w">Тяжёлая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Шлем</td><td>Night's Silence</td><td><span class="w">Тяжёлая</span></td><td>Infused</td><td>Стамина</td></tr>
+          <tr><td class="sl">Плечи</td><td>Night's Silence</td><td><span class="w">Тяжёлая</span></td><td>Sturdy</td><td>Здоровье</td></tr>
+          <tr><td class="sl">Ожерелье</td><td>Torug's Pact</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Реген магии</td></tr>
+          <tr><td class="sl">Кольцо</td><td>Torug's Pact</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Стоимость призматики</td></tr>
+          <tr><td class="sl">Кольцо</td><td>Torug's Pact</td><td><span class="w">Ювелирка</span></td><td>Infused</td><td>Bracing</td></tr>
+          <tr><td class="sl">Оружие 1</td><td>Fortified Brass</td><td><span class="w">Одноручное</span></td><td>Decisive</td><td>Weakening</td></tr>
+          <tr><td class="sl">Щит</td><td>Fortified Brass</td><td><span class="w">Щит</span></td><td>Sturdy</td><td>Стамина</td></tr>
+          <tr><td class="sl">Оружие 2</td><td>Fortified Brass</td><td><span class="w">Лед. посох</span></td><td>Infused</td><td><b>Crusher</b></td></tr>
+        </tbody>
+      </table></div>
+      <div class="tnote">Fortified Brass — 4 трейта, Torug's Pact — 3, Night's Silence — 2. <b>Torug's Pact можно заменить на Plague Doctor</b>, которого у тебя 4 части из 5.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────── БАРЫ И ЧП ────────── -->
+<section id="bars">
+  <div class="sec-head">
+    <h2>Целевые бары</h2>
+    <span class="meta">есть 2 из 12</span>
+    <p>Зелёная галочка — скилл уже в твоём билде.</p>
+  </div>
+  <div class="bars">
+    <div class="barcard">
+      <h4>Передний · меч и щит</h4>
+      <ol>
+        <li><span class="i"></span><span><span class="sk">Polar Wind</span><span class="fn">хил от максимального здоровья</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Shimmering Shield</span><span class="fn">Major Heroism при поглощении снаряда</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Pierce Armor</span><span class="fn">основной тонт + Major Breach</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Heroic Slash</span><span class="fn">Minor Maim + Minor Heroism</span></span><span class="mk-have">✓</span></li>
+        <li><span class="i"></span><span><span class="sk">Bull Netch</span><span class="fn">стамина, бесплатный каст</span></span><span class="mk-have">✓</span></li>
+        <li class="ultimate"><span class="i"></span><span><span class="sk">Enchanted Forest</span><span class="fn">аварийный групповой хил</span></span><span class="mk-miss">✕</span></li>
+      </ol>
+    </div>
+    <div class="barcard">
+      <h4>Задний · ледяной посох</h4>
+      <ol>
+        <li><span class="i"></span><span><span class="sk">Echoing Vigor</span><span class="fn">групповой хил, прок Powerful Assault</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Spell Symmetry</span><span class="fn">маги-сустейн</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Ice Fortress</span><span class="fn">Major Resolve + Minor Protection</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Inner Rage</span><span class="fn">тонт на дистанции</span></span><span class="mk-miss">✕</span></li>
+        <li><span class="i"></span><span><span class="sk">Elemental Blockade</span><span class="fn">Minor Brittle + Minor Maim</span></span><span class="mk-miss">✕</span></li>
+        <li class="ultimate"><span class="i"></span><span><span class="sk">Aggressive Warhorn</span><span class="fn">основная групповая ульта</span></span><span class="mk-miss">✕</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:26px">
+    <h2>Очки чемпиона</h2>
+    <span class="meta">свапаются бесплатно</span>
+  </div>
+  <div class="card">
+    <div class="tscroll"><table style="min-width:460px">
+      <thead><tr><th>Дерево</th><th>Слотируемые звёзды (пресет 600 ЧП)</th></tr></thead>
+      <tbody>
+        <tr><td class="sl">Warfare</td><td>Duelist's Rebuff · Enduring Resolve · Unassailable</td></tr>
+        <tr><td class="sl">Fitness</td><td>Boundless Vitality · Rejuvenation · Expert Evasion</td></tr>
+        <tr><td class="sl">Craft</td><td>Steed's Blessing</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tnote">
+      Alcast даёт готовые пресеты на 195 / 300 / 600 / 900 / 1230 / 1560 ЧП — их проще открыть по ссылкам
+      с его страницы и залить в <a href="https://eso-hub.com/en/champion-points/calculator" target="_blank" rel="noopener">калькулятор ESO-Hub</a>.
+      Слотируемые звёзды меняются мгновенно и бесплатно, плюс Armory их сохраняет.
+    </div>
+  </div>
+</section>
+
+<footer>
+  Эталон — <a href="https://alcasthq.com/eso-warden-tank-build-pve/" target="_blank" rel="noopener">alcasthq.com · Warden Tank PvE «Frostbite»</a>, Update 50 / Season 0+1.
+  Текстовый разбор текущего билда — <code>docs/eso/warden-tank-solo.md</code>.
+  Выгрузка склада — <code>docs/inbox/ESO - yelowhut.txt</code>.
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var KEY='eso-warden-tank-todo-v2';
+  var boxes=[].slice.call(document.querySelectorAll('input[data-id]'));
+  var ring=document.getElementById('ring');
+  var LEN=2*Math.PI*25;
+  ring.setAttribute('stroke-dasharray',LEN);
+
+  function read(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+  function write(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+
+  function render(){
+    var done=0;
+    var per={};
+    boxes.forEach(function(b){
+      var s=b.dataset.sec;
+      per[s]=per[s]||{d:0,t:0};
+      per[s].t++;
+      if(b.checked){done++;per[s].d++}
+    });
+    var p=boxes.length?done/boxes.length:0;
+    ring.setAttribute('stroke-dashoffset',LEN*(1-p));
+    document.getElementById('pct').textContent=Math.round(p*100)+'%';
+    document.getElementById('frac').textContent=done+' / '+boxes.length;
+    Object.keys(per).forEach(function(k){
+      var a=document.querySelector('nav.steps a[data-sec="'+k+'"]');
+      if(!a)return;
+      a.querySelector('.frac').textContent=per[k].d+'/'+per[k].t;
+      a.classList.toggle('done',per[k].d===per[k].t);
+    });
+  }
+
+  var state=read();
+  boxes.forEach(function(b){
+    if(state[b.dataset.id])b.checked=true;
+    b.addEventListener('change',function(){
+      state[b.dataset.id]=b.checked; write(state); render();
+    });
+  });
+  render();
+
+  document.getElementById('reset').addEventListener('click',function(){
+    boxes.forEach(function(b){b.checked=false});
+    state={}; write(state); render();
+  });
+
+  // клик по «подробнее» не должен переключать чекбокс
+  [].slice.call(document.querySelectorAll('.why > summary')).forEach(function(s){
+    s.addEventListener('click',function(e){
+      e.preventDefault(); e.stopPropagation();
+      var d=s.parentNode; d.open=!d.open;
+    });
+  });
+  // и клик внутри раскрытого блока тоже
+  [].slice.call(document.querySelectorAll('.why > div')).forEach(function(d){
+    d.addEventListener('click',function(e){e.preventDefault();e.stopPropagation()});
+  });
+
+  // табы
+  [].slice.call(document.querySelectorAll('.tabs button')).forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var tabs=btn.parentNode;
+      [].slice.call(tabs.querySelectorAll('button')).forEach(function(b){
+        b.setAttribute('aria-selected', b===btn?'true':'false');
+        document.getElementById(b.dataset.pane).classList.toggle('on', b===btn);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

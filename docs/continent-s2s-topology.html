@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Схема организации защищённого канала с Заказчиком</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --fg:#111827; --muted:#5b6675; --card:#ffffff; --line:#d3dae2;
+    --ic-fill:#ffffff; --box-stroke:#3f4b5b; --accent:#1d4ed8; --cust:#b45309;
+    --tunnel:#7c3aed; --warn:#c81e1e; --zone:#94a3b8; --chip:#eef2f7;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0d1117; --fg:#e6edf3; --muted:#9aa7b4; --card:#161b22; --line:#30363d;
+           --ic-fill:#1b222c; --box-stroke:#a3b1bf; --accent:#6ea8fe; --cust:#f0b429;
+           --tunnel:#b39bfb; --warn:#f87171; --zone:#5b6773; --chip:#1e2632; }
+  }
+  html[data-theme="dark"]{ --bg:#0d1117; --fg:#e6edf3; --muted:#9aa7b4; --card:#161b22; --line:#30363d;
+           --ic-fill:#1b222c; --box-stroke:#a3b1bf; --accent:#6ea8fe; --cust:#f0b429;
+           --tunnel:#b39bfb; --warn:#f87171; --zone:#5b6773; --chip:#1e2632; }
+  html[data-theme="light"]{ --bg:#f4f6f8; --fg:#111827; --muted:#5b6675; --card:#ffffff; --line:#d3dae2;
+           --ic-fill:#ffffff; --box-stroke:#3f4b5b; --accent:#1d4ed8; --cust:#b45309;
+           --tunnel:#7c3aed; --warn:#c81e1e; --zone:#94a3b8; --chip:#eef2f7; }
+
+  *{ box-sizing:border-box }
+  body{ background:var(--bg); color:var(--fg); margin:0;
+        font:15px/1.62 -apple-system,"Segoe UI",Roboto,Arial,sans-serif }
+  .wrap{ max-width:1240px; margin:0 auto; padding:34px 22px 70px }
+  h1{ font-size:26px; margin:0 0 6px; letter-spacing:-.02em }
+  .sub{ color:var(--muted); margin:0 0 22px }
+  .fig{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px; overflow-x:auto }
+  .fig svg{ display:block; min-width:960px; width:100%; height:auto }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:20px 0 0 }
+  .card b{ display:block; margin-bottom:6px }
+  ul{ padding-left:20px; margin:0 } li{ margin:6px 0 }
+  code{ background:var(--chip); padding:1px 6px; border-radius:5px; font-size:13px;
+        font-family:ui-monospace,Consolas,"Courier New",monospace }
+  .q{ color:var(--warn); font-weight:600 }
+
+  .c-net{ color:var(--box-stroke) } .c-mt{ color:var(--accent) } .c-cu{ color:var(--cust) }
+  .zone{ fill:none; stroke:var(--zone); stroke-width:1.4; stroke-dasharray:8 6 }
+  .zone-cu{ fill:none; stroke:var(--cust); stroke-width:1.6; stroke-dasharray:8 6 }
+  .zone-t{ fill:var(--zone); font:700 12px -apple-system,"Segoe UI",Roboto,sans-serif; letter-spacing:.08em }
+  .zone-tc{ fill:var(--cust); font:700 12px -apple-system,"Segoe UI",Roboto,sans-serif; letter-spacing:.08em }
+  .ln{ stroke:var(--box-stroke); stroke-width:2.4; fill:none }
+  .pipe{ stroke:var(--tunnel); stroke-width:17; fill:none; opacity:.26; stroke-linecap:round; stroke-linejoin:round }
+  .n{ fill:var(--fg); font:700 14.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .s{ fill:var(--muted); font:400 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .m{ fill:var(--muted); font:600 11.8px ui-monospace,Consolas,monospace }
+  .ma{ fill:var(--accent); font:600 11.8px ui-monospace,Consolas,monospace }
+  .mc{ fill:var(--cust); font:600 11.8px ui-monospace,Consolas,monospace }
+  .tp{ fill:var(--tunnel); font:700 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+  .tw{ fill:var(--warn); font:600 12.5px -apple-system,"Segoe UI",Roboto,sans-serif }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Организация защищённого канала с инфраструктурой Заказчика</h1>
+<p class="sub">Схема подключения · S2S ГОСТ-туннель через Континент IPC-R10</p>
+
+<div class="fig">
+<svg viewBox="0 0 1200 740" role="img" aria-label="Схема подключения защищённого канала">
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--box-stroke)"/></marker>
+
+  <g id="i-router" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M-40,-12 V10 A40,13 0 0 0 40,10 V-12 Z" fill="var(--ic-fill)"/>
+    <ellipse cx="0" cy="-12" rx="40" ry="13" fill="currentColor" fill-opacity=".14"/>
+    <path d="M-26,-17 H10" stroke-width="2"/><path d="M4,-21 L12,-17 L4,-13" stroke-width="2" stroke-linecap="round"/>
+    <path d="M26,-7 H-10" stroke-width="2"/><path d="M-4,-11 L-12,-7 L-4,-3" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <g id="i-crypto" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-44" y="-30" width="88" height="60" rx="4" fill="var(--ic-fill)"/>
+    <path d="M-44,-10 H44 M-44,10 H44" stroke-width="1.5"/>
+    <path d="M-14,-30 V-10 M16,-30 V-10 M-29,-10 V10 M1,-10 V10 M31,-10 V10 M-14,10 V30 M16,10 V30" stroke-width="1.5"/>
+    <g transform="translate(28,17)">
+      <rect x="-9.5" y="-4" width="19" height="14" rx="2.5" fill="var(--ic-fill)" stroke-width="2"/>
+      <path d="M-5,-4 V-8.5 A5,5 0 0 1 5,-8.5 V-4" stroke-width="2"/>
+    </g>
+  </g>
+
+  <g id="i-server" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-27" y="-36" width="54" height="72" rx="5" fill="var(--ic-fill)"/>
+    <rect x="-18" y="-27" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <rect x="-18" y="-11" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <rect x="-18" y="5" width="36" height="9" rx="2" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <circle cx="-12" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+    <circle cx="-2" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+  </g>
+
+  <g id="i-laptop" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="-33" y="-28" width="66" height="46" rx="3" fill="var(--ic-fill)"/>
+    <rect x="-27" y="-22" width="54" height="34" rx="1.5" fill="currentColor" fill-opacity=".14" stroke-width="1.5"/>
+    <path d="M-46,18 H46 L52,28 H-52 Z" fill="var(--ic-fill)"/>
+  </g>
+
+  <g id="i-cloud" fill="var(--ic-fill)" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M-46,20 A21,21 0 0 1 -43,-16 A28,28 0 0 1 8,-28 A21,21 0 0 1 41,-9 A16,16 0 0 1 44,20 Z"/>
+  </g>
+</defs>
+
+<!-- ГОСТ-туннель: под иконками -->
+<path class="pipe" d="M 720 400 V 380 H 270 V 140 H 830"/>
+
+<!-- зоны -->
+<rect class="zone" x="60" y="286" width="1050" height="390" rx="14"/>
+<text class="zone-t" x="78" y="308">ОФИС PRIMO</text>
+
+<rect class="zone-cu" x="620" y="316" width="470" height="336" rx="12"/>
+<text class="zone-tc" x="638" y="340">ОБОРУДОВАНИЕ ЗАКАЗЧИКА — У НАС В ОФИСЕ</text>
+
+<rect class="zone-cu" x="760" y="40" width="400" height="190" rx="12"/>
+<text class="zone-tc" x="778" y="64">ИНФРАСТРУКТУРА ЗАКАЗЧИКА</text>
+
+<!-- интернет -->
+<g class="c-net" transform="translate(270,140) scale(1.45)"><use href="#i-cloud"/></g>
+<text class="n" x="190" y="134" text-anchor="end">Интернет</text>
+<text class="s" x="190" y="153" text-anchor="end">аплинк провайдера</text>
+
+<!-- сторона заказчика -->
+<g class="c-cu" transform="translate(860,140)"><use href="#i-crypto"/></g>
+<text class="n" x="860" y="200" text-anchor="middle">Континент (шлюз)</text>
+
+<g class="c-cu" transform="translate(1070,140) scale(.9)"><use href="#i-server"/></g>
+<text class="n"  x="1070" y="200" text-anchor="middle">Ресурсы</text>
+<text class="mc" x="1070" y="218" text-anchor="middle">подсети — ?</text>
+
+<line class="ln" x1="906" y1="140" x2="1040" y2="140"/>
+<line class="ln" x1="338" y1="140" x2="760" y2="140" marker-end="url(#ar)" marker-start="url(#ar)"/>
+
+<!-- MikroTik -->
+<g class="c-mt" transform="translate(270,380)"><use href="#i-router"/></g>
+<line class="ln" x1="270" y1="170" x2="270" y2="353" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<text class="ma" x="288" y="248">if.1uplink (ether1)</text>
+<text class="m"  x="288" y="266">89.20.40.91</text>
+<text class="m"  x="288" y="284">единственный белый IP</text>
+
+<text class="n" x="228" y="374" text-anchor="end">MikroTik hAP ac</text>
+<text class="m" x="228" y="394" text-anchor="end">NAT / masquerade</text>
+
+<!-- линк к Континенту -->
+<line class="ln" x1="312" y1="380" x2="672" y2="380" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<text class="tw" x="332" y="344">⚠ криптошлюз в офисной LAN 10.15.10.0/24</text>
+<text class="ma" x="332" y="366">if4 (ether4) — порт бриджа</text>
+
+<!-- Континент IPC-R10 -->
+<g class="c-cu" transform="translate(720,380)"><use href="#i-crypto"/></g>
+<text class="n"  x="780" y="366">Континент IPC-R10</text>
+<text class="mc" x="780" y="388">порт 1 → if4 MikroTik</text>
+<text class="mc" x="780" y="408">порт 2 → ноутбук</text>
+
+<!-- ноутбук -->
+<line class="ln" x1="720" y1="412" x2="720" y2="538" marker-end="url(#ar)"/>
+<text class="m" x="706" y="478" text-anchor="end">порт 2</text>
+<g class="c-net" transform="translate(720,568)"><use href="#i-laptop"/></g>
+<text class="n"  x="780" y="562">Ноутбук (АРМ)</text>
+<text class="s"  x="780" y="582">единственный разрешённый источник</text>
+<text class="mc" x="780" y="602">сеть за портом 2 — ?</text>
+
+<!-- подписи туннеля -->
+<rect x="352" y="392" width="168" height="24" rx="12" fill="var(--tunnel)" opacity=".16"/>
+<text class="tp" x="436" y="409" text-anchor="middle">ГОСТ S2S-туннель</text>
+
+<!-- легенда -->
+<line class="ln" x1="78" y1="708" x2="124" y2="708"/><text class="s" x="134" y="712">Ethernet</text>
+<line class="pipe" x1="240" y1="708" x2="286" y2="708"/><text class="s" x="296" y="712">путь ГОСТ-туннеля (логический канал поверх физики)</text>
+</svg>
+</div>
+
+</div>
+</body>
+</html>

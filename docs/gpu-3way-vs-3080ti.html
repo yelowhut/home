@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPU-сравнение — 5070 Ti / 9070 XT / 5080 vs 3080 Ti</title>
+<style>
+  :root {
+    --ground: #0F1620;
+    --panel: #18222F;
+    --panel-2: #1E2A38;
+    --line: #2B3A4A;
+    --text: #E8E6E0;
+    --muted: #8B97A5;
+    --accent: #F2A33C;   /* 5070 Ti — баланс */
+    --accent-2: #56C7D6; /* 5080 — запас */
+    --accent-3: #6FD18B; /* 9070 XT — цена */
+    --base: #7B8794;     /* 3080 Ti — базлайн */
+    --mono: 'Cascadia Code', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Consolas', monospace;
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(900px 500px at 80% -5%, rgba(242,163,60,0.06), transparent 60%),
+      radial-gradient(700px 600px at 0% 0%, rgba(86,199,214,0.05), transparent 55%);
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* ---- Header ---- */
+  header { border-bottom: 1px solid var(--line); padding: 36px 0 22px; margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.34em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 18px;
+  }
+  h1 {
+    font-weight: 800; font-size: clamp(30px, 5vw, 52px); line-height: 1.0;
+    letter-spacing: -0.03em; margin: 0 0 22px; max-width: 20ch;
+  }
+  .machine-strip {
+    display: flex; flex-wrap: wrap; gap: 10px 28px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  }
+  .machine-strip b { color: var(--text); font-weight: 600; }
+  .machine-strip span { white-space: nowrap; }
+
+  /* ---- Baseline callout ---- */
+  .baseline {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+    background: rgba(123,135,148,0.08);
+    border: 1px solid var(--line); border-left: 3px solid var(--base);
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 56px;
+  }
+  .baseline .bl-tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--base);
+  }
+  .baseline .bl-val { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--text); }
+  .baseline p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 60ch; }
+  .baseline p b { color: var(--text); font-weight: 600; }
+
+  /* ---- Section heading ---- */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 14px; margin: 0 0 26px;
+    border-bottom: 1px solid var(--line); padding-bottom: 14px;
+  }
+  .sec-head h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+  .sec-head .hint { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ---- Card row ---- */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 64px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent); border-radius: 12px;
+    padding: 22px 22px 20px; display: flex; flex-direction: column;
+  }
+  .card.green { border-top-color: var(--accent-3); }
+  .card.cyan  { border-top-color: var(--accent-2); }
+  .card .role {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  .card.green .role { color: var(--accent-3); }
+  .card.cyan  .role { color: var(--accent-2); }
+  .card h4 { font-size: 19px; font-weight: 800; margin: 0 0 3px; letter-spacing: -0.01em; }
+  .card .model { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0 0 16px; }
+  .card .headline {
+    font-family: var(--mono); font-size: 30px; font-weight: 700; line-height: 1;
+    color: var(--accent); margin: 0 0 4px; letter-spacing: -0.02em;
+  }
+  .card.green .headline { color: var(--accent-3); }
+  .card.cyan  .headline { color: var(--accent-2); }
+  .card .headline small { font-size: 13px; color: var(--muted); font-weight: 400; }
+  .card .hl-label {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    margin: 0 0 16px; letter-spacing: 0.04em;
+  }
+  .card .verdict { font-size: 13.5px; color: var(--muted); margin: 0 0 18px; flex: 1; }
+  .card .verdict b { color: var(--text); font-weight: 600; }
+  .card .price {
+    border-top: 1px dashed var(--line); padding-top: 14px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .card .price .pl { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .card .price .pv { font-family: var(--mono); font-size: 19px; font-weight: 700; color: var(--text); }
+
+  /* ---- Perf groups ---- */
+  .perf-group { margin-bottom: 30px; }
+  .pg-head {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px;
+  }
+  .pg-head h4 { font-size: 15.5px; font-weight: 700; margin: 0; }
+  .pg-head .pg-note { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-left: auto; }
+  .pg-sub { font-size: 12.5px; color: var(--muted); margin: 0 0 16px; max-width: 70ch; }
+
+  .bar-row { margin-bottom: 11px; }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--mono); font-size: 12.5px; margin-bottom: 5px;
+  }
+  .bar-label .nm { color: var(--text); }
+  .bar-label .nm.base { color: var(--base); }
+  .bar-label .sc { color: var(--muted); font-size: 12px; }
+  .bar-label .sc b { color: var(--text); font-weight: 600; }
+  .track { height: 9px; background: var(--panel-2); border-radius: 6px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 6px; }
+  .fill.base  { background: var(--base); opacity: 0.7; }
+  .fill.green { background: linear-gradient(90deg, #3f7a5a, var(--accent-3)); }
+  .fill.amber { background: linear-gradient(90deg, #9a5a1e, var(--accent)); }
+  .fill.cyan  { background: linear-gradient(90deg, #3f7a6e, var(--accent-2)); }
+  .scale-note { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 14px 0 0; text-align: right; }
+
+  /* ---- FG callout ---- */
+  .fg {
+    background: var(--panel); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+    padding: 18px 22px; margin-top: 8px;
+  }
+  .fg h4 { font-size: 15.5px; margin: 0 0 6px; }
+  .fg > p { font-size: 12.5px; color: var(--muted); margin: 0 0 16px; max-width: 74ch; }
+  .fg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .fg-cell { background: var(--panel-2); border-radius: 8px; padding: 12px 14px; }
+  .fg-cell .fc-nm { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0 0 6px; }
+  .fg-cell .fc-mul { font-family: var(--mono); font-size: 22px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .fg-cell.green .fc-mul { color: var(--accent-3); }
+  .fg-cell.amber .fc-mul { color: var(--accent); }
+  .fg-cell.cyan  .fc-mul { color: var(--accent-2); }
+  .fg-cell .fc-tech { font-size: 11.5px; color: var(--muted); margin: 0; }
+
+  /* ---- Spec table ---- */
+  .tbl-scroll { overflow-x: auto; }
+  table.spec { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
+  table.spec th, table.spec td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  table.spec thead th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+    border-bottom: 1px solid var(--line); vertical-align: bottom;
+  }
+  table.spec thead th.c-base { color: var(--base); }
+  table.spec thead th.c-green { color: var(--accent-3); }
+  table.spec thead th.c-amber { color: var(--accent); }
+  table.spec thead th.c-cyan { color: var(--accent-2); }
+  table.spec thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 10px; margin-top: 3px; letter-spacing: 0; text-transform: none; }
+  table.spec td.rh { color: var(--muted); font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  table.spec td.v { font-family: var(--mono); }
+  table.spec td.base { color: var(--base); }
+  table.spec tbody tr:hover { background: rgba(86,199,214,0.04); }
+  .win { color: var(--accent-3); font-weight: 600; }
+
+  /* ---- Value ---- */
+  .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .vcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; }
+  .vcard .vnm { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .vcard .vbig { font-family: var(--mono); font-size: 26px; font-weight: 700; line-height: 1; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .vcard.green .vbig { color: var(--accent-3); }
+  .vcard.amber .vbig { color: var(--accent); }
+  .vcard.cyan  .vbig { color: var(--accent-2); }
+  .vcard .vbig span { font-size: 13px; color: var(--muted); font-weight: 400; }
+  .vcard .vsub { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+
+  /* ---- Notes ---- */
+  .notes { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 28px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 36px; }
+  .note h5 { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 7px; }
+  .note p { color: var(--muted); font-size: 13.5px; margin: 0; }
+  .note p b { color: var(--text); font-weight: 600; }
+
+  .reconcile {
+    margin-top: 40px; background: rgba(242,163,60,0.08);
+    border: 1px solid rgba(242,163,60,0.28); border-radius: 10px; padding: 20px 24px;
+  }
+  .reconcile h5 { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+  .reconcile p { color: var(--muted); font-size: 13.5px; margin: 0 0 10px; max-width: 92ch; }
+  .reconcile p:last-child { margin-bottom: 0; }
+  .reconcile b { color: var(--text); font-weight: 600; }
+
+  footer { margin-top: 40px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.04em; line-height: 1.6; }
+
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(86,199,214,0.32); transition: border-color .15s; }
+  a:hover, a:focus-visible { border-bottom-color: var(--accent-2); }
+
+  @media (max-width: 820px) {
+    .cards { grid-template-columns: 1fr; }
+    .value-grid { grid-template-columns: 1fr; }
+    .fg-grid { grid-template-columns: 1fr; }
+    .notes { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Сравнение GPU · базлайн — твоя 3080 Ti</p>
+    <h1>5070 Ti vs 9070 XT vs 5080</h1>
+    <div class="machine-strip">
+      <span><b>Базлайн</b> RTX 3080 Ti 12&nbsp;ГБ</span>
+      <span><b>Разрешение</b> 3440×1440 (ultrawide)</span>
+      <span><b>Профиль</b> игры · апскейл по вкусу</span>
+      <span><b>Прочее</b> 7950X · 64&nbsp;ГБ DDR5 · БП 1000W ATX&nbsp;3.1</span>
+    </div>
+  </header>
+
+  <div class="baseline">
+    <span class="bl-tag">Точка отсчёта</span>
+    <span class="bl-val">RTX 3080 Ti @ 3440×1440 = 100</span>
+    <p>Все индексы и проценты ниже — <b>относительно твоей текущей карты на твоём разрешении</b>. 3440×1440 (≈5,0&nbsp;Мп) ближе к 4K (8,3&nbsp;Мп), чем к 1440p (3,7&nbsp;Мп), поэтому цифры взяты со стороны 4K-тестов, а не усреднены.</p>
+  </div>
+
+  <!-- ===== CARDS ===== -->
+  <div class="sec-head">
+    <h3>Три кандидата</h3>
+    <span class="hint">цены «Регард» · 23.06.2026</span>
+  </div>
+
+  <div class="cards">
+
+    <article class="card green">
+      <p class="role">Цена · AMD</p>
+      <h4>RX 9070 XT 16&nbsp;ГБ</h4>
+      <p class="model">Gigabyte GAMING · Navi 48 (RDNA 4)</p>
+      <p class="headline">+38%<small>&nbsp;растр</small></p>
+      <p class="hl-label">к 3080 Ti на 3440×1440 (native)</p>
+      <p class="verdict">Самый дешёвый прыжок вперёд. <b>Сильный растр</b> почти на уровне 5070 Ti, но заметно слабее в тяжёлой трассировке, а апскейл (FSR&nbsp;4) пока уступает DLSS по охвату игр.</p>
+      <div class="price"><span class="pl">Регард</span><span class="pv">68 210 ₽</span></div>
+    </article>
+
+    <article class="card">
+      <p class="role">Баланс · NVIDIA</p>
+      <h4>RTX 5070 Ti 16&nbsp;ГБ</h4>
+      <p class="model">Gigabyte WINDFORCE OC V2 · GB203 (Blackwell)</p>
+      <p class="headline">+44%<small>&nbsp;растр</small></p>
+      <p class="hl-label">к 3080 Ti на 3440×1440 (native)</p>
+      <p class="verdict">Sweet spot. <b>Растр чуть выше 9070 XT, RT — ощутимо сильнее</b>, плюс DLSS&nbsp;4 с Multi Frame Generation. С RT и MFG эффективный отрыв от 3080 Ti доходит до ×2–2,5.</p>
+      <div class="price"><span class="pl">Регард</span><span class="pv">88 990 ₽</span></div>
+    </article>
+
+    <article class="card cyan">
+      <p class="role">Запас · NVIDIA</p>
+      <h4>RTX 5080 16&nbsp;ГБ</h4>
+      <p class="model">Palit GamingPro · GB203 (Blackwell)</p>
+      <p class="headline">+60%<small>&nbsp;растр</small></p>
+      <p class="hl-label">к 3080 Ti на 3440×1440 (native)</p>
+      <p class="verdict">Самая мощная из трёх. <b>+10–15% растра к 5070 Ti</b> и лучший RT, готовность к 4K. Цена за пункт — самая высокая: переплата за «запас на годы», а не за отдачу здесь и сейчас.</p>
+      <div class="price"><span class="pl">Регард</span><span class="pv">116 440 ₽</span></div>
+    </article>
+
+  </div>
+
+  <!-- ===== PERFORMANCE ===== -->
+  <div class="sec-head">
+    <h3>Производительность vs 3080 Ti</h3>
+    <span class="hint">индекс, 3080 Ti = 100</span>
+  </div>
+
+  <!-- RASTER -->
+  <div class="perf-group">
+    <div class="pg-head">
+      <h4>1 · Чистый растр (native, без апскейла)</h4>
+      <span class="pg-note">3440×1440</span>
+    </div>
+    <p class="pg-sub">Честный кадр без интерполяции. Здесь все три карты живут близко: разрыв между AMD и 5070 Ti ~5%, 5080 отрывается на ~10–15%.</p>
+
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm base">RTX 3080 Ti <small>— текущая</small></span><span class="sc"><b>100</b></span></div>
+      <div class="track"><div class="fill base" style="width:50%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RX 9070 XT</span><span class="sc"><b>138</b> · +38%</span></div>
+      <div class="track"><div class="fill green" style="width:69%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RTX 5070 Ti</span><span class="sc"><b>144</b> · +44%</span></div>
+      <div class="track"><div class="fill amber" style="width:72%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RTX 5080</span><span class="sc"><b>160</b> · +60%</span></div>
+      <div class="track"><div class="fill cyan" style="width:80%"></div></div>
+    </div>
+    <p class="scale-note">шкала: 200 = край дорожки</p>
+  </div>
+
+  <!-- RAY TRACING -->
+  <div class="perf-group">
+    <div class="pg-head">
+      <h4>2 · Тяжёлый RT / путевая трассировка</h4>
+      <span class="pg-note">native, без FG</span>
+    </div>
+    <p class="pg-sub">Cyberpunk RT Overdrive, Alan Wake 2 PT, Wukong PT. У 3080 Ti RT-ядра 2-го поколения — она проседает сильнее всего, поэтому именно тут «новизна» чувствуется ярче. AMD догнала, но Blackwell всё ещё впереди.</p>
+
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm base">RTX 3080 Ti <small>— текущая</small></span><span class="sc"><b>100</b></span></div>
+      <div class="track"><div class="fill base" style="width:50%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RX 9070 XT</span><span class="sc"><b>145</b> · +45%</span></div>
+      <div class="track"><div class="fill green" style="width:72.5%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RTX 5070 Ti</span><span class="sc"><b>175</b> · +75%</span></div>
+      <div class="track"><div class="fill amber" style="width:87.5%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="nm">RTX 5080</span><span class="sc"><b>195</b> · +95%</span></div>
+      <div class="track"><div class="fill cyan" style="width:97.5%"></div></div>
+    </div>
+    <p class="scale-note">шкала: 200 = край дорожки</p>
+  </div>
+
+  <!-- FRAME GEN -->
+  <div class="perf-group">
+    <div class="pg-head">
+      <h4>3 · С апскейлом + Frame Generation</h4>
+      <span class="pg-note">эффективный FPS</span>
+    </div>
+    <div class="fg">
+      <h4>Здесь и берётся «×2 к 3080 Ti»</h4>
+      <p>3080 Ti не умеет генерацию кадров вообще. Новые карты дорисовывают кадры (DLSS&nbsp;4 MFG до ×4, FSR&nbsp;4 FG ×2), поэтому <b>экранный FPS взлетает кратно</b>. Это не «честные» кадры: добавляется задержка ввода и возможны артефакты, поэтому сравнивать 1:1 с native нельзя — цифры даны как множитель к 3080 Ti native.</p>
+      <div class="fg-grid">
+        <div class="fg-cell green">
+          <p class="fc-nm">RX 9070 XT</p>
+          <p class="fc-mul">×1,8–2,2</p>
+          <p class="fc-tech">FSR 4 + Frame Gen ×2</p>
+        </div>
+        <div class="fg-cell amber">
+          <p class="fc-nm">RTX 5070 Ti</p>
+          <p class="fc-mul">×2,5–3</p>
+          <p class="fc-tech">DLSS 4 + MFG до ×4</p>
+        </div>
+        <div class="fg-cell cyan">
+          <p class="fc-nm">RTX 5080</p>
+          <p class="fc-mul">×3–3,5</p>
+          <p class="fc-tech">DLSS 4 + MFG до ×4</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SPEC TABLE ===== -->
+  <div class="sec-head" style="margin-top:64px;">
+    <h3>Характеристики</h3>
+    <span class="hint">по референсу / типовому партнёру</span>
+  </div>
+
+  <div class="tbl-scroll">
+  <table class="spec">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="c-base">RTX 3080 Ti<small>текущая</small></th>
+        <th class="c-green">RX 9070 XT<small>Gigabyte GAMING</small></th>
+        <th class="c-amber">RTX 5070 Ti<small>GB WINDFORCE V2</small></th>
+        <th class="c-cyan">RTX 5080<small>Palit GamingPro</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="rh">Архитектура</td><td class="v base">Ampere</td><td class="v">RDNA 4</td><td class="v">Blackwell</td><td class="v">Blackwell</td></tr>
+      <tr><td class="rh">Чип</td><td class="v base">GA102</td><td class="v">Navi 48</td><td class="v">GB203</td><td class="v">GB203</td></tr>
+      <tr><td class="rh">Шейдеры</td><td class="v base">10 240 CUDA</td><td class="v">4 096 SP (64 CU)</td><td class="v">8 960 CUDA</td><td class="v">10 752 CUDA</td></tr>
+      <tr><td class="rh">Видеопамять</td><td class="v base">12 ГБ GDDR6X</td><td class="v win">16 ГБ GDDR6</td><td class="v win">16 ГБ GDDR7</td><td class="v win">16 ГБ GDDR7</td></tr>
+      <tr><td class="rh">Шина памяти</td><td class="v base">384-бит</td><td class="v">256-бит</td><td class="v">256-бит</td><td class="v">256-бит</td></tr>
+      <tr><td class="rh">Проп. способность</td><td class="v base">912 ГБ/с</td><td class="v">640 ГБ/с</td><td class="v">896 ГБ/с</td><td class="v">960 ГБ/с</td></tr>
+      <tr><td class="rh">Boost-частота</td><td class="v base">~1,67 ГГц</td><td class="v">~2,97 ГГц</td><td class="v">~2,45 ГГц</td><td class="v">~2,62 ГГц</td></tr>
+      <tr><td class="rh">TDP (TBP)</td><td class="v base">350 Вт</td><td class="v">304 Вт <small>(факт. ~340)</small></td><td class="v">~300 Вт</td><td class="v">360 Вт</td></tr>
+      <tr><td class="rh">RT-ядра</td><td class="v base">2-е пок.</td><td class="v">3-е пок. (RDNA4)</td><td class="v">4-е пок.</td><td class="v">4-е пок.</td></tr>
+      <tr><td class="rh">Апскейл</td><td class="v base">DLSS 2 <small>(без FG)</small></td><td class="v">FSR 4 (ML) + FG</td><td class="v win">DLSS 4 + MFG</td><td class="v win">DLSS 4 + MFG</td></tr>
+      <tr><td class="rh">Питание</td><td class="v base">2×8-pin</td><td class="v">2–3×8-pin</td><td class="v">1×16-pin (12V-2x6)</td><td class="v">1×16-pin (12V-2x6)</td></tr>
+      <tr><td class="rh">Цена «Регард»</td><td class="v base">—</td><td class="v win">68 210 ₽</td><td class="v">88 990 ₽</td><td class="v">116 440 ₽</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ===== VALUE ===== -->
+  <div class="sec-head" style="margin-top:64px;">
+    <h3>Цена за производительность</h3>
+    <span class="hint">₽ за пункт индекса растра</span>
+  </div>
+
+  <div class="value-grid">
+    <div class="vcard green">
+      <p class="vnm">RX 9070 XT · индекс 138</p>
+      <p class="vbig">494 <span>₽ / пункт</span></p>
+      <p class="vsub">Лучшая отдача на рубль в растре. 68 210 ₽ ÷ 138.</p>
+    </div>
+    <div class="vcard amber">
+      <p class="vnm">RTX 5070 Ti · индекс 144</p>
+      <p class="vbig">618 <span>₽ / пункт</span></p>
+      <p class="vsub">+25% к цене пункта над AMD — доплата за RT и DLSS&nbsp;4. 88 990 ₽ ÷ 144.</p>
+    </div>
+    <div class="vcard cyan">
+      <p class="vnm">RTX 5080 · индекс 160</p>
+      <p class="vbig">728 <span>₽ / пункт</span></p>
+      <p class="vsub">Самый дорогой кадр. Платишь за потолок, а не за эффективность. 116 440 ₽ ÷ 160.</p>
+    </div>
+  </div>
+
+  <!-- ===== RECONCILE ===== -->
+  <div class="reconcile">
+    <h5>Почему в основном отчёте «×2 к 3080 Ti», а тут +44%</h5>
+    <p>Противоречия нет — это разные сценарии. <b>Чистый растр</b> 5070 Ti на 3440×1440 даёт <b>+40–45%</b> к 3080 Ti. Цифра «×2» из отчёта по тирам — это совокупность трёх эффектов, где Ampere проседает сильнее: <b>(1)</b> тяжёлый RT / путевая трассировка — там разрыв реально ~×1,75–2 даже без генерации кадров; <b>(2)</b> DLSS&nbsp;4 Multi Frame Generation, которой у 3080 Ti нет вовсе — эффективный FPS ×2,5–3; <b>(3)</b> сцены, упирающиеся в 12&nbsp;ГБ против 16&nbsp;ГБ.</p>
+    <p>Короче: <b>в «честных» кадрах прирост скромнее, в реальной игре с RT и DLSS&nbsp;4 — ближе к ×2</b>. Обе цифры верны, просто меряют разное.</p>
+  </div>
+
+  <!-- ===== NOTES / VERDICT ===== -->
+  <div class="notes">
+    <div class="note">
+      <h5>Вывод под 3440×1440</h5>
+      <p><b>RTX 5070 Ti — золотая середина.</b> Растр на уровне топа этого класса, сильный RT и DLSS&nbsp;4 с MFG. На твоём ultrawide это закрывает узкое место 3080 Ti с запасом.</p>
+    </div>
+    <div class="note">
+      <h5>Когда брать 9070 XT</h5>
+      <p>Если RT и апскейл вторичны, а важна <b>цена</b>: почти тот же растр за минус ~21к. Минус — слабее в тяжёлой трассировке и уже охват FSR&nbsp;4 по играм.</p>
+    </div>
+    <div class="note">
+      <h5>Когда брать 5080</h5>
+      <p>Если хочешь <b>запас под 4K и «на годы»</b> и готов переплатить ~27к над 5070 Ti за +10–15%. На самом 3440×1440 отдача на рубль ниже всех трёх.</p>
+    </div>
+    <div class="note">
+      <h5>Оговорка по числам</h5>
+      <p>Индексы — <b>усреднённая оценка</b> по обзорам (TechSpot, KitGuru, Jon Peddie и др.) на 4K-стороне. В конкретной игре разброс ±10%: где-то AMD обгоняет 5070 Ti, где-то отстаёт сильнее среднего.</p>
+    </div>
+  </div>
+
+  <footer>
+    Базлайн — RTX 3080 Ti 12&nbsp;ГБ @ 3440×1440 = индекс 100 · цены «Регард» на 23.06.2026 · растр/RT — усреднение публичных обзоров со стороны 4K · Frame Generation даёт интерполированные кадры (не равны native по латентности)
+  </footer>
+</div>
+
+</body>
+</html>

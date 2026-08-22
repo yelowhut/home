@@ -1,0 +1,8 @@
+bin/
+obj/
+lib/interop/
+dist/
+build/tools/
+build/work/
+captured-logs/
+*.user
