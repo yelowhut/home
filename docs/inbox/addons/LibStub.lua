@@ -1,0 +1,4 @@
+LibStubData =
+{
+    ["disableDeprecationMessage"] = true,
+}
