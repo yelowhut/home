@@ -1,0 +1,9 @@
+## Title: FishingSound
+## Author: @FloIstImGame
+## APIVersion: 101050
+## Version: 1.0
+
+## DependsOn: LibAddonMenu-2.0
+## SavedVariables: FishingSoundVars
+
+FishingSound.lua
