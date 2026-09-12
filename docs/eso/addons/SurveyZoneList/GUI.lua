@@ -489,8 +489,13 @@ function SurveyZoneList.GUI:formatZoneText(zoneInfo)
         return (str:gsub("^%l", string.upper))
     end
 
+    local displayName = zoneInfo.displayName
+    if displayName == nil or displayName == "" then
+        displayName = ucfirst(zoneInfo.name)
+    end
+
     local token = {
-        [1]  = ucfirst(zoneInfo.name),
+        [1]  = displayName,
         [2]  = zoneInfo.survey.bag.nbUnique,
         [3]  = zoneInfo.survey.bag.nbTotal,
         [4]  = zoneInfo.treasure.bag.nbUnique,

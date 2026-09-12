@@ -34,7 +34,7 @@ SOUNDS                                   = setmetatable({}, {__index = function(
 local mapIdToZoneIndex = {[7] = 7, [511] = 511, [58] = 58}
 local zoneIndexToZoneId = {[7] = 101, [511] = 512, [58] = 181}
 local parentZoneId = {[101] = 101, [512] = 101, [181] = 181}
-local zoneIdToName = {[101] = "Stonefalls", [512] = "Ebonheart", [181] = "Deshaan"}
+local zoneIdToName = {[101] = "Stonefalls", [512] = "Ebonheart", [181] = "The Rift"}
 
 CURRENT_ZONE_ID = 101
 

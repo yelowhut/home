@@ -114,6 +114,7 @@ function SurveyZoneList.Collect:obtainNewZoneInfo(resolved)
         key         = resolved.key,
         zoneId      = resolved.zoneId,
         name        = resolved.name,
+        displayName = resolved.displayName,
         nameEscaped = SurveyZoneList.ItemSort:espaceLuaStr(resolved.name:lower()),
         survey      = {
             bag  = {nbUnique = 0, nbTotal = 0},

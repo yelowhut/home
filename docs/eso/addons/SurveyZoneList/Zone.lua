@@ -187,6 +187,39 @@ function SurveyZoneList.Zone:zoneIdToName(zoneId)
 end
 
 --[[
+-- Obtain the zone name as the game spells it, for display.
+--
+-- zoneIdToName lowercases, because the name doubles as the sort key and as the
+-- haystack for the fallback name matching. The display needs the real
+-- capitalisation, otherwise "The Rift" shows up as "The rift".
+--
+-- @param integer zoneId
+--
+-- @return string|nil
+--]]
+function SurveyZoneList.Zone:zoneIdToDisplayName(zoneId)
+    if type(zoneId) ~= "number" or zoneId <= 0 then
+        return nil
+    end
+
+    local zoneName = nil
+
+    if type(GetZoneNameById) == "function" then
+        zoneName = GetZoneNameById(zoneId)
+    end
+
+    if (zoneName == nil or zoneName == "") and type(GetZoneIndex) == "function" then
+        zoneName = GetZoneNameByIndex(GetZoneIndex(zoneId))
+    end
+
+    if zoneName == nil or zoneName == "" then
+        return nil
+    end
+
+    return zo_strformat("<<1>>", zoneName)
+end
+
+--[[
 -- Obtain the zone id the player currently stands in, as an overland zone.
 --
 -- GetCurrentMapZoneIndex follows the *opened map*, so it lies as soon as the
@@ -268,6 +301,68 @@ function SurveyZoneList.Zone:craftFromName(itemName)
 end
 
 --[[
+-- Trim trailing separators from a zone name.
+--
+-- @param string name
+--
+-- @return string
+--]]
+function SurveyZoneList.Zone:trimSeparators(name)
+    local cut = #name
+
+    while cut > 0 do
+        local last = name:byte(cut)
+
+        if last == 32 or last == 9 then
+            cut = cut - 1
+        elseif last == 160 and cut > 1 and (name:byte(cut - 1) == 194 or name:byte(cut - 1) == 226) then
+            -- A non breaking space. Its first byte is 194, but string.lower
+            -- rewrites it to 226 on some client locales, so both are accepted.
+            cut = cut - 2
+        else
+            break
+        end
+    end
+
+    return name:sub(1, cut)
+end
+
+--[[
+-- Remove a trailing roman numeral from a zone name.
+--
+-- "Craglorn I" and "Craglorn II" have to end up in the same zone. The numeral
+-- is separated by a space, except in the DE and RU item names where it is a
+-- non breaking space.
+--
+-- The separator is matched by its bytes rather than with %s or %w, because
+-- those classes follow the C locale : a non breaking space can be reported as
+-- a letter, which made the pattern based version miss it and create the
+-- duplicated zone of issue #14.
+--
+-- @param string name Already lowercased
+--
+-- @return string
+--]]
+function SurveyZoneList.Zone:stripRomanNumeral(name)
+    local numeral = name:match("[ivx]+$")
+
+    if numeral == nil then
+        return name
+    end
+
+    local head    = name:sub(1, #name - #numeral)
+    local trimmed = self:trimSeparators(head)
+
+    -- Nothing was trimmed, so those letters belong to the name itself, as in a
+    -- zone whose last word simply ends on "vi".
+    if #trimmed == #head or #trimmed == 0 then
+        return name
+    end
+
+    return trimmed
+end
+
+--[[
 -- Parse a survey / treasure map item name to extract the zone name.
 --
 -- This is the historical detection, kept as a fallback for items LibTreasure
@@ -290,29 +385,8 @@ function SurveyZoneList.Zone:parseZoneName(itemName)
         return nil
     end
 
-    -- Strip the roman numeral suffix so "Craglorn I" and "Craglorn II" end up
-    -- in the same zone.
-    if itemZoneName:find("i$") ~= nil or itemZoneName:find("v$") ~= nil or itemZoneName:find("x$") ~= nil then
-        local patternList = {
-            "^(.*) i+$",  -- "i" or "ii" or "iii" ...
-            "^(.*) iv$",  -- only "iv"
-            "^(.*) vi*$", -- "v" or "vi" or "vii" ...
-            "^(.*) xi*$", -- "x" or "xi" or "xii" ...
-        }
-
-        for _, pattern in ipairs(patternList) do
-            local matchItemZoneName = itemZoneName:match(pattern)
-
-            if matchItemZoneName ~= nil then
-                itemZoneName = matchItemZoneName
-                break
-            end
-        end
-    end
-
-    -- Trailing whitespace, including the non breaking space used by the DE and
-    -- RU item names, which used to create a duplicated zone entry.
-    itemZoneName = itemZoneName:gsub("^%s+", ""):gsub("%s+$", "")
+    itemZoneName = self:stripRomanNumeral(itemZoneName)
+    itemZoneName = self:trimSeparators(itemZoneName:gsub("^%s+", ""))
 
     if itemZoneName == "" then
         return nil
@@ -428,11 +502,12 @@ function SurveyZoneList.Zone:resolveWithLibTreasure(itemLink, isSurvey)
     end
 
     return {
-        key      = self.KEY_PREFIX_ID..zoneId,
-        zoneId   = zoneId,
-        name     = zoneName,
-        craft    = craft,
-        isSurvey = isSurvey,
+        key         = self.KEY_PREFIX_ID..zoneId,
+        zoneId      = zoneId,
+        name        = zoneName,
+        displayName = self:zoneIdToDisplayName(zoneId),
+        craft       = craft,
+        isSurvey    = isSurvey,
     }
 end
 
@@ -463,10 +538,11 @@ function SurveyZoneList.Zone:resolveWithName(itemLink, isSurvey)
     end
 
     return {
-        key      = self.KEY_PREFIX_NAME..zoneName,
-        zoneId   = nil,
-        name     = zoneName,
-        craft    = craft,
-        isSurvey = isSurvey,
+        key         = self.KEY_PREFIX_NAME..zoneName,
+        zoneId      = nil,
+        name        = zoneName,
+        displayName = nil,
+        craft       = craft,
+        isSurvey    = isSurvey,
     }
 end

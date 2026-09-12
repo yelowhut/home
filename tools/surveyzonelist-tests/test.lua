@@ -44,6 +44,10 @@ LINK_INFO[900001] = {name = "Woodworker Survey: Newland II", isSurvey = true}
 LINK_INFO[900002] = {name = "Woodworker Survey: Newland III", isSurvey = true}
 LINK_INFO[900003] = {name = "Enchanter Survey: Newland", isSurvey = true}
 
+-- A zone whose real name has a word the old ucfirst would have lowercased
+LINK_INFO[57900] = {name = "Jewelry Crafting Survey: The Rift", isSurvey = true}
+LIB_TREASURE_DATA[57900] = {itemId = 57900, mapId = 58, texture = "riften_survey_jewelry"}
+
 -- Something that is not a survey at all
 LINK_INFO[123456] = {name = "Potato"}
 
@@ -142,6 +146,9 @@ check("row text with bank placeholders",
       "Stonefalls bag 5 bank 7 all 12")
 SurveyZoneList.GUI:defineDisplayItemText("<<1>> : <<2>> - <<3>> / <<4>>")
 
+check("zone keeps the game capitalisation", stonefalls.displayName, "Stonefalls")
+check("sort key stays lowercase", stonefalls.name, "stonefalls")
+
 check("window width includes the craft strip",
       SurveyZoneList.GUI:totalWidth(),
       300 + 6 * 34)
@@ -225,6 +232,55 @@ local parsed = SurveyZoneList.Collect.zoneList["n:stonefalls"]
 check("falls back to the name parser", parsed ~= nil, true)
 check("parsed stonefalls survey total", parsed.survey.bag.nbTotal, 2)
 USE_LIB_TREASURE = true
+
+print("\n=== fallback parser details ===")
+
+-- The DE and RU item names put a non breaking space before the roman numeral.
+LINK_INFO[900004] = {name = "Woodworker Survey: Newland\194\160IV", isSurvey = true}
+LINK_INFO[900005] = {name = "Woodworker Survey: Newland II", isSurvey = true}
+
+for slot = 0, BAG_SIZE do
+    BAGS[BAG_BACKPACK][slot] = nil
+    BAGS[BAG_BANK][slot] = nil
+end
+
+BAGS[BAG_BACKPACK][0] = {itemId = 900004, qty = 1}
+BAGS[BAG_BACKPACK][1] = {itemId = 900005, qty = 1}
+SurveyZoneList.Collect:search()
+
+check("non breaking space numeral does not split the zone", zoneCount(), 1)
+check("both land in the parsed newland zone",
+      SurveyZoneList.Collect.zoneList["n:newland"].survey.bag.nbUnique, 2)
+
+-- A name whose last word merely ends on roman numeral letters must survive.
+check("name ending in vi is not stripped",
+      SurveyZoneList.Zone:parseZoneName("alchemist survey: novi"), "novi")
+check("name ending in x is not stripped",
+      SurveyZoneList.Zone:parseZoneName("alchemist survey: bordelax"), "bordelax")
+check("multi word name with a numeral",
+      SurveyZoneList.Zone:parseZoneName("alchemist survey: malabal tor iv"), "malabal tor")
+check("multi word name without a numeral",
+      SurveyZoneList.Zone:parseZoneName("alchemist survey: the rift"), "the rift")
+
+print("\n=== multi word zone name ===")
+
+for slot = 0, BAG_SIZE do BAGS[BAG_BACKPACK][slot] = nil end
+BAGS[BAG_BACKPACK][0] = {itemId = 57900, qty = 1}
+SurveyZoneList.Collect:search()
+SurveyZoneList.GUI:refreshAll()
+
+check("row shows the real zone name",
+      SurveyZoneList.GUI.itemList[1].uiLabel:GetText(), "The Rift : 1 - 1 / 0")
+
+print("\n=== champion skill lookup is not cached on failure ===")
+
+CHAMPION_SKILLS = {}
+SurveyZoneList.ChampionPoints.skillId = nil
+SurveyZoneList.ChampionPoints.skillIdResolved = false
+check("nothing found yet", SurveyZoneList.ChampionPoints:findSkillId(), nil)
+
+CHAMPION_SKILLS[1] = {abilityId = 142220, name = "Plentiful Harvest", points = 50}
+check("found once the data arrives", SurveyZoneList.ChampionPoints:findSkillId(), 1)
 
 print("\n=== debug command ===")
 DEBUG_LINES = {}

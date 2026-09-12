@@ -79,8 +79,6 @@ function SurveyZoneList.ChampionPoints:findSkillId()
         return self.skillId
     end
 
-    self.skillIdResolved = true
-
     if type(GetNumChampionDisciplines) ~= "function" then
         return nil
     end
@@ -93,7 +91,8 @@ function SurveyZoneList.ChampionPoints:findSkillId()
             local skillId = GetChampionSkillId(disciplineIndex, skillIndex)
 
             if GetChampionAbilityId(skillId) == self.PLENTIFUL_HARVEST_ABILITY_ID then
-                self.skillId = skillId
+                self.skillId         = skillId
+                self.skillIdResolved = true
                 return skillId
             end
 
@@ -107,9 +106,15 @@ function SurveyZoneList.ChampionPoints:findSkillId()
         end
     end
 
-    self.skillId = nameMatch
+    -- A failed lookup is never cached : champion data can still be empty the
+    -- first time this runs, and a cached nil would keep the warning silent
+    -- until the next /reloadui.
+    if nameMatch ~= nil then
+        self.skillId         = nameMatch
+        self.skillIdResolved = true
+    end
 
-    return self.skillId
+    return nameMatch
 end
 
 --[[
