@@ -62,6 +62,32 @@ SurveyZoneList.GUI.itemList = {}
 SurveyZoneList.GUI.savedVars = nil
 
 --[[
+-- @const table The counter of a zone each placeholder of the display format
+-- reads. Placeholder 1 is the zone name, it has no counter.
+--]]
+SurveyZoneList.GUI.FORMAT_COUNTERS = {
+    [2]  = {itemType = "survey",   source = "bag"},
+    [3]  = {itemType = "survey",   source = "bag"},
+    [4]  = {itemType = "treasure", source = "bag"},
+    [5]  = {itemType = "survey",   source = "bank"},
+    [6]  = {itemType = "survey",   source = "bank"},
+    [7]  = {itemType = "treasure", source = "bank"},
+    [8]  = {itemType = "survey",   source = "all"},
+    [9]  = {itemType = "survey",   source = "all"},
+    [10] = {itemType = "treasure", source = "all"},
+}
+
+--[[
+-- @var table The counter list derived from the current format, cached.
+--]]
+SurveyZoneList.GUI.formatCounters = nil
+
+--[[
+-- @var string The format formatCounters was derived from.
+--]]
+SurveyZoneList.GUI.formatCountersFor = nil
+
+--[[
 -- Initialise the GUI
 --]]
 function SurveyZoneList.GUI:init()
@@ -521,19 +547,70 @@ function SurveyZoneList.GUI:formatZoneText(zoneInfo)
 end
 
 --[[
--- Whether a zone should appear in the list
+-- The counters the current display format reads.
+--
+-- Derived from the format string and cached until that string changes.
+--
+-- @return table A list of {itemType, source}
+--]]
+function SurveyZoneList.GUI:obtainFormatCounters()
+    local format = self:obtainDisplayItemText()
+
+    if self.formatCounters ~= nil and self.formatCountersFor == format then
+        return self.formatCounters
+    end
+
+    local counterList = {}
+    local alreadySeen = {}
+
+    for idx in format:gmatch("<<(%d+)>>") do
+        local counter = SurveyZoneList.GUI.FORMAT_COUNTERS[tonumber(idx)]
+
+        if counter ~= nil and alreadySeen[idx] == nil then
+            alreadySeen[idx] = true
+            table.insert(counterList, counter)
+        end
+    end
+
+    -- A format holding no counter at all, the zone name alone for example,
+    -- says nothing about where the maps are. Fall back on everything known.
+    if #counterList == 0 then
+        counterList = {
+            {itemType = "survey",   source = "all"},
+            {itemType = "treasure", source = "all"},
+        }
+    end
+
+    self.formatCounters    = counterList
+    self.formatCountersFor = format
+
+    return counterList
+end
+
+--[[
+-- Whether a zone should appear in the list.
+--
+-- A zone earns a row only when the row has something to say about it, so the
+-- filter reads the very counters the format prints. With the default format,
+-- which only reads the backpack, a zone whose maps all sit in the bank would
+-- render as "Zone : 0 - 0 / 0" and is left out instead. Adding a bank or a
+-- combined placeholder to the format brings that zone back.
 --
 -- @param table zoneInfo
 --
 -- @return bool
 --]]
 function SurveyZoneList.GUI:isZoneDisplayed(zoneInfo)
-    if self.savedVars.displaySurvey == true and zoneInfo.survey.all.nbUnique > 0 then
-        return true
-    end
+    for _, counter in ipairs(self:obtainFormatCounters()) do
+        local typeDisplayed = self.savedVars.displaySurvey
 
-    if self.savedVars.displayTreasure == true and zoneInfo.treasure.all.nbUnique > 0 then
-        return true
+        if counter.itemType == "treasure" then
+            typeDisplayed = self.savedVars.displayTreasure
+        end
+
+        if typeDisplayed == true and zoneInfo[counter.itemType][counter.source].nbTotal > 0 then
+            return true
+        end
     end
 
     return false

@@ -272,6 +272,67 @@ SurveyZoneList.GUI:refreshAll()
 check("row shows the real zone name",
       SurveyZoneList.GUI.itemList[1].uiLabel:GetText(), "The Rift : 1 - 1 / 0")
 
+print("\n=== a zone only the format can see ===")
+
+-- The Rift in the backpack, Stonefalls only in the bank.
+for slot = 0, BAG_SIZE do
+    BAGS[BAG_BACKPACK][slot] = nil
+    BAGS[BAG_BANK][slot] = nil
+    BAGS[BAG_SUBSCRIBER_BANK][slot] = nil
+end
+
+BAGS[BAG_BACKPACK][0] = {itemId = 57900, qty = 1}
+BAGS[BAG_BANK][0] = {itemId = 57737, qty = 2}
+
+SurveyZoneList.savedVariables.bank.readBank = true
+SurveyZoneList.Collect:search()
+SurveyZoneList.ItemSort:updateCurrentZone()
+SurveyZoneList.GUI:refreshAll()
+
+local function displayedRows()
+    local rowList = {}
+
+    for _, guiItem in pairs(SurveyZoneList.GUI.itemList) do
+        if guiItem.used == true then
+            table.insert(rowList, guiItem.zoneName)
+        end
+    end
+
+    return rowList
+end
+
+check("both zones are collected", zoneCount(), 2)
+
+local rows = displayedRows()
+check("the bank only zone takes no row", #rows, 1)
+check("the row is the one with maps in the bag", rows[1], "the rift")
+
+-- The zone that was just hidden comes back as soon as the format asks for a
+-- counter it would fill.
+SurveyZoneList.GUI:defineDisplayItemText("<<1>> : <<2>> - <<3>> / <<4>> (bank <<6>>)")
+check("a bank placeholder brings it back", #displayedRows(), 2)
+
+SurveyZoneList.GUI:defineDisplayItemText("<<1>> : <<8>> - <<9>> / <<10>>")
+check("a combined placeholder brings it back too", #displayedRows(), 2)
+
+-- A format holding no counter at all cannot tell, so nothing is hidden.
+SurveyZoneList.GUI:defineDisplayItemText("<<1>>")
+check("a format without counters hides nothing", #displayedRows(), 2)
+
+SurveyZoneList.GUI:defineDisplayItemText("<<1>> : <<2>> - <<3>> / <<4>>")
+check("back to the default format, hidden again", #displayedRows(), 1)
+
+-- Same story for a treasure map alone in the bank.
+BAGS[BAG_BANK][0] = {itemId = 43655, qty = 1}
+SurveyZoneList.Collect:search()
+SurveyZoneList.GUI:refreshAll()
+check("a bank only treasure map takes no row either", #displayedRows(), 1)
+
+SurveyZoneList.savedVariables.bank.readBank = false
+SurveyZoneList.Collect:search()
+SurveyZoneList.GUI:refreshAll()
+check("a bag only setup is untouched", #displayedRows(), 1)
+
 print("\n=== champion skill lookup is not cached on failure ===")
 
 CHAMPION_SKILLS = {}
