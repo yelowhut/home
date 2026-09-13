@@ -1,0 +1,11 @@
+## Title: Lost Treasure Distance
+## Description: Shows the distance from the player to Lost Treasure compass pins.
+## Author: yelowhut
+## Version: 1.0.1
+## AddOnVersion: 101
+## APIVersion: 101050 101051
+## DependsOn: LostTreasure>=34 CustomCompassPins>=138 LibGPS>=73
+## OptionalDependsOn: LibAddonMenu-2.0>=41
+## SavedVariables: LostTreasureDistance_SavedVars
+
+LostTreasureDistance.lua
