@@ -26,6 +26,9 @@ src/D4LootFilter/tessdata/
 # Superpowers tooling state
 .superpowers/
 
+# Ember Knights mod — build/output workspace only (no first-party source here)
+ember-knights-honest-damage/
+
 # OS
 .DS_Store
 Thumbs.db
