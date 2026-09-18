@@ -1,86 +1,65 @@
-# FishingSound — фикс краша (LibAddonMenu2 nil)
+FishingSound is a lightweight ESO addon that gives you an instant audio cue when a fish bites — even when the official fishing events fail to fire.
+It uses ESO’s internal controller vibration event to detect bites with 100% reliability, making it the most accurate bite‑alert method available.
 
-Автор аддона: @FloIstImGame. Здесь — бэкап моих правок.
+Whether you’re casually fishing or grinding Master Angler, FishingSound helps you react faster and never miss a bite again.
 
-## Симптом
+How It Works 
 
-```
-user:/AddOns/FishingSound/FishingSound.lua:155: attempt to index a nil value
-stack traceback:
-  ...:155: in function 'FS_TryInitialize'
-  ...:195: in function 'OnPlayerActivated'
-```
+Using "EVENT_VIBRATION" 
 
-Строка 155 — `LAM:RegisterAddonPanel("FishingSound", panelData)`, где `LAM = LibAddonMenu2`.
-Индексируется `nil`, т.е. глобал `LibAddonMenu2` не существует на момент вызова.
+When a Fish bites, there is a EVENT called "EVENT_VIBRATION", which will allways have the same parameters as follows
+[1] = 2500 
+[2] = 0.0099999997764826...
+[3] = 0.05000000.. 
+[4] = 0 
+[5] = 0
+[6] = ""
 
-## Причина
+[1] = Is the Duration of the Vibration
+[2-3] = Are the Vibration Intensitys
 
-В манифесте `FishingSound.txt` директива зависимости была написана **без двоеточия**:
+The Addon checks if the EVENT = "EVENT_VIBRATION" was fired and if it matches 2500ms. 
+Most Vibrations are only about 500ms, I did not encounter any overlapings so for, but could be buggy if it did. 
 
-```
-## DependsOn LibAddonMenu-2.0     ← неправильно
-```
+Shout out to the cool Addon "Zgoo High Isle" Author "Rhyono", which helped me to detect EVENTS in ESO and parameters to test this. 
 
-ESO распознаёт зависимость только как `## DependsOn:`. Без двоеточия игра не
-считает LibAddonMenu-2.0 зависимостью и **не гарантирует её загрузку раньше**
-FishingSound (и не подтягивает библиотеку принудительно, если она отключена).
-В итоге `LibAddonMenu2` = `nil` → краш.
 
-Сама библиотека установлена: `AddOns/LibAddonMenu-2.0` (r43, APIVersion 101049 101050),
-глобал называется именно `LibAddonMenu2`.
+Customization
 
-Доп. мелочь: `APIVersion: 101042` устарела → аддон висел как «out of date».
+In the settings ADDONS -> Fishing Sound , are the different Sounds, which you can select and if you want to disable the addon you can do that too. 
 
-## Что исправлено
+The Souds were handpicked by the Addon "Sound Board" by "Miguel"
+which suited best for recognition. 
 
-`FishingSound.txt`:
-- `## DependsOn LibAddonMenu-2.0` → `## DependsOn: LibAddonMenu-2.0` (двоеточие → корректная зависимость и порядок загрузки)
-- `## APIVersion: 101042` → `## APIVersion: 101050` (Update 50)
+@FloIstImGame is my ESO User and feel free to Mail me in Game
 
-`FishingSound.lua` (в `FS_TryInitialize`, перед строкой с `RegisterAddonPanel`):
-- добавлен guard `if not LAM then ...`: если библиотека не загружена, аддон
-  больше не падает в Lua-ошибку, а регистрирует детект поклёвки и работает без
-  панели настроек (звук + слэш-команды `/fishingsoundon`, `/fishingsoundoff`).
 
-## Доработки настроек (по запросу)
+Screen Vignette (local addition)
 
-1. **Предпрослушивание звука.** При выборе звука в выпадающем списке он сразу
-   проигрывается один раз (`setFunc` → `previewSound`). Добавлена и отдельная
-   кнопка **«Play Selected Sound»** — проиграть текущий выбранный звук.
-   `previewSound` защищён от неизвестных ключей `SOUNDS` (не роняет, просто молчит).
-2. **Человеческие названия.** В ESO у `SOUNDS` только технические имена
-   (`ABILITY_SYNERGY_READY` и т.п.), читаемых нет. Через LAM показываем свои
-   подписи (`choices`), а храним технический ключ (`choicesValues`). Таблица
-   соответствий — `FS.soundOptions` в начале `FishingSound.lua`.
+Besides the sound, a coloured glow can blink along the edges of the screen while a fish is on the hook.
 
-Побочно исправлен баг: в `defaults` хранилось `SOUNDS.ABILITY_SYNERGY_READY`
-(резолвнутый id), а `OnVibration` делает `SOUNDS[getReelInSound()]` — при первом
-заходе без выбора в меню поклёвка была бы беззвучной. Теперь в defaults хранится
-ключ-строка `"ABILITY_SYNERGY_READY"`.
+It is drawn as four plain quads, one per screen edge, with no texture art at all: each quad gets its
+corner colours set via SetVertexColors, the two outer corners at full alpha and the two inner ones at
+alpha 0, so the engine interpolates the gradient. That is what makes the colour picker work for any
+colour instead of only shades of the baked-in red of the game's own overlay textures.
 
-## Сверка имён звуков с таблицей SOUNDS
+The blinking starts on the same EVENT_VIBRATION bite that triggers the sound and keeps going until you
+are no longer fishing: GetInteractionType() is polled every 100 ms and anything other than
+INTERACTION_FISH (reeled in, interrupted, walked away, died) stops it. A configurable safety timeout
+stops it as well, in case a bite is never resolved. The overlay lives in a top level window attached to
+HUD_SCENE / HUD_UI_SCENE, so it disappears in menus, inventory and loading screens, and it has the mouse
+disabled so it never eats a click.
 
-Имена выверены по GitHub Code Search API (`gh api search/code`, поле `total_count`) —
-локальные вики ESOUI/UESP отдавали 403. Порог: константа считается валидной, если
-встречается в публичных ESO-репозиториях.
+Settings, in ADDONS -> Fishing Sound:
 
-Исправлены опечатки автора:
+- Enable Vignette
+- Colour
+- Opacity - how opaque the glow is right at the screen edge
+- Thickness - depth of the gradient, in percent of the screen
+- Blink Style - pulse (smooth), strobe (hard on/off), solid (fade in and hold)
+- Blink Speed - length of one blink cycle in milliseconds
+- Safety Timeout - hard stop in seconds
+- Active Edges - top / bottom / left / right
+- Test Vignette - runs it for four seconds
 
-| Было (невалидно)              | Стало / действие                 |
-|-------------------------------|----------------------------------|
-| `ACTIVE_SKILL_MORPG_CHOSEN`   | `ACTIVE_SKILL_MORPH_CHOSEN`       |
-| `CHAMPTION_POINTS_COMMITED`   | `CHAMPION_POINTS_COMMITTED`       |
-| `CHAMPTION_POINTS_GAINED`     | удалено — такого звука нет (0 совпадений в любом написании) |
-
-Остальные 14 имён подтверждены валидными: `ABILITY_SYNERGY_READY`,
-`ABILITY_ULTIMATE_READY`, `ANTIQUITIES_FANFARE_COMPLETED`, `ARMORY_OPEN`,
-`AVA_GATE_OPENED`, 8×`BATTLEGROUND_*`, `CHALLENGE_DIFFICULTY_CHANGE_DIFFICULTY_BUTTON_CLICKED`.
-
-Итог: в списке 16 звуков (было 17). `previewSound` в любом случае защищён от
-неизвестных ключей `SOUNDS`, так что «тихих» пунктов в меню больше нет.
-
-## Установка правок
-
-Скопировать `FishingSound.lua` и `FishingSound.txt` в
-`.../Elder Scrolls Online/live/AddOns/FishingSound/`, затем `/reloadui`.
+Slash commands: /fishingvignette toggles it, /fishingvignettetest previews it.

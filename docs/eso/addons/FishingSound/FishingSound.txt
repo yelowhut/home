@@ -1,7 +1,7 @@
 ## Title: FishingSound
 ## Author: @FloIstImGame
 ## APIVersion: 101050
-## Version: 1.0
+## Version: 1.1
 
 ## DependsOn: LibAddonMenu-2.0
 ## SavedVariables: FishingSoundVars

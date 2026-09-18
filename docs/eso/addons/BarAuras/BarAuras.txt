@@ -1,0 +1,20 @@
+; This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc.
+; or its affiliates. The Elder Scrolls and related logos are registered trademarks
+; or trademarks of ZeniMax Media Inc. in the United States and/or other countries.
+; All rights reserved. https://account.elderscrollsonline.com/add-on-terms
+
+## Title: |cffcc00Bar Auras|r
+## Description: Major/Minor buffs and debuffs your currently slotted skills can apply, with timers. Scribing aware.
+## Author: yelowhut
+## Version: 1.0
+## AddOnVersion: 100
+## APIVersion: 101050 101051
+## SavedVariables: BarAurasSV
+## DependsOn: LibAddonMenu-2.0>=43
+
+Data.lua
+Core.lua
+UI.lua
+Settings.lua
+
+bindings.xml
