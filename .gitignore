@@ -58,3 +58,6 @@ data/grim-dawn/
 # Бинарные вложения входящих материалов (исходники — .md/.html рядом)
 docs/inbox/*.docx
 docs/inbox/*.png
+
+# Personal health data (public repo)
+docs/myhealth/
