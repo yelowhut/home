@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моя галерея: памятка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@400;700&display=swap">
+<style>
+/* Layout: три листа A4 в цветах коробки — бирюзовые плашки разделов, золотые рамки, светлая бумага. Печать первична, экран повторяет лист. */
+:root {
+  --ink: #18303a;
+  --muted: #4d6670;
+  --teal: #1d4f63;
+  --teal-deep: #133845;
+  --gold: #b8913a;
+  --gold-soft: #efe2bf;
+  --paper: #fffdf8;
+  --desk: #d9dfdf;
+  --line: #c9d3d4;
+  --bad: #9c2f2f;
+  --good: #2d6a3e;
+  --t-city: #2a8fb8;
+  --t-portrait: #d6455b;
+  --t-still: #e0b62a;
+  --t-land: #6aa84f;
+  --f-display: "Yeseva One", Georgia, "Times New Roman", serif;
+  --f-body: "PT Sans", "Segoe UI", Arial, sans-serif;
+  --f-narrow: "PT Sans Narrow", "Arial Narrow", "PT Sans", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font: 10pt/1.38 var(--f-body);
+  padding-block: 24px;
+  padding-inline: 16px;
+}
+.sheet {
+  background: var(--paper);
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
+  margin: 0 auto 24px;
+  padding: 11mm 12mm 10mm;
+  box-shadow: 0 2px 14px rgba(19, 56, 69, .18);
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+}
+.sheet-foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  font: 8pt var(--f-narrow);
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 2mm;
+}
+
+/* ---------- Header ---------- */
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4mm;
+  align-items: end;
+  border: 2px solid var(--gold);
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+  background: var(--teal);
+  color: var(--paper);
+  padding: 5mm 6mm;
+}
+.masthead h1 {
+  margin: 0;
+  font: 30pt/1 var(--f-display);
+  letter-spacing: .01em;
+}
+.masthead .orig { font: 10pt var(--f-narrow); letter-spacing: .08em; text-transform: uppercase; color: var(--gold-soft); margin-top: 1.5mm; }
+.facts { display: flex; gap: 3mm; flex-wrap: wrap; justify-content: flex-end; }
+.facts span {
+  border: 1px solid var(--gold);
+  padding: .8mm 2.4mm;
+  font: 700 9pt var(--f-narrow);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.goal { font-size: 10.5pt; margin: 0; max-width: 70ch; }
+
+/* ---------- Section headings ---------- */
+h2 {
+  margin: 0;
+  font: 14pt/1.1 var(--f-display);
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 2.5mm;
+  text-wrap: balance;
+}
+h2::after { content: ""; flex: 1; height: 1px; background: var(--gold); }
+h3 {
+  margin: 0 0 1mm;
+  font: 700 10.5pt/1.2 var(--f-body);
+  color: var(--teal-deep);
+}
+p { margin: 0; }
+p + p { margin-top: 1.2mm; }
+.small { font-size: 8.8pt; color: var(--muted); }
+b { color: var(--teal-deep); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 6mm; }
+.cols > * { min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 3mm; }
+
+/* ---------- Setup list ---------- */
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 6mm; counter-reset: s; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 6.5mm 1fr; gap: 1.5mm; }
+ol.steps li::before {
+  content: counter(s);
+  font: 13pt/1 var(--f-display);
+  color: var(--gold);
+  text-align: center;
+  padding-top: .3mm;
+}
+
+/* ---------- Round phases ---------- */
+.round { display: grid; grid-template-columns: repeat(5, 1fr); border: 1.5px solid var(--teal); }
+.phase { padding: 2.5mm 2.6mm 3mm; border-left: 1px solid var(--line); min-width: 0; }
+.phase:first-child { border-left: 0; }
+.phase .n { font: 18pt/1 var(--f-display); color: var(--gold); }
+.phase h3 { font-size: 10pt; margin: 1mm 0; }
+.phase p { font-size: 9pt; line-height: 1.32; }
+
+/* ---------- Boxes ---------- */
+.box { border: 1px solid var(--line); padding: 2.6mm 3.2mm; }
+.box.gold { border: 1.5px solid var(--gold); background: color-mix(in srgb, var(--gold-soft) 45%, var(--paper)); }
+.box.teal { background: var(--teal); color: var(--paper); border: 0; }
+.box.teal b, .box.teal h3 { color: var(--gold-soft); }
+.box.warn { border-left: 3px solid var(--bad); }
+
+ul.tight { margin: 0; padding-left: 4.5mm; }
+ul.tight li + li { margin-top: .7mm; }
+ul.tight li::marker { color: var(--gold); }
+
+.seq { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6mm; counter-reset: q; }
+.seq li { counter-increment: q; display: grid; grid-template-columns: 5mm 1fr; gap: 1.5mm; }
+.seq li::before {
+  content: counter(q);
+  width: 4.6mm; height: 4.6mm; border-radius: 50%;
+  background: var(--teal); color: var(--paper);
+  font: 700 8pt/4.6mm var(--f-body); text-align: center; margin-top: .3mm;
+}
+
+/* ---------- Painting types ---------- */
+.types { display: flex; flex-wrap: wrap; gap: 1.5mm 4mm; margin-top: 1.4mm; }
+.type { display: inline-flex; align-items: center; gap: 1.3mm; font-weight: 700; white-space: nowrap; }
+.type i { width: 3.2mm; height: 3.2mm; display: inline-block; border: 1px solid rgba(0,0,0,.35); }
+.t-city i { background: var(--t-city); }
+.t-portrait i { background: var(--t-portrait); }
+.t-still i { background: var(--t-still); }
+.t-land i { background: var(--t-land); }
+
+/* ---------- Scoring table ---------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 1.5mm 2mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 700 8.5pt var(--f-narrow); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--teal); }
+td.pts { font: 700 11pt var(--f-narrow); white-space: nowrap; width: 1%; }
+td.pts.plus { color: var(--good); }
+td.pts.minus { color: var(--bad); }
+td .num { font: 13pt/1 var(--f-display); color: var(--gold); }
+
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; text-align: center; }
+.ladder div { border: 1px solid var(--gold); padding: 1.6mm 1mm; }
+.ladder .x { font: 16pt/1 var(--f-display); color: var(--teal); display: block; }
+.ladder .lbl { font: 8.5pt/1.2 var(--f-narrow); color: var(--muted); }
+
+.example td { padding: .9mm 2mm; font-size: 9pt; }
+.example tr.total td { border-top: 1.5px solid var(--teal); border-bottom: 0; font-weight: 700; }
+
+.faq dt { font-weight: 700; color: var(--teal-deep); }
+.faq dd { margin: 0 0 1.5mm; }
+.faq { margin: 0; }
+
+.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.2mm; }
+.check li { display: grid; grid-template-columns: 4mm 1fr; gap: 1.2mm; }
+.check li::before { content: ""; width: 3mm; height: 3mm; border: 1.2px solid var(--teal); margin-top: .9mm; }
+
+@media (max-width: 720px) {
+  body { font-size: 15px; }
+  .sheet { min-height: 0; padding: 18px 16px; }
+  .cols, ol.steps { grid-template-columns: 1fr; }
+  .round { grid-template-columns: 1fr; }
+  .phase { border-left: 0; border-top: 1px solid var(--line); }
+  .phase:first-child { border-top: 0; }
+  .masthead { grid-template-columns: 1fr; }
+  .facts { justify-content: flex-start; }
+  .ladder { grid-template-columns: repeat(2, 1fr); }
+}
+
+@page { size: A4; margin: 0; }
+@media print {
+  html, body { background: var(--paper); }
+  body { padding: 0; font-size: 9.7pt; }
+  .sheet { gap: 3.4mm; }
+  .sheet { box-shadow: none; margin: 0; width: 210mm; height: 297mm; min-height: 0; overflow: hidden; break-after: page; }
+  .sheet:last-child { break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= ЛИСТ 1 ======================= -->
+<section class="sheet" id="setup">
+  <header class="masthead">
+    <div>
+      <h1>Моя галерея</h1>
+      <div class="orig">Art Society · Митч Уоллас · быстрая памятка</div>
+    </div>
+    <div class="facts"><span>2–4 игрока</span><span>30–60 мин</span><span>10+</span></div>
+  </header>
+
+  <p class="goal">Вы коллекционер. Каждый раунд торгуетесь картами ставок за картины и вешаете их на стену своей гостиной. Картину, которую никто не купил, забирает музей, и её тип становится моднее. <b>Побеждает тот, у кого больше всего очков</b>: за модные типы картин, украшения, картины на уровне глаз и плотно увешанную стену.</p>
+
+  <h2>Подготовка</h2>
+  <ol class="steps">
+    <li><div><b>Музей.</b> Планшет музея в центр, слева и справа оставьте место под непроданные картины. 4 маркера престижа положите <b>рядом</b> с планшетом, не на шкалу.</div></li>
+    <li><div><b>Картины.</b> Рассортируйте по номеру на обороте (3–9) и разложите так, чтобы аукционисту было удобно выбирать.</div></li>
+    <li><div><b>Украшения.</b> Стопками по размеру, в зоне досягаемости всех.</div></li>
+    <li><div><b>Игроку:</b> планшет, 2 маркера очков своего цвета (кладутся у музея, нужны в конце), жетон «+5» своего цвета и <b>все 20 карт ставок</b> на руку.</div></li>
+    <li><div><b>Аукцион.</b> 7 жетонов ценности (3–9) стопкой рядом с музеем: это зона аукциона.</div></li>
+    <li><div><b>Стартовая картина.</b> Каждому по одной картине 2×3 с золотой рубашкой и ★. Повесьте её лицом вверх так, чтобы она закрывала одну или обе клетки ★ в центре стены. Остальные стартовые убрать в коробку.</div></li>
+    <li><div><b>Стартовая ставка.</b> Перемешайте 4 белые карты ставок с ★, раздайте по одной лицом вверх. У кого <b>меньшее</b> значение, тот берёт молоточек и первым становится аукционистом. Белая карта лежит перед игроком до конца игры: это дно его стопки ставок.</div></li>
+    <li><div class="small">Для двух игроков отдельных правил нет: на аукционе 3 картины (игроки + 1).</div></li>
+  </ol>
+
+  <h2>Раунд из пяти шагов</h2>
+  <div class="round">
+    <div class="phase"><div class="n">1</div><h3>Аукцион</h3><p>Аукционист выбирает по номерам на обороте <b>игроки + 1</b> картин, кладёт под их жетоны ценности и открывает.</p></div>
+    <div class="phase"><div class="n">2</div><h3>Ставки</h3><p>Все одновременно кладут 1 карту из руки рубашкой вверх на свою стопку, затем вскрывают.</p></div>
+    <div class="phase"><div class="n">3</div><h3>Покупка</h3><p>От большей ставки к меньшей каждый берёт 1 картину и сразу вешает на стену или отдаёт помощнику.</p></div>
+    <div class="phase"><div class="n">4</div><h3>Престиж</h3><p>Последняя картина уходит в музей, маркер её типа идёт вперёд на её ценность.</p></div>
+    <div class="phase"><div class="n">5</div><h3>Молоточек</h3><p>Передаётся игроку слева. Новый аукционист начинает следующий раунд.</p></div>
+  </div>
+
+  <div class="cols">
+    <div class="box">
+      <h3>Четыре типа картин</h3>
+      <p>Тип показан табличкой внизу рамы. Цвет таблички совпадает с цветом маркера престижа.</p>
+      <div class="types">
+        <span class="type t-city"><i></i>Городской пейзаж</span>
+        <span class="type t-portrait"><i></i>Портрет</span>
+        <span class="type t-still"><i></i>Натюрморт</span>
+        <span class="type t-land"><i></i>Пейзаж</span>
+      </div>
+      <p class="small" style="margin-top:1.5mm">Размер картины на очки не влияет: маленький портрет стоит столько же, сколько большой.</p>
+    </div>
+    <div class="box teal">
+      <h3>Конец игры</h3>
+      <p>Срабатывает, если:</p>
+      <ul class="tight">
+        <li>у кого-то не осталось свободных клеток на стене;</li>
+        <li>кто-то отложил <b>вторую</b> лишнюю картину;</li>
+        <li>у игроков закончились карты ставок.</li>
+      </ul>
+      <p style="margin-top:1.2mm">Текущий раунд доигрывается до конца, затем подсчёт.</p>
+    </div>
+  </div>
+
+  <footer class="sheet-foot"><span>Моя галерея · памятка</span><span>1 / 3 · подготовка и раунд</span></footer>
+</section>
+
+<!-- ======================= ЛИСТ 2 ======================= -->
+<section class="sheet" id="rules">
+  <h2>Аукцион и ставки</h2>
+  <div class="cols">
+    <div class="stack">
+      <p><b>Выбор лотов.</b> Аукционист смотрит только на номера на <b>обороте</b> картин и берёт их числом игроки + 1. Номера могут повторяться. Он берёт жетоны ценности с этими номерами, кладёт картины под них и переворачивает лицом вверх.</p>
+      <p><b>Ставка.</b> Все, включая аукциониста, одновременно кладут карту из руки рубашкой вверх поверх своей предыдущей ставки.</p>
+    </div>
+    <div class="stack">
+      <p><b>Выбор.</b> Самая высокая ставка выбирает первой, дальше по убыванию. Можно думать сколько угодно и «примерять» картины на стену. Следующий берёт, только когда предыдущий окончательно решил.</p>
+      <div class="box gold"><b>Ничья по ставкам.</b> Каждый из спорящих открывает карту под только что сыгранной. Снова ничья: смотрят ещё глубже. Последний арбитр — белая стартовая карта. Заглядывать в чужие стопки иначе нельзя.</div>
+    </div>
+  </div>
+
+  <h2>Как вешать картины</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box">
+        <h3>Три правила размещения</h3>
+        <ul class="tight">
+          <li>целиком внутри сетки своей стены;</li>
+          <li>касается хотя бы одной картины или украшения <b>стороной</b> (углы не считаются);</li>
+          <li>табличка внизу: картины и украшения не поворачивают.</li>
+        </ul>
+      </div>
+      <p>Новые картины этого раунда можно свободно двигать по стене до его конца. Аукционист не открывает следующие лоты, пока все не повесили свои.</p>
+      <p><b>Уровень глаз</b> — светлая полоса между значками глаз на стене. Картины самого модного типа в ней дают бонус в конце.</p>
+      <div class="box warn">
+        <h3>Нарушение композиции</h3>
+        <p>Если картина касается стороной картины <b>того же типа</b>, все соприкасающиеся картины этого типа <b>не дают очков престижа</b>. На бонус за уровень глаз это не влияет: там они считаются.</p>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="box gold">
+        <h3>Одинаковые рамы → украшение</h3>
+        <p>Новая картина касается картин с <b>тем же стилем рамы</b>? Возьмите украшения, у которых <b>щитов в сумме не больше</b>, чем таких соседних картин (саму новую не считайте). Пример: касается двух — берёте украшение на 2 щита или меньше. При 4+ соседях — любая комбинация на эту сумму.</p>
+        <p>Украшение сразу вешают по тем же правилам или отдают помощнику. Щит = 1 очко в конце. Если стена уже заполнена, украшение не берут, и лишним оно не считается.</p>
+      </div>
+      <p>Украшения закрывают дыры 1×1, 2×1 и 3×1: картин таких размеров в игре нет.</p>
+      <p class="small">Кончились украшения нужного размера: обменяйте соседние украшения со стены на одно другого размера (три 1×1 на одно 3×1). Совпали и рама, и тип — получаете и украшение, и нарушение.</p>
+    </div>
+  </div>
+
+  <h2>Помощник и нехватка места</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>Помощник</h3>
+      <ul class="tight">
+        <li>Держит <b>один</b> предмет: картину или украшение.</li>
+        <li>Когда вешаете новое, можно повесить и предмет помощника, до или после нового.</li>
+        <li>В конце игры предмет у помощника даёт 0 очков, но лишним не считается.</li>
+        <li>Предмет помощника нельзя обменять в музее, а лишнюю картину нельзя отдать помощнику.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Картина не влезает: строго по порядку</h3>
+      <ol class="seq">
+        <li><div>Отдайте её помощнику, если он свободен.</div></li>
+        <li><div>Или обменяйте на картину <b>того же типа</b> из музея, любого размера. Престиж от обмена не меняется.</div></li>
+        <li><div>Иначе положите её рядом с планшетом как <b>лишнюю</b> (−2 в конце), возьмите украшение на 1 щит и повесьте его. <b>Вторая лишняя запускает конец игры.</b></div></li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>Престиж</h2>
+  <div class="cols">
+    <p>Непроданная картина уходит в музей, в область своего типа. Маркер престижа этого типа идёт вперёд на <b>ценность картины</b> (номер на обороте и на жетоне). Пример: остался портрет ценностью 4 — маркер портретов +4 деления.</p>
+    <ul class="tight">
+      <li>Два маркера не стоят на одной клетке: <b>двигавшийся</b> отступает назад до первой свободной.</li>
+      <li>Прошёл 50: переверните маркер на чёрную сторону (+50) и ведите дальше с 1.</li>
+      <li>Обмены из музея престиж не двигают.</li>
+    </ul>
+  </div>
+
+  <footer class="sheet-foot"><span>Моя галерея · памятка</span><span>2 / 3 · правила подробно</span></footer>
+</section>
+
+<!-- ======================= ЛИСТ 3 ======================= -->
+<section class="sheet" id="scoring">
+  <h2>Финальный подсчёт</h2>
+  <div class="cols">
+    <div class="stack">
+      <p><b>Сначала уровни престижа.</b> Переставьте маркеры престижа наверх планшета музея по их порядку на шкале. Тип, ушедший дальше всех, получает ×5, следующий ×4 и так далее.</p>
+      <div class="ladder">
+        <div><span class="x">×5</span><span class="lbl">Трендовый шедевр</span></div>
+        <div><span class="x">×4</span><span class="lbl">Популярное полотно</span></div>
+        <div><span class="x">×3</span><span class="lbl">Любимая картина</span></div>
+        <div><span class="x">×2</span><span class="lbl">Узнаваемое</span></div>
+      </div>
+      <p class="small">Тип, ни разу не попавший в музей, получает ×2. Перед подсчётом каждый проверяет нарушения композиции у соседа слева.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>За что</th><th>Очки</th></tr></thead>
+        <tbody>
+          <tr><td><span class="num">1</span></td><td><b>Престиж.</b> Картины каждого типа × множитель типа. Картины с нарушением композиции не считаются.</td><td class="pts plus">×2…×5</td></tr>
+          <tr><td><span class="num">2</span></td><td><b>Украшения.</b> Каждый щит на стене.</td><td class="pts plus">+1</td></tr>
+          <tr><td><span class="num">3</span></td><td><b>Уровень глаз.</b> Каждая картина типа ×5, хотя бы частично в светлой полосе. Нарушения здесь считаются.</td><td class="pts plus">+3</td></tr>
+          <tr><td><span class="num">4</span></td><td><b>Заполненная стена</b> без пустых клеток (жетон «+5»).</td><td class="pts plus">+5</td></tr>
+          <tr><td><span class="num">5</span></td><td><b>Пустой угол</b> стены, за каждый.</td><td class="pts minus">−2</td></tr>
+          <tr><td><span class="num">6</span></td><td><b>Лишняя картина</b>, за каждую (у помощника не считается).</td><td class="pts minus">−2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="box">
+      <h3>Пример из правил: 64 очка</h3>
+      <table class="example">
+        <tbody>
+          <tr><td>Натюрморты: 4 × 2</td><td class="pts">8</td></tr>
+          <tr><td>Портреты: 3 × 3</td><td class="pts">9</td></tr>
+          <tr><td>Городские пейзажи: 4 × 4</td><td class="pts">16</td></tr>
+          <tr><td>Пейзажи: 5 картин, 2 с нарушением → 3 × 5</td><td class="pts">15</td></tr>
+          <tr><td>Украшения: 11 щитов</td><td class="pts">11</td></tr>
+          <tr><td>Уровень глаз: 3 пейзажа × 3 (включая нарушивший)</td><td class="pts">9</td></tr>
+          <tr><td>Пустой угол: 1 × −2</td><td class="pts">−2</td></tr>
+          <tr><td>Лишняя картина: 1 × −2</td><td class="pts">−2</td></tr>
+          <tr class="total"><td>Итого</td><td class="pts">64</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="box gold">
+        <h3>Ничья по очкам</h3>
+        <p>Побеждает тот, у кого на руке осталась самая старшая карта ставки. Если и она равна, победу делят.</p>
+        <p class="small">Так в русских правилах. В онлайн-FAQ на Dized сравнивают сумму оставшихся карт. Договоритесь до начала партии.</p>
+      </div>
+      <div class="box">
+        <h3>Советы новичкам</h3>
+        <ul class="tight">
+          <li>Карты ставок — ваш таймер и бюджет: высокая ставка сейчас значит слабую руку потом.</li>
+          <li>Следите за тем, что уйдёт в музей: дешёвая картина, которую никто не взял, двигает престиж слабо, дорогая — сильно.</li>
+          <li>Закрывайте углы стены заранее: дыры в углах легко забыть, а это −2 за каждый.</li>
+          <li>Держите в голове, какой тип лидирует: только он даёт +3 за уровень глаз.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Частые вопросы</h2>
+  <div class="cols">
+    <dl class="faq">
+      <dt>Планшеты игроков разные?</dt><dd>Нет, свойства у всех одинаковые.</dd>
+      <dt>Вынужден взять картину, которая нарушит композицию. Можно повесить её отдельно, ни к чему не прикладывая?</dt><dd>Нет, касание обязательно. Отдайте её помощнику.</dd>
+      <dt>Отложил лишнюю картину. Могу повесить новую вместо неё?</dt><dd>Нет, вешается только украшение на 1 щит.</dd>
+    </dl>
+    <dl class="faq">
+      <dt>Почему мне может достаться картина, которая не влезает?</dt><dd>Если вы выбираете последним, остаются только крупные лоты.</dd>
+      <dt>Кончились украшения на 1 щит, а положено два по одному?</dt><dd>Обменяйте украшение на 2 щита со стены на два по 1 из запаса, или соседние на другой размер.</dd>
+      <dt>Как вести счёт?</dt><dd>Маркерами очков на шкале музея (их два у каждого).</dd>
+    </dl>
+  </div>
+
+  <footer class="sheet-foot"><span>Источники: правила «Моя галерея» v1.1 (Mighty Boards / Фабрика Игр), памятка christianlafferla, FAQ на rules.dized.com</span><span>3 / 3</span></footer>
+</section>
+
+</body>
+</html>
