@@ -1,0 +1,108 @@
+<GuiXml>
+	<Controls>
+		<Label name="AddonLoadProfilerNumber" virtual="true" font="ZoFontGame" color="FFFFFF" horizontalAlignment="RIGHT" verticalAlignment="CENTER">
+			<Dimensions x="100" y="24" />
+		</Label>
+
+		<Label name="AddonLoadProfilerHeaderLabel" virtual="true" font="ZoFontGameBold" color="C5C29E" horizontalAlignment="RIGHT" verticalAlignment="CENTER" mouseEnabled="true">
+			<Dimensions x="100" y="26" />
+			<OnMouseUp>
+				if upInside then ADDON_LOAD_PROFILER.SortBy(self.sortKey) end
+			</OnMouseUp>
+		</Label>
+
+		<Control name="AddonLoadProfilerRow" virtual="true" mouseEnabled="true">
+			<Dimensions x="840" y="24" />
+			<OnMouseEnter>ADDON_LOAD_PROFILER.OnRowMouseEnter(self)</OnMouseEnter>
+			<OnMouseExit>ADDON_LOAD_PROFILER.OnRowMouseExit(self)</OnMouseExit>
+			<Controls>
+				<Label name="$(parent)Rank" font="ZoFontGameSmall" color="8F8F8F" horizontalAlignment="RIGHT" verticalAlignment="CENTER">
+					<Dimensions x="30" y="24" />
+					<Anchor point="LEFT" />
+				</Label>
+				<Label name="$(parent)Name" font="ZoFontGame" color="C5C29E" wrapMode="ELLIPSIS" verticalAlignment="CENTER">
+					<Dimensions x="290" y="24" />
+					<Anchor point="LEFT" relativeTo="$(parent)Rank" relativePoint="RIGHT" offsetX="10" />
+				</Label>
+				<Label name="$(parent)Pre" inherits="AddonLoadProfilerNumber">
+					<Anchor point="LEFT" relativeTo="$(parent)Name" relativePoint="RIGHT" />
+				</Label>
+				<Label name="$(parent)Init" inherits="AddonLoadProfilerNumber">
+					<Anchor point="LEFT" relativeTo="$(parent)Pre" relativePoint="RIGHT" />
+				</Label>
+				<Label name="$(parent)After" inherits="AddonLoadProfilerNumber">
+					<Anchor point="LEFT" relativeTo="$(parent)Init" relativePoint="RIGHT" />
+				</Label>
+				<Label name="$(parent)Total" inherits="AddonLoadProfilerNumber" font="ZoFontGameBold">
+					<Anchor point="LEFT" relativeTo="$(parent)After" relativePoint="RIGHT" />
+				</Label>
+				<Label name="$(parent)Share" inherits="AddonLoadProfilerNumber">
+					<Dimensions x="70" y="24" />
+					<Anchor point="LEFT" relativeTo="$(parent)Total" relativePoint="RIGHT" />
+				</Label>
+			</Controls>
+		</Control>
+
+		<TopLevelControl name="AddonLoadProfilerWindow" hidden="true" mouseEnabled="true" movable="true" clampedToScreen="true">
+			<Dimensions x="880" y="640" />
+			<Anchor point="CENTER" />
+			<Controls>
+				<Backdrop name="$(parent)Bg" inherits="ZO_DefaultBackdrop">
+					<AnchorFill />
+				</Backdrop>
+
+				<Label name="$(parent)Title" font="ZoFontWinH3" color="FFFFFF" text="Addon Load Profiler">
+					<Anchor point="TOPLEFT" offsetX="18" offsetY="14" />
+				</Label>
+
+				<Button name="$(parent)Close" inherits="ZO_CloseButton">
+					<Anchor point="TOPRIGHT" offsetX="-12" offsetY="12" />
+					<OnClicked>ADDON_LOAD_PROFILER.ToggleWindow()</OnClicked>
+				</Button>
+
+				<Button name="$(parent)View" inherits="ZO_DefaultButton">
+					<Dimensions x="200" y="28" />
+					<Anchor point="RIGHT" relativeTo="$(parent)Close" relativePoint="LEFT" offsetX="-16" />
+					<OnClicked>ADDON_LOAD_PROFILER.CycleView()</OnClicked>
+				</Button>
+
+				<Label name="$(parent)Summary" font="ZoFontGameSmall" color="C5C29E">
+					<Dimensions x="840" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Title" relativePoint="BOTTOMLEFT" offsetY="8" />
+				</Label>
+
+				<Control name="$(parent)Header">
+					<Dimensions x="840" y="26" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Summary" relativePoint="BOTTOMLEFT" offsetY="10" />
+					<Controls>
+						<Label name="$(parent)Name" inherits="AddonLoadProfilerHeaderLabel" horizontalAlignment="LEFT">
+							<Dimensions x="290" y="26" />
+							<Anchor point="LEFT" offsetX="40" />
+						</Label>
+						<Label name="$(parent)Pre" inherits="AddonLoadProfilerHeaderLabel">
+							<Anchor point="LEFT" relativeTo="$(parent)Name" relativePoint="RIGHT" />
+						</Label>
+						<Label name="$(parent)Init" inherits="AddonLoadProfilerHeaderLabel">
+							<Anchor point="LEFT" relativeTo="$(parent)Pre" relativePoint="RIGHT" />
+						</Label>
+						<Label name="$(parent)After" inherits="AddonLoadProfilerHeaderLabel">
+							<Anchor point="LEFT" relativeTo="$(parent)Init" relativePoint="RIGHT" />
+						</Label>
+						<Label name="$(parent)Total" inherits="AddonLoadProfilerHeaderLabel">
+							<Anchor point="LEFT" relativeTo="$(parent)After" relativePoint="RIGHT" />
+						</Label>
+						<Label name="$(parent)Share" inherits="AddonLoadProfilerHeaderLabel">
+							<Dimensions x="70" y="26" />
+							<Anchor point="LEFT" relativeTo="$(parent)Total" relativePoint="RIGHT" />
+						</Label>
+					</Controls>
+				</Control>
+
+				<Control name="$(parent)List" inherits="ZO_ScrollList">
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Header" relativePoint="BOTTOMLEFT" offsetY="4" />
+					<Anchor point="BOTTOMRIGHT" offsetX="-14" offsetY="-16" />
+				</Control>
+			</Controls>
+		</TopLevelControl>
+	</Controls>
+</GuiXml>

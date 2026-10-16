@@ -1,0 +1,11 @@
+## Title: Addon Load Profiler
+## Description: Measures how much time every enabled addon costs while the character loads (event handler timing, no profiler). /alp
+## Author: yelowhut
+## Version: 2.0.1
+## AddOnVersion: 201
+## APIVersion: 101050 101051
+## SavedVariables: AddonLoadProfiler_SV
+
+AddonLoadProfiler.lua
+UI.xml
+UI.lua
