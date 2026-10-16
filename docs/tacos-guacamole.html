@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гуакамоле</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm 12mm 12mm; }
+  :root{
+    --ink:#1b1b1b; --muted:#5d5d5d; --line:#d8d3c9; --paper:#fff;
+    --accent:#9a3412; --accent-soft:#fdf3ec; --green:#3f6212; --green-soft:#f3f7e8;
+    --blue-soft:#eef4f8; --blue-line:#b9cdda;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    font-family:"Georgia","Times New Roman",serif; color:var(--ink); background:var(--paper);
+    font-size:10.5pt; line-height:1.45; max-width:190mm; margin:0 auto; padding:8mm 4mm 20mm;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  h1,h2,h3,.kicker,th,.heat{ font-family:"Helvetica Neue",Arial,sans-serif; }
+  h1{ font-size:23pt; line-height:1.1; margin:0 0 4px; letter-spacing:-.5px; }
+  .kicker{ font-size:7.5pt; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 2px; }
+  h2{ font-size:13pt; margin:18px 0 6px; text-transform:uppercase; letter-spacing:.8px; color:var(--accent); }
+  .hdr{ border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:6px; }
+  .meta{ font-size:9.5pt; color:var(--muted); margin-top:4px; }
+  .heat{ display:inline-block; font-size:8pt; background:#fff; border:1px solid var(--accent); color:var(--accent);
+    padding:1px 5px; border-radius:8px; font-weight:700; vertical-align:4px; }
+  table{ width:100%; border-collapse:collapse; font-size:10pt; }
+  th{ text-align:left; font-size:7.5pt; text-transform:uppercase; letter-spacing:1px;
+    border-bottom:1.5px solid var(--ink); padding:4px 6px; color:var(--muted); }
+  th.g, td.g{ text-align:right; }
+  td{ border-bottom:1px solid var(--line); padding:4px 6px; vertical-align:top; }
+  tr{ page-break-inside:avoid; }
+  td.g{ font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; white-space:nowrap; width:16%; }
+  td.h{ font-family:"Helvetica Neue",Arial,sans-serif; font-size:9pt; color:var(--muted); white-space:nowrap; width:20%; }
+  td.n{ color:var(--muted); font-size:9pt; }
+  tr.cat td{ background:#efece6; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; font-size:8pt;
+    text-transform:uppercase; letter-spacing:1.2px; padding:5px 6px; border-bottom:1px solid #c9c3b8; }
+  tr.opt td{ color:var(--muted); }
+  tr.tot td{ border-top:1.5px solid var(--ink); border-bottom:0; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; }
+  .steps{ counter-reset:s; list-style:none; padding:0; margin:0; }
+  .steps li{ counter-increment:s; position:relative; padding-left:24px; margin-bottom:8px; }
+  .steps li::before{ content:counter(s); position:absolute; left:0; top:1px;
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:8pt; font-weight:700;
+    width:16px; height:16px; line-height:16px; text-align:center; background:var(--ink); color:#fff; border-radius:50%; }
+  .box{ border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--accent-soft);
+    padding:9px 11px; margin:12px 0; page-break-inside:avoid; font-size:9.5pt; }
+  .box.green{ border-left-color:var(--green); background:var(--green-soft); }
+  .box.plain{ border-left-color:var(--blue-line); background:var(--blue-soft); }
+  .box p{ margin:0 0 5px; } .box p:last-child{ margin-bottom:0; }
+  .box b.t{ display:block; font-family:"Helvetica Neue",Arial,sans-serif; font-size:9pt; text-transform:uppercase; letter-spacing:.9px; margin-bottom:4px; }
+  .foot{ margin-top:14px; padding-top:6px; border-top:1px solid var(--line); font-size:8.5pt; color:var(--muted); }
+  @media (max-width:600px){ td.h{ white-space:normal; } body{ padding:16px; } }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <p class="kicker">Тако-выходные · отдельный рецепт · 4 порции</p>
+  <h1>Гуакамоле <span class="heat">острота 0/10</span></h1>
+  <div class="meta">Густое, с комочками: к тотопос и к кесадилье. Выход ~600 г, работы 15 минут. Делать <b>не раньше чем за 20–30 мин до подачи</b>.</div>
+</header>
+
+<h2>Граммовки</h2>
+<table>
+  <thead><tr><th>Ингредиент</th><th class="g">Вес</th><th>В ложках / штуках</th><th>Заметка</th></tr></thead>
+  <tbody>
+    <tr><td>Авокадо Hass спелое — мякоть</td><td class="g">420 г</td><td class="h">3 шт (~600 г целиком)</td><td class="n">Кожура и косточка — ~30% веса</td></tr>
+    <tr><td>Лук красный, мелкий кубик</td><td class="g">60 г</td><td class="h">½ луковицы</td><td class="n"></td></tr>
+    <tr><td>Помидор без семян, кубик</td><td class="g">90 г</td><td class="h">1 шт (~120 г целым)</td><td class="n">Семена и сок убрать, иначе будет водянисто</td></tr>
+    <tr><td>Кинза рубленая</td><td class="g">15 г</td><td class="h">½ пучка</td><td class="n">Листья и тонкие стебли</td></tr>
+    <tr><td>Сок лайма</td><td class="g">45–60 мл</td><td class="h">1,5–2 лайма</td><td class="n">Лимоном не заменять</td></tr>
+    <tr><td>Соль</td><td class="g">3 г</td><td class="h">½ ч.л.</td><td class="n">+ по вкусу в конце</td></tr>
+    <tr><td>Масло оливковое</td><td class="g">13 г</td><td class="h">1 ст.л.</td><td class="n"></td></tr>
+    <tr class="opt"><td>Халапеньо</td><td class="g">—</td><td class="h">убран</td><td class="n">Остроту каждый добавит себе сам хлопьями чили со стола</td></tr>
+    <tr class="tot"><td>Выход</td><td class="g">~600 г</td><td colspan="2" class="n">~150 г на человека</td></tr>
+  </tbody>
+</table>
+
+<h2>Рецепт</h2>
+<ol class="steps">
+  <li><b>Основа.</b> Лук, помидор и кинзу мелко порубить и <b>сразу смешать с соком лайма и солью</b>. Оставить на 5 минут, чтобы лук потерял резкость.</li>
+  <li><b>Авокадо.</b> Разрезать, вынуть косточку, выбрать мякоть ложкой в миску. Размять вилкой <b>крупно, с комочками</b>. Блендер не берите: получится безвкусное пюре.</li>
+  <li><b>Соединить</b> авокадо с основой, влить масло, перемешать.</li>
+  <li><b>Довести.</b> Попробовать на чипсе. Обычно не хватает соли и кислоты: добавляйте лайм и соль понемногу, пока вкус не станет ярким.</li>
+  <li><b>Хранить до подачи.</b> Разровнять поверхность, прижать плёнку вплотную к гуакамоле, чтобы не осталось воздуха, и убрать в холодильник. Так оно держится 4–6 часов.</li>
+</ol>
+
+<div class="box green">
+  <b class="t">Как выбрать авокадо</b>
+  <p>Нужен Hass с тёмной пупырчатой кожурой, который при нажатии пальцем <b>слегка поддаётся</b>, но не проминается. Под хвостиком мякоть зелёная или жёлто-зелёная, не коричневая. Твёрдые доспеют за 1–2 дня в бумажном пакете с бананом.</p>
+</div>
+<div class="box plain">
+  <b class="t">Тотопос из обрезков</b>
+  <p>Обрезки тортилий нарезать треугольниками, обжарить в масле по 2–3 мин до хруста и сразу посолить. Лучшая пара к гуакамоле.</p>
+</div>
+
+<div class="foot">К этому рецепту: <a href="tacos-quesadilla-chicken.html">кесадилья с курицей</a> · <a href="tacos-green-sauce.html">зелёный соус</a> · <a href="tacos-pepper-sauce.html">перечный соус</a> · полное меню — <a href="tacos-weekend.html">tacos-weekend.html</a></div>
+</body>
+</html>
